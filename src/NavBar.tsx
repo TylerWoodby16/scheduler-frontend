@@ -11,7 +11,7 @@ function NavBar() {
     <>
     <Navbar bg="light" expand="lg">
     <Container>
-      <Navbar.Brand as={Link} to="/signup">React-Bootstrap</Navbar.Brand>
+      <Navbar.Brand as={Link} to="/signup">Sign Up</Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="me-auto">
