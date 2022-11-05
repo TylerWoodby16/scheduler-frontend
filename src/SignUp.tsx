@@ -14,9 +14,8 @@ interface Values {
   firstName: string;
   lastName: string;
   email: string;
+  password: string;
 }
-
-
 
 const SignupForm: React.FC<any> = () => {
   const SignupSchema = Yup.object().shape({
@@ -39,7 +38,7 @@ const SignupForm: React.FC<any> = () => {
           firstName: "",
           lastName: "",
           email: "",
-          // password: "",
+          password: "",
           // confirmPassword: "",
         }}
         validationSchema={SignupSchema}
@@ -130,6 +129,24 @@ const SignupForm: React.FC<any> = () => {
                     {errors.email && touched.email ? (
                       <div className="text-danger">
                         <small>{errors.email}</small>
+                      </div>
+                    ) : null}
+                  </Form.Group>
+                </Row>
+                <Row className="mb-1">
+                  <Form.Group className="mb-3" controlId="formBasicEmail">
+                    <Form.Label>Password</Form.Label>
+                    <Form.Control
+                      name="password"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values["password"]}
+                      type="password"
+                      placeholder="Enter your password"
+                    />
+                    {errors.email && touched.password ? (
+                      <div className="text-danger">
+                        <small>{errors.password}</small>
                       </div>
                     ) : null}
                   </Form.Group>

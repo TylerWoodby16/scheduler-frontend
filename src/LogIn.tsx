@@ -8,6 +8,7 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Nav from "react-bootstrap/Nav";
 import { Link } from "react-router-dom";
+import axios from "axios";
 import { Formik, Field, Form as FormikForm, FormikHelpers } from "formik";
 
 interface Values {
@@ -28,10 +29,18 @@ const Login = () => {
           values: Values,
           { setSubmitting }: FormikHelpers<Values>
         ) => {
-          setTimeout(() => {
-            alert(JSON.stringify(values, null, 2));
-            setSubmitting(false);
-          }, 500);
+          axios
+            .post("http://localhost:5000/login", values) // no try/catch here
+            .then((response) => {
+              console.log(response);
+              // setUserLoggedIn(values.lastName);
+            })
+            .catch((error) => {
+              console.log(error.response);
+            });
+          console.log({ values });
+          alert(JSON.stringify(values, null, 2));
+          setSubmitting(false);
         }}
       >
         {({
