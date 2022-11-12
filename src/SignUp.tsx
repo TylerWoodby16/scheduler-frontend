@@ -49,7 +49,7 @@ const SignupForm: React.FC<any> = () => {
           axios
             .post("http://localhost:5000/users", values) // no try/catch here
             .then((response) => {
-              console.log(response);
+             
               // setUserLoggedIn(values.lastName);
             })
             .catch((error) => {

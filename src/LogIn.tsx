@@ -7,7 +7,7 @@ import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Nav from "react-bootstrap/Nav";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Formik, Field, Form as FormikForm, FormikHelpers } from "formik";
 
@@ -17,29 +17,32 @@ interface Values {
 }
 
 const Login = () => {
+  const navigate = useNavigate();
+  // const showError = useState<string>();
+
   return (
     <div>
       <h1 style={{ textAlign: "center" }}>Login</h1>
+      {/* {showError ? <Row><Col className="text-center">error</Col></Row> : null} */}
       <Formik
         initialValues={{
           email: "",
           password: "",
         }}
-        onSubmit={(
+        onSubmit={async (
           values: Values,
           { setSubmitting }: FormikHelpers<Values>
         ) => {
           axios
-            .post("http://localhost:5000/login", values) // no try/catch here
+            .post("http://localhost:5000/login", values)
             .then((response) => {
-              console.log(response);
-              // setUserLoggedIn(values.lastName);
+              console.log(response.data);
+              localStorage.setItem("token", response.data.token);
+              navigate("/home");
             })
             .catch((error) => {
-              console.log(error.response);
+              console.log(error.message);
             });
-          console.log({ values });
-          alert(JSON.stringify(values, null, 2));
           setSubmitting(false);
         }}
       >
