@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -15,12 +16,11 @@ interface Values {
 
 const Login = () => {
   const navigate = useNavigate();
-  // const showError = useState<string>();
+  const [responseError, setResponseError] = useState<string>();
 
   return (
     <div>
       <h1 style={{ textAlign: "center" }}>Login</h1>
-      {/* {showError ? <Row><Col className="text-center">error</Col></Row> : null} */}
       <Formik
         initialValues={{
           email: "",
@@ -31,13 +31,18 @@ const Login = () => {
           { setSubmitting }: FormikHelpers<Values>
         ) => {
           axios
-            .post("http://localhost:5000/login", values)
+            .post("http://localhost:5555/login", values)
             .then((response) => {
               localStorage.setItem("token", response.data.token);
               navigate("/home");
             })
             .catch((error) => {
-              console.log(error.message);
+              if(error.response && (error.response.status == 401 || error.response.status == 404)){
+                setResponseError(error.response.data);
+              } else {
+                setResponseError("Error.")
+              }
+
             });
           setSubmitting(false);
         }}
@@ -81,6 +86,14 @@ const Login = () => {
                     />
                   </Form.Group>
                 </Row>
+
+                {responseError ? 
+                  (<Row className="pb-3 text-center text-danger">
+                    <Col>
+                      {responseError}
+                    </Col>
+                  </Row>) : null 
+                }
 
                 <Row>
                   <Button type="submit">Submit</Button>

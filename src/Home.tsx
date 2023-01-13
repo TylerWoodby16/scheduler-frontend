@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-// Home.jsx
+import { authGet } from "./authHelpers";
 
 type Aircraft = {
   name: string;
@@ -15,16 +15,15 @@ type Aircraft = {
 
 const Home: React.FC = () => {
   const [aircrafts, setAircrafts] = useState<Aircraft[]>([]);
-  const getAircrafts = async () => {
-    // We get an object that looks like {data:}
-    const headers = {
-      "x-access-token" : localStorage.getItem("token")
-    };
 
-    const { data } = await axios.get<Aircraft[]>(
-      `http://localhost:5000/aircrafts`, { headers }
-    );
-    setAircrafts(data);
+  const getAircrafts = async () => {
+    try {
+      const data = await authGet<Aircraft[]>('http://localhost:5555/aircrafts');
+      setAircrafts(data);
+    }
+    catch(error: any) {
+      console.log("error: " + error);
+    }
   };
 
   useEffect(() => {
