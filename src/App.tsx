@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import Aircrafts from "./Aircrafts";
 import  Home  from "./Home";
 import Login from "./Login";
 import { RequireAuth } from "./RequireAuth";
@@ -19,6 +20,14 @@ export default function App() {
         element={
           <RequireAuth>
             <Home />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/aircrafts"
+        element={
+          <RequireAuth>
+            <Aircrafts />
           </RequireAuth>
         }
       />

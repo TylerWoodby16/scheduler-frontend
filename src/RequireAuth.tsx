@@ -20,7 +20,7 @@ export const RequireAuth = ({ children }: { children: any }) => {
 
   // Check if token is expired.
   const currentTime = Date.now()/1000
-  if (currentTime > decodedToken.exp){
+  if (currentTime > decodedToken.exp) {
     return <Navigate to="/login" />;
   }
 
