@@ -1,50 +1,52 @@
-import { useState } from "react";
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
-import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
-import Nav from "react-bootstrap/Nav";
-import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
-import { Formik, Field, Form as FormikForm, FormikHelpers } from "formik";
+import { useState } from 'react'
+import Container from 'react-bootstrap/Container'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
+import Button from 'react-bootstrap/Button'
+import Form from 'react-bootstrap/Form'
+import Nav from 'react-bootstrap/Nav'
+import { Link, useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import { Formik, Field, Form as FormikForm, FormikHelpers } from 'formik'
 
 interface Values {
-  email: string;
-  password: string;
+  email: string
+  password: string
 }
 
 const Login = () => {
-  const navigate = useNavigate();
-  const [responseError, setResponseError] = useState<string>();
+  const navigate = useNavigate()
+  const [responseError, setResponseError] = useState<string>()
 
   return (
     <div>
-      <h1 style={{ textAlign: "center" }}>Login</h1>
+      <h1 style={{ textAlign: 'center' }}>Login</h1>
       <Formik
         initialValues={{
-          email: "",
-          password: "",
+          email: '',
+          password: '',
         }}
         onSubmit={async (
           values: Values,
           { setSubmitting }: FormikHelpers<Values>
         ) => {
           axios
-            .post("http://localhost:5555/login", values)
+            .post('http://localhost:5555/login', values)
             .then((response) => {
-              localStorage.setItem("token", response.data.token);
-              navigate("/home");
+              localStorage.setItem('token', response.data.token)
+              navigate('/home')
             })
             .catch((error) => {
-              if(error.response && (error.response.status == 401 || error.response.status == 404)){
-                setResponseError(error.response.data);
+              if (
+                error.response &&
+                (error.response.status == 401 || error.response.status == 404)
+              ) {
+                setResponseError(error.response.data)
               } else {
-                setResponseError("Error.")
+                setResponseError('Error.')
               }
-
-            });
-          setSubmitting(false);
+            })
+          setSubmitting(false)
         }}
       >
         {({
@@ -66,7 +68,7 @@ const Login = () => {
                       name="email"
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      value={values["email"]}
+                      value={values['email']}
                       type="email"
                       placeholder="Enter your email"
                     />
@@ -80,20 +82,18 @@ const Login = () => {
                       name="password"
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      value={values["password"]}
+                      value={values['password']}
                       type="password"
                       placeholder="Enter your password"
                     />
                   </Form.Group>
                 </Row>
 
-                {responseError ? 
-                  (<Row className="pb-3 text-center text-danger">
-                    <Col>
-                      {responseError}
-                    </Col>
-                  </Row>) : null 
-                }
+                {responseError ? (
+                  <Row className="pb-3 text-center text-danger">
+                    <Col>{responseError}</Col>
+                  </Row>
+                ) : null}
 
                 <Row>
                   <Button type="submit">Submit</Button>
@@ -102,7 +102,9 @@ const Login = () => {
 
               <Nav className="justify-content-center" activeKey="/home">
                 <Nav.Item>
-                  <Nav.Link as={Link} to="/forgotpassword">Forgot Password?</Nav.Link>
+                  <Nav.Link as={Link} to="/forgotpassword">
+                    Forgot Password?
+                  </Nav.Link>
                 </Nav.Item>
               </Nav>
             </Container>
@@ -110,7 +112,7 @@ const Login = () => {
         )}
       </Formik>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login
