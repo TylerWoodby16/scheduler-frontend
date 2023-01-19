@@ -5,26 +5,20 @@ import { useState, useEffect } from 'react'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-import { authGet, authPost } from './authHelpers'
+import { authGet, authPost, authUpdate } from './authHelpers'
 import { Formik, Field, Form as FormikForm, FormikHelpers } from 'formik'
 import { Link, useNavigate } from 'react-router-dom'
 import Button from 'react-bootstrap/Button'
 import Nav from 'react-bootstrap/Nav'
 import Form from 'react-bootstrap/Form'
 
-// TODO: ONLY DEFINE THIS ONCE AND EXPORT TO OTHER COMPONENTS.
-type Aircraft = {
-  // _id: string
+export type Aircraft = {
+  _id: string
   name: string
   year: number
 }
 
-// interface Values {
-//   name: string;
-//   year: string;
-// }
-
-const Aircrafts: React.FC = () => {
+const AircraftsUpdate: React.FC = () => {
   const navigate = useNavigate()
   const [responseError, setResponseError] = useState<string>()
   const [aircrafts, setAircrafts] = useState<Aircraft[]>([])
@@ -32,6 +26,13 @@ const Aircrafts: React.FC = () => {
   const postAircraft = async (aircraftObject: Aircraft) => {
     const statusCode = await authPost(
       'http://localhost:5555/aircrafts',
+      aircraftObject
+    )
+  }
+  
+  const updateAircraft = async (aircraftObject: Aircraft) => {
+    const statusCode = await authUpdate(
+      'http://localhost:5555/aircrafts/bruteUpsert',
       aircraftObject
     )
   }
@@ -44,6 +45,7 @@ const Aircrafts: React.FC = () => {
             <h1 style={{ textAlign: 'center' }}>Aircrafts</h1>
             <Formik
               initialValues={{
+                _id: '',
                 name: '',
                 year: -1,
               }}
@@ -53,21 +55,8 @@ const Aircrafts: React.FC = () => {
               ) => {
                 // WE DO NOT HANDLE ERRORS.
                 // TODO: HANDLE ERRORS.
-                await postAircraft(values)
+                await updateAircraft(values)
 
-                // .post("http://localhost:5555/aircrafts", values) //want to use postAircrafts
-                // .then((response) => {
-                //   localStorage.setItem("token", response.data.token);
-                //   navigate("/home");
-                // })
-                // .catch((error) => {
-                //   if(error.response && (error.response.status == 401 || error.response.status == 404)){
-                //     setResponseError(error.response.data);
-                //   } else {
-                //     setResponseError("Error.")
-                //   }
-
-                // });
                 setSubmitting(false)
               }}
             >
@@ -132,4 +121,4 @@ const Aircrafts: React.FC = () => {
   )
 }
 
-export default Aircrafts
+export default AircraftsUpdate

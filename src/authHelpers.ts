@@ -21,3 +21,14 @@ export const authPost = async (url: string, data: any) => {
 
   return response.status
 }
+
+export const authUpdate = async (url: string, data: any) => {
+  // We will augment the request with our token in the header.
+  const headers = {
+    'x-access-token': localStorage.getItem('token'),
+  }
+
+  const response = await axios.put(url, data, { headers })
+
+  return response.status
+}
