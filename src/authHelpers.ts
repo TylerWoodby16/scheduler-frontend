@@ -32,3 +32,14 @@ export const authUpdate = async (url: string, data: any) => {
 
   return response.status
 }
+
+export const authDelete = async (url: string) => {
+  // We will augment the request with our token in the header.
+  const headers = {
+    'x-access-token': localStorage.getItem('token'),
+  }
+
+  const response = await axios.delete(url, { headers })
+
+  return response.status
+}

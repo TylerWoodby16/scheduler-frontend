@@ -15,6 +15,7 @@ interface Values {
   lastName: string
   email: string
   password: string
+  role: string
 }
 
 const SignupForm: React.FC<any> = () => {
@@ -39,6 +40,7 @@ const SignupForm: React.FC<any> = () => {
           lastName: '',
           email: '',
           password: '',
+          role: '',
           // confirmPassword: "",
         }}
         validationSchema={SignupSchema}
@@ -133,7 +135,7 @@ const SignupForm: React.FC<any> = () => {
                   </Form.Group>
                 </Row>
                 <Row className="mb-1">
-                  <Form.Group className="mb-3" controlId="formBasicEmail">
+                  <Form.Group className="mb-3" controlId="formBasicPassword">
                     <Form.Label>Password</Form.Label>
                     <Form.Control
                       name="password"
@@ -142,6 +144,24 @@ const SignupForm: React.FC<any> = () => {
                       value={values['password']}
                       type="password"
                       placeholder="Enter your password"
+                    />
+                    {errors.email && touched.password ? (
+                      <div className="text-danger">
+                        <small>{errors.password}</small>
+                      </div>
+                    ) : null}
+                  </Form.Group>
+                </Row>
+                <Row className="mb-1">
+                  <Form.Group className="mb-3" controlId="formBasicRole">
+                    <Form.Label>Role</Form.Label>
+                    <Form.Control
+                      name="role"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values['role']}
+                      type="sting"
+                      placeholder="Enter your role"
                     />
                     {errors.email && touched.password ? (
                       <div className="text-danger">

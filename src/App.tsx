@@ -6,6 +6,7 @@ import Login from './Login'
 import { RequireAuth } from './RequireAuth'
 import SignupForm from './Signup'
 import AircraftsUpdateGentle from './AircraftsUpdateGentle'
+import AircraftsDelete from './AircraftsDelete'
 
 export default function App() {
   const Landing = () => (
@@ -45,6 +46,14 @@ export default function App() {
         element={
           <RequireAuth>
             <AircraftsUpdateGentle />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/aircraftsdelete"
+        element={
+          <RequireAuth>
+            <AircraftsDelete />
           </RequireAuth>
         }
       />
