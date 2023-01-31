@@ -7,6 +7,7 @@ import { RequireAuth } from './RequireAuth'
 import SignupForm from './Signup'
 import AircraftsUpdateGentle from './AircraftsUpdateGentle'
 import AircraftsDelete from './AircraftsDelete'
+import './App.css'
 
 export default function App() {
   const Landing = () => (

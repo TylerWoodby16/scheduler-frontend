@@ -16,6 +16,7 @@ export type Aircraft = {
   _id: string
   name: string
   year: number
+  groupId: string
 }
 
 const AircraftsUpdate: React.FC = () => {
@@ -48,6 +49,7 @@ const AircraftsUpdate: React.FC = () => {
                 _id: '',
                 name: '',
                 year: -1,
+                groupId: '',
               }}
               onSubmit={async (
                 values: Aircraft,

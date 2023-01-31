@@ -17,6 +17,7 @@ type Aircraft = {
   // _id: string
   name: string
   year: number
+  //groupId: string
 }
 
 // interface Values {
@@ -46,6 +47,7 @@ const Aircrafts: React.FC = () => {
               initialValues={{
                 name: '',
                 year: -1,
+                //groupId: '',
               }}
               onSubmit={async (
                 values: Aircraft,
@@ -110,6 +112,20 @@ const Aircrafts: React.FC = () => {
                           />
                         </Form.Group>
                       </Row>
+
+                      {/* <Row className="mb-1">
+                        <Form.Group className="mb-3" controlId="formYear">
+                          <Form.Label>Group</Form.Label>
+                          <Form.Control
+                            name="groupId"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            value={values['groupId']}
+                            type="string"
+                            placeholder="Enter the group"
+                          />
+                        </Form.Group>
+                      </Row> */}
 
                       {responseError ? (
                         <Row className="pb-3 text-center text-danger">

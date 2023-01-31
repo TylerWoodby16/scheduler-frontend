@@ -16,6 +16,7 @@ interface Values {
   email: string
   password: string
   role: string
+  
 }
 
 const SignupForm: React.FC<any> = () => {
@@ -41,6 +42,7 @@ const SignupForm: React.FC<any> = () => {
           email: '',
           password: '',
           role: '',
+          
           // confirmPassword: "",
         }}
         validationSchema={SignupSchema}
@@ -170,6 +172,7 @@ const SignupForm: React.FC<any> = () => {
                     ) : null}
                   </Form.Group>
                 </Row>
+                
                 <Row>
                   <Button type="submit">Submit</Button>
                 </Row>

@@ -43,6 +43,7 @@ const AircraftsUpdateGentle: React.FC = () => {
                 _id: '',
                 name: '',
                 year: -1,
+                groupId: '', // maybe to do with jwt ?? 
               }}
               onSubmit={async (
                 values: Aircraft,
@@ -121,6 +122,19 @@ const AircraftsUpdateGentle: React.FC = () => {
                           />
                         </Form.Group>
                       </Row>
+                      {/* <Row className="mb-1">
+                        <Form.Group className="mb-3" controlId="formYear">
+                          <Form.Label>Group</Form.Label>
+                          <Form.Control
+                            name="groupId"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            value={values['groupId']}
+                            type="string"
+                            placeholder="Enter the Group"
+                          />
+                        </Form.Group>
+                      </Row> */}
 
                       {responseError ? (
                         <Row className="pb-3 text-center text-danger">
