@@ -122,7 +122,7 @@ const AircraftsUpdateGentle: React.FC = () => {
                           />
                         </Form.Group>
                       </Row>
-                      {/* <Row className="mb-1">
+                      <Row className="mb-1">
                         <Form.Group className="mb-3" controlId="formYear">
                           <Form.Label>Group</Form.Label>
                           <Form.Control
@@ -134,7 +134,7 @@ const AircraftsUpdateGentle: React.FC = () => {
                             placeholder="Enter the Group"
                           />
                         </Form.Group>
-                      </Row> */}
+                      </Row>
 
                       {responseError ? (
                         <Row className="pb-3 text-center text-danger">

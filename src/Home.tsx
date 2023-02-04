@@ -38,7 +38,7 @@ const Home: React.FC = () => {
           {aircrafts.map((aircraft, index) => {
             return (
               <div key={index}>
-                {aircraft.name} {aircraft.year} {aircraft._id} {aircraft.groupId}
+               {aircraft.groupId} {aircraft.name} {aircraft.year} {aircraft._id} 
               </div>
             )
           })}
