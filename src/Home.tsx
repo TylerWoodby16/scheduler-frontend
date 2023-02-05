@@ -7,6 +7,7 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import { authGet } from './authHelpers'
 import './Home.css'
+import Aircraft from './Aircraft'
 
 type Aircraft = {
   name: string
@@ -38,7 +39,10 @@ const Home: React.FC = () => {
           {aircrafts.map((aircraft, index) => {
             return (
               <div key={index}>
-               {aircraft.groupId} {aircraft.name} {aircraft.year} {aircraft._id} 
+                {aircraft.groupId} {aircraft.name} {aircraft.year}{' '}
+                {aircraft._id}
+                <Aircraft image="placeholder image" name={aircraft.name} />
+                <Aircraft image="placeholder image" name={aircraft.name} />
               </div>
             )
           })}

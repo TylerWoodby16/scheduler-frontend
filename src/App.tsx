@@ -1,5 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
-import Aircrafts from './Aircrafts'
+import Aircrafts from './InsertAircrafts'
 import AircraftsUpdate from './AircraftsUpdate'
 import Home from './Home'
 import Login from './Login'
