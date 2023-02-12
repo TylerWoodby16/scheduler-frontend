@@ -7,9 +7,9 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import { authGet } from './authHelpers'
 import './Home.css'
-import Aircraft from './Aircraft'
+import AircraftCard from './AircraftCard'
 
-type Aircraft = {
+type AircraftCard = {
   name: string
   _id: string
   year: number
@@ -17,11 +17,13 @@ type Aircraft = {
 }
 
 const Home: React.FC = () => {
-  const [aircrafts, setAircrafts] = useState<Aircraft[]>([])
+  const [aircrafts, setAircrafts] = useState<AircraftCard[]>([])
 
   const getAircrafts = async () => {
     try {
-      const data = await authGet<Aircraft[]>('http://localhost:5555/aircrafts')
+      const data = await authGet<AircraftCard[]>(
+        'http://localhost:5555/aircrafts'
+      )
       setAircrafts(data)
     } catch (error: any) {
       console.log('error: ' + error)
@@ -33,20 +35,15 @@ const Home: React.FC = () => {
   }, [])
 
   return (
-    <Container className="text-center h6">
-      <Row>
-        <Col>
-          {aircrafts.map((aircraft, index) => {
-            return (
-              <div key={index}>
-                {aircraft.groupId} {aircraft.name} {aircraft.year}{' '}
-                {aircraft._id}
-                <Aircraft image="placeholder image" name={aircraft.name} />
-                <Aircraft image="placeholder image" name={aircraft.name} />
-              </div>
-            )
-          })}
-        </Col>
+    <Container className="width: 20px mt-3">
+      <Row className="g-4">
+        {aircrafts.map((aircraft, index) => {
+          return (
+            <Col key={index} xs={12} lg={4}>
+              <AircraftCard image="placeholder image" name={aircraft.name} />
+            </Col>
+          )
+        })}
       </Row>
     </Container>
   )

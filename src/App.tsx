@@ -8,6 +8,8 @@ import SignupForm from './Signup'
 import AircraftsUpdateGentle from './AircraftsUpdateGentle'
 import AircraftsDelete from './AircraftsDelete'
 import './App.css'
+import NavBar from './NavBar'
+import { useState, useEffect } from 'react'
 
 export default function App() {
   const Landing = () => (
@@ -16,52 +18,60 @@ export default function App() {
     </div>
   )
 
+  const [userLoggedIn, setUserLoggedIn] = useState(false)
+  const AddUserLoggedIn = () => {
+    setUserLoggedIn(true)
+  }
+
   return (
-    <Routes>
-      <Route
-        path="/home"
-        element={
-          <RequireAuth>
-            <Home />
-          </RequireAuth>
-        }
-      />
-      <Route
-        path="/aircrafts"
-        element={
-          <RequireAuth>
-            <Aircrafts />
-          </RequireAuth>
-        }
-      />
-      <Route
-        path="/aircraftsupdate"
-        element={
-          <RequireAuth>
-            <AircraftsUpdate />
-          </RequireAuth>
-        }
-      />
-      <Route
-        path="/aircraftsupdategentle"
-        element={
-          <RequireAuth>
-            <AircraftsUpdateGentle />
-          </RequireAuth>
-        }
-      />
-      <Route
-        path="/aircraftsdelete"
-        element={
-          <RequireAuth>
-            <AircraftsDelete />
-          </RequireAuth>
-        }
-      />
-      
-      <Route path="/" element={<Landing />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<SignupForm />} />
-    </Routes>
+    <div>
+      <NavBar userLoggedIn={userLoggedIn} />
+      <Routes>
+        <Route
+          path="/home"
+          element={
+            <RequireAuth>
+              <Home />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/insertaircrafts"
+          element={
+            <RequireAuth>
+              <Aircrafts />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/aircraftsupdate"
+          element={
+            <RequireAuth>
+              <AircraftsUpdate />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/aircraftsupdategentle"
+          element={
+            <RequireAuth>
+              <AircraftsUpdateGentle />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/aircraftsdelete"
+          element={
+            <RequireAuth>
+              <AircraftsDelete />
+            </RequireAuth>
+          }
+        />
+
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignupForm />} />
+      </Routes>
+    </div>
   )
 }
