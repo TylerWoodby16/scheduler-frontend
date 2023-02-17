@@ -10,6 +10,8 @@ import AircraftsDelete from './AircraftsDelete'
 import './App.css'
 import NavBar from './NavBar'
 import { useState, useEffect } from 'react'
+import AircraftDetails from './AircraftDetails'
+import Profile from './Profile'
 
 export default function App() {
   const Landing = () => (
@@ -18,20 +20,31 @@ export default function App() {
     </div>
   )
 
-  const [userLoggedIn, setUserLoggedIn] = useState(false)
-  const AddUserLoggedIn = () => {
-    setUserLoggedIn(true)
-  }
-
   return (
     <div>
-      <NavBar userLoggedIn={userLoggedIn} />
+      <NavBar />
       <Routes>
         <Route
           path="/home"
           element={
             <RequireAuth>
               <Home />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/aircraftdetails/:id"
+          element={
+            <RequireAuth>
+              <AircraftDetails />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <RequireAuth>
+              <Profile />
             </RequireAuth>
           }
         />

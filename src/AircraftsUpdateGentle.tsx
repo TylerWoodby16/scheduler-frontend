@@ -1,5 +1,4 @@
 import React from 'react'
-import axios from 'axios'
 import './App.css'
 import { useState, useEffect } from 'react'
 import Container from 'react-bootstrap/Container'
@@ -9,22 +8,12 @@ import { authGet, authPost, authUpdate } from './authHelpers'
 import { Formik, Field, Form as FormikForm, FormikHelpers } from 'formik'
 import { Link, useNavigate } from 'react-router-dom'
 import Button from 'react-bootstrap/Button'
-import Nav from 'react-bootstrap/Nav'
 import Form from 'react-bootstrap/Form'
-import { Aircraft } from './AircraftsUpdate'
+import { Aircraft } from './models/Aircraft'
 
 const AircraftsUpdateGentle: React.FC = () => {
-  const navigate = useNavigate()
   const [responseError, setResponseError] = useState<string>()
-  const [aircrafts, setAircrafts] = useState<Aircraft[]>([])
 
-  const postAircraft = async (aircraftObject: Aircraft) => {
-    const statusCode = await authPost(
-      'http://localhost:5555/aircrafts',
-      aircraftObject
-    )
-  }
-  
   const updateAircraft = async (aircraftObject: Aircraft) => {
     const statusCode = await authUpdate(
       'http://localhost:5555/aircrafts/gentleUpsert',
@@ -43,7 +32,7 @@ const AircraftsUpdateGentle: React.FC = () => {
                 _id: '',
                 name: '',
                 year: -1,
-                groupId: '', // maybe to do with jwt ?? 
+                groupId: '', // maybe to do with jwt ??
               }}
               onSubmit={async (
                 values: Aircraft,
@@ -81,7 +70,7 @@ const AircraftsUpdateGentle: React.FC = () => {
                 <FormikForm onSubmit={handleSubmit}>
                   <Container>
                     <Col className="mx-auto" lg={4} md={6} sm={8} xs={10}>
-                    <Row className="mb-1">
+                      <Row className="mb-1">
                         <Form.Group className="mb-3" controlId="formId">
                           <Form.Label>ID</Form.Label>
                           <Form.Control
@@ -94,7 +83,7 @@ const AircraftsUpdateGentle: React.FC = () => {
                           />
                         </Form.Group>
                       </Row>
-                      
+
                       <Row className="mb-1">
                         <Form.Group className="mb-3" controlId="formName">
                           <Form.Label>Name</Form.Label>

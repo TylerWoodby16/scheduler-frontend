@@ -9,26 +9,11 @@ import { authGet, authPost } from './authHelpers'
 import { Formik, Field, Form as FormikForm, FormikHelpers } from 'formik'
 import { Link, useNavigate } from 'react-router-dom'
 import Button from 'react-bootstrap/Button'
-import Nav from 'react-bootstrap/Nav'
 import Form from 'react-bootstrap/Form'
-
-// TODO: ONLY DEFINE THIS ONCE AND EXPORT TO OTHER COMPONENTS.
-type Aircraft = {
-  // _id: string
-  name: string
-  year: number
-  //groupId: string
-}
-
-// interface Values {
-//   name: string;
-//   year: string;
-// }
+import { Aircraft } from './models/Aircraft'
 
 const Aircrafts: React.FC = () => {
-  const navigate = useNavigate()
   const [responseError, setResponseError] = useState<string>()
-  const [aircrafts, setAircrafts] = useState<Aircraft[]>([])
 
   const postAircraft = async (aircraftObject: Aircraft) => {
     const statusCode = await authPost(
@@ -45,9 +30,10 @@ const Aircrafts: React.FC = () => {
             <h1 style={{ textAlign: 'center' }}>Aircrafts</h1>
             <Formik
               initialValues={{
+                _id: '',
                 name: '',
                 year: -1,
-                //groupId: '',
+                groupId: '',
               }}
               onSubmit={async (
                 values: Aircraft,

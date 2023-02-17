@@ -9,15 +9,8 @@ import { authGet, authPost, authUpdate } from './authHelpers'
 import { Formik, Field, Form as FormikForm, FormikHelpers } from 'formik'
 import { Link, useNavigate } from 'react-router-dom'
 import Button from 'react-bootstrap/Button'
-import Nav from 'react-bootstrap/Nav'
+import { Aircraft } from './models/Aircraft'
 import Form from 'react-bootstrap/Form'
-
-export type Aircraft = {
-  _id: string
-  name: string
-  year: number
-  groupId: string
-}
 
 const AircraftsUpdate: React.FC = () => {
   const navigate = useNavigate()
@@ -30,7 +23,7 @@ const AircraftsUpdate: React.FC = () => {
       aircraftObject
     )
   }
-  
+
   const updateAircraft = async (aircraftObject: Aircraft) => {
     const statusCode = await authUpdate(
       'http://localhost:5555/aircrafts/bruteUpsert',

@@ -4,27 +4,33 @@ import Nav from 'react-bootstrap/Nav'
 import Navbar from 'react-bootstrap/Navbar'
 import { Link } from 'react-router-dom'
 import { useLocation } from 'react-router-dom'
-import { useState, useEffect } from 'react'
-import axios from 'axios'
+import Button from 'react-bootstrap/Button'
+import { useNavigate } from 'react-router-dom'
 
-type UserProp = {
-  userLoggedIn: boolean
-}
-
-const NavBar: React.FC<UserProp> = ({ userLoggedIn }) => {
+const NavBar: React.FC = () => {
   const location = useLocation()
-  const [aircrafts, setAircrafts] = useState<any>({})
-  const getAircrafts = async () => {
-    // We get an object that looks like {data:}
-    const { data } = await axios.get<any>(
-      `http://localhost:3001/aircraftsOther`
-    )
-    setAircrafts(data)
+  const navigate = useNavigate()
+
+  const LogOut = () => {
+    localStorage.removeItem('token')
+    navigate('/login')
   }
 
-  useEffect(() => {
-    getAircrafts()
-  }, [])
+  // check token
+  // set flag if has token flag = true
+  // => hasToken = true or false
+
+  /// need to figure out a way to make navbar re-render when the state of
+  // our token changes (whether or not we have one)
+
+  const hasToken = () => {
+    const userToken = localStorage.getItem('token')
+    if (userToken) {
+      return true
+    } else {
+      return false
+    }
+  }
 
   return (
     <>
@@ -37,76 +43,48 @@ const NavBar: React.FC<UserProp> = ({ userLoggedIn }) => {
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
               <Nav.Link
+                className={hasToken() ? '' : 'd-none'}
                 as={Link}
-                to="/InsertAircrafts"
-                className={
-                  location.pathname != '/' &&
-                  location.pathname != '/signup' &&
-                  location.pathname != '/login'
-                    ? ''
-                    : 'd-none'
-                }
+                to="/insertaircrafts"
               >
-                Schedule
+                Insert
               </Nav.Link>
               <Nav.Link
+                className={hasToken() ? '' : 'd-none'}
+                as={Link}
+                to="/aircraftsupdate"
+              >
+                Update
+              </Nav.Link>
+              <Nav.Link
+                className={hasToken() ? '' : 'd-none'}
+                as={Link}
+                to="/aircraftsdelete"
+              >
+                Delete
+              </Nav.Link>
+              <Nav.Link
+                className={hasToken() ? '' : 'd-none'}
                 as={Link}
                 to="/profile"
-                className={
-                  location.pathname != '/' &&
-                  location.pathname != '/signup' &&
-                  location.pathname != '/login'
-                    ? ''
-                    : 'd-none'
-                }
               >
                 Profile
-              </Nav.Link>
-              <Nav.Link
-                as={Link}
-                to="/maintenance"
-                className={
-                  location.pathname != '/' &&
-                  location.pathname != '/signup' &&
-                  location.pathname != '/login'
-                    ? ''
-                    : 'd-none'
-                }
-              >
-                Maintenance
-              </Nav.Link>
-              <Nav.Link
-                as={Link}
-                to="/maintenancebackend"
-                className={
-                  location.pathname != '/' &&
-                  location.pathname != '/signup' &&
-                  location.pathname != '/login'
-                    ? ''
-                    : 'd-none'
-                }
-              >
-                Maintenance Backend
               </Nav.Link>
               <Nav.Link as={Link} to="/signup">
                 Signup
               </Nav.Link>
-              <Nav.Link as={Link} to="/signupform">
-                SignupForm
-              </Nav.Link>
               <Nav.Link as={Link} to="/login">
                 Login
               </Nav.Link>
-              <Nav.Link as={Link} to="/backend">
-                Backend
-              </Nav.Link>
+              <Button
+                className={hasToken() ? '' : 'd-none'}
+                variant="success"
+                onClick={() => LogOut()}
+              >
+                Log Out
+              </Button>
             </Nav>
-            <div
-              className={userLoggedIn == true ? aircrafts.lastName : 'd-none'}
-            ></div>
           </Navbar.Collapse>
-
-          {/* <div>{aircrafts.lastName}</div> */}
         </Container>
       </Navbar>
     </>

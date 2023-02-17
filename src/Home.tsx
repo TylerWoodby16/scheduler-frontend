@@ -7,23 +7,15 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import { authGet } from './authHelpers'
 import './Home.css'
+import { Aircraft } from './models/Aircraft'
 import AircraftCard from './AircraftCard'
 
-type AircraftCard = {
-  name: string
-  _id: string
-  year: number
-  groupId: string
-}
-
 const Home: React.FC = () => {
-  const [aircrafts, setAircrafts] = useState<AircraftCard[]>([])
+  const [aircrafts, setAircrafts] = useState<Aircraft[]>([])
 
   const getAircrafts = async () => {
     try {
-      const data = await authGet<AircraftCard[]>(
-        'http://localhost:5555/aircrafts'
-      )
+      const data = await authGet<Aircraft[]>('http://localhost:5555/aircrafts')
       setAircrafts(data)
     } catch (error: any) {
       console.log('error: ' + error)
@@ -40,7 +32,11 @@ const Home: React.FC = () => {
         {aircrafts.map((aircraft, index) => {
           return (
             <Col key={index} xs={12} lg={4}>
-              <AircraftCard image="placeholder image" name={aircraft.name} />
+              <AircraftCard
+                id={aircraft._id}
+                image="placeholder image"
+                name={aircraft.name}
+              />
             </Col>
           )
         })}
