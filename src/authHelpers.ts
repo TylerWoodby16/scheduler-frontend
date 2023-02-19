@@ -43,3 +43,5 @@ export const authDelete = async (url: string) => {
 
   return response.status
 }
+
+// TODO: SET UP A FUNCTION TO DECODE THE TOKEN. WILL NEED TO USE JWT-DECODE.

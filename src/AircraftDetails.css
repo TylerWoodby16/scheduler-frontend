@@ -1,2 +1,14 @@
 .aircraft-details {
+  background-color: #343a40;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
+.text {
+  color: white;
+}
+/* * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+} */

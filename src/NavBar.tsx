@@ -34,7 +34,7 @@ const NavBar: React.FC = () => {
 
   return (
     <>
-      <Navbar bg="light" expand="lg">
+      <Navbar bg="dark" variant="dark" expand="lg">
         <Container>
           <Navbar.Brand as={Link} to="/home">
             Flight-Hub
@@ -83,6 +83,9 @@ const NavBar: React.FC = () => {
               >
                 Log Out
               </Button>
+              <Nav.Link className={hasToken() ? '' : 'd-none'}>
+                PUT USER ID HERE
+              </Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>

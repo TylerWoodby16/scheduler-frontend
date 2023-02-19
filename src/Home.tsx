@@ -27,8 +27,8 @@ const Home: React.FC = () => {
   }, [])
 
   return (
-    <Container className="width: 20px mt-3">
-      <Row className="g-4">
+    <Row className="home">
+      <Row className="m-3 g-4">
         {aircrafts.map((aircraft, index) => {
           return (
             <Col key={index} xs={12} lg={4}>
@@ -41,7 +41,7 @@ const Home: React.FC = () => {
           )
         })}
       </Row>
-    </Container>
+    </Row>
   )
 }
 

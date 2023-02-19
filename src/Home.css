@@ -1,3 +1,6 @@
-body {
-  background: #5E5E5E ;
+.home {
+  background-color: #2c3034;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
