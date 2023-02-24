@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom'
 import { useLocation } from 'react-router-dom'
 import Button from 'react-bootstrap/Button'
 import { useNavigate } from 'react-router-dom'
+import { getToken } from './authHelpers'
 
 const NavBar: React.FC = () => {
   const location = useLocation()
@@ -84,7 +85,7 @@ const NavBar: React.FC = () => {
                 Log Out
               </Button>
               <Nav.Link className={hasToken() ? '' : 'd-none'}>
-                PUT USER ID HERE
+                {hasToken() ? getToken() : 'd-none'}
               </Nav.Link>
             </Nav>
           </Navbar.Collapse>
