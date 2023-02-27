@@ -1,14 +1,10 @@
-.aircraft-details {
-  background-color: #343a40;
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
 .text {
   color: white;
 }
-/* * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-} */
+
+.progressBar {
+  color: #14a44d;
+}
+.progressBar-10 {
+  color: #dc4c64;
+}

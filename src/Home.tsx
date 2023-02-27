@@ -27,20 +27,18 @@ const Home: React.FC = () => {
   }, [])
 
   return (
-    <Row className="home">
-      <Row className="m-3 g-4">
-        {aircrafts.map((aircraft, index) => {
-          return (
-            <Col key={index} xs={12} lg={4}>
-              <AircraftCard
-                id={aircraft._id}
-                image="placeholder image"
-                name={aircraft.name}
-              />
-            </Col>
-          )
-        })}
-      </Row>
+    <Row className="home m-3 g-4">
+      {aircrafts.map((aircraft, index) => {
+        return (
+          <Col key={index} xs={12} lg={4}>
+            <AircraftCard
+              id={aircraft._id}
+              image="placeholder image"
+              name={aircraft.name}
+            />
+          </Col>
+        )
+      })}
     </Row>
   )
 }

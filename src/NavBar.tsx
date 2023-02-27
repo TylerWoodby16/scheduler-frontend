@@ -26,11 +26,7 @@ const NavBar: React.FC = () => {
 
   const hasToken = () => {
     const userToken = localStorage.getItem('token')
-    if (userToken) {
-      return true
-    } else {
-      return false
-    }
+    return !!userToken
   }
 
   return (
@@ -84,9 +80,9 @@ const NavBar: React.FC = () => {
               >
                 Log Out
               </Button>
-              <Nav.Link className={hasToken() ? '' : 'd-none'}>
-                {hasToken() ? getToken() : 'd-none'}
-              </Nav.Link>
+              <Navbar.Text className={hasToken() ? '' : 'd-none'}>
+                {hasToken() ? getToken().userName : 'd-none'}
+              </Navbar.Text>
             </Nav>
           </Navbar.Collapse>
         </Container>

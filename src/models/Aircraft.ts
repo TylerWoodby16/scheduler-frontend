@@ -3,4 +3,5 @@ export type Aircraft = {
   name: string
   year: number
   groupId: string
+  annual?: Date
 }
