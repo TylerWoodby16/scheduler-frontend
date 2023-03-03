@@ -31,6 +31,7 @@ const AircraftsDelete: React.FC = () => {
                 name: '',
                 year: -1,
                 groupId: '',
+                annualCheckDate: '',
               }}
               onSubmit={async (
                 values: Aircraft,

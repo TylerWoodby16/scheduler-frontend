@@ -33,6 +33,7 @@ const AircraftsUpdateGentle: React.FC = () => {
                 name: '',
                 year: -1,
                 groupId: '', // maybe to do with jwt ??
+                annualCheckDate: '',
               }}
               onSubmit={async (
                 values: Aircraft,

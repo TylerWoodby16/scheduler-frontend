@@ -11,9 +11,15 @@ import { Link, useNavigate } from 'react-router-dom'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import { Aircraft } from './models/Aircraft'
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import * as Yup from 'yup'
 
 const Aircrafts: React.FC = () => {
   const [responseError, setResponseError] = useState<string>()
+  const [annualCheckDate, setAnnualCheckDate] = useState<Date | null>(
+    new Date()
+  )
 
   const postAircraft = async (aircraftObject: Aircraft) => {
     const statusCode = await authPost(
@@ -21,6 +27,16 @@ const Aircrafts: React.FC = () => {
       aircraftObject
     )
   }
+
+  // TODO: BRING IN YUP BABY
+  // GIDDYUP
+  const SignupSchema = Yup.object().shape({
+    name: Yup.string()
+      .min(2, 'Too Short!')
+      .max(50, 'Too Long!')
+      .required('Required'),
+    year: Yup.number().integer().positive().required('Required'),
+  })
 
   return (
     <Container className="text-center h6">
@@ -31,14 +47,21 @@ const Aircrafts: React.FC = () => {
             <Formik
               initialValues={{
                 _id: '',
+                groupId: '',
                 name: '',
                 year: -1,
-                groupId: '',
+                annualCheckDate: '',
               }}
+              validationSchema={SignupSchema}
               onSubmit={async (
                 values: Aircraft,
                 { setSubmitting }: FormikHelpers<Aircraft>
               ) => {
+                // TODO: REMOVE THIS EXCLAMATION POINT / DEAL WITH NULLNESS
+                // VALIDATE THAT A DATE HAS BEEN CHOSEN BEFORE SUBMITTING
+
+                values.annualCheckDate = annualCheckDate!.toISOString()
+
                 // WE DO NOT HANDLE ERRORS.
                 // TODO: HANDLE ERRORS.
                 await postAircraft(values)
@@ -95,6 +118,16 @@ const Aircrafts: React.FC = () => {
                             value={values['year']}
                             type="year"
                             placeholder="Enter the year"
+                          />
+                        </Form.Group>
+                      </Row>
+
+                      <Row className="mb-1">
+                        <Form.Group className="mb-3" controlId="formYear">
+                          <Form.Label>Annual Check Date</Form.Label>
+                          <DatePicker
+                            selected={annualCheckDate}
+                            onChange={(date) => setAnnualCheckDate(date)}
                           />
                         </Form.Group>
                       </Row>
