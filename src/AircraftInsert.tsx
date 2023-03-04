@@ -64,6 +64,7 @@ const Aircrafts: React.FC = () => {
 
                 // WE DO NOT HANDLE ERRORS.
                 // TODO: HANDLE ERRORS.
+
                 await postAircraft(values)
 
                 // .post("http://localhost:5555/aircrafts", values) //want to use postAircrafts
@@ -105,6 +106,11 @@ const Aircrafts: React.FC = () => {
                             type="name"
                             placeholder="Enter the planes name"
                           />
+                          {errors.name && touched.name ? (
+                            <div className="text-danger">
+                              <small>{errors.name}</small>
+                            </div>
+                          ) : null}
                         </Form.Group>
                       </Row>
 
@@ -119,6 +125,11 @@ const Aircrafts: React.FC = () => {
                             type="year"
                             placeholder="Enter the year"
                           />
+                          {errors.year && touched.year ? (
+                            <div className="text-danger">
+                              <small>{errors.year}</small>
+                            </div>
+                          ) : null}
                         </Form.Group>
                       </Row>
 
