@@ -15,6 +15,7 @@ import { DateTime } from 'luxon'
 // how can we pass an object as a parameter in react-router?
 const AircraftDetails: React.FC = () => {
   let { id } = useParams()
+
   // Initialize aircraft to a dummy value.
   const [aircraft, setAircraft] = useState<Aircraft>({
     _id: '',

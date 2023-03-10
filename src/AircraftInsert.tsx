@@ -65,15 +65,13 @@ const Aircrafts: React.FC = () => {
                 try {
                   values.annualCheckDate = annualCheckDate!.toISOString()
                   await postAircraft(values)
+                  navigate('/home')
                 } catch (error) {
-                  console.log('error')
-                  console.log(error)
                   setResponseError('Can not submit information at this time.')
                 }
 
                 // TODO: TALK ABOUT SUBMITTING BEHAVIOR LATER.
                 setSubmitting(false)
-                navigate('/home')
               }}
             >
               {({
@@ -130,6 +128,8 @@ const Aircrafts: React.FC = () => {
                         <Form.Group className="mb-3" controlId="formYear">
                           <Form.Label>Annual Check Date</Form.Label>
                           <DatePicker
+                            className="w-100 p-2 rounded mb-2"
+                            dateFormat="dd/MM/yyyy"
                             selected={annualCheckDate}
                             onChange={(date) => setAnnualCheckDate(date)}
                           />
@@ -153,6 +153,7 @@ const Aircrafts: React.FC = () => {
                       <Row>
                         <Button type="submit">Submit</Button>
                       </Row>
+
                       {responseError ? (
                         <Row className="pb-3 text-center text-danger">
                           <Col>{responseError}</Col>
