@@ -16,6 +16,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 import * as Yup from 'yup'
 
 const Aircrafts: React.FC = () => {
+  const navigate = useNavigate()
   const [responseError, setResponseError] = useState<string>()
   const [annualCheckDate, setAnnualCheckDate] = useState<Date | null>(
     new Date()
@@ -28,8 +29,6 @@ const Aircrafts: React.FC = () => {
     )
   }
 
-  // TODO: BRING IN YUP BABY
-  // GIDDYUP
   const SignupSchema = Yup.object().shape({
     name: Yup.string()
       .min(2, 'Too Short!')
@@ -60,27 +59,21 @@ const Aircrafts: React.FC = () => {
                 // TODO: REMOVE THIS EXCLAMATION POINT / DEAL WITH NULLNESS
                 // VALIDATE THAT A DATE HAS BEEN CHOSEN BEFORE SUBMITTING
 
-                values.annualCheckDate = annualCheckDate!.toISOString()
-
                 // WE DO NOT HANDLE ERRORS.
                 // TODO: HANDLE ERRORS.
 
-                await postAircraft(values)
+                try {
+                  values.annualCheckDate = annualCheckDate!.toISOString()
+                  await postAircraft(values)
+                } catch (error) {
+                  console.log('error')
+                  console.log(error)
+                  setResponseError('Can not submit information at this time.')
+                }
 
-                // .post("http://localhost:5555/aircrafts", values) //want to use postAircrafts
-                // .then((response) => {
-                //   localStorage.setItem("token", response.data.token);
-                //   navigate("/home");
-                // })
-                // .catch((error) => {
-                //   if(error.response && (error.response.status == 401 || error.response.status == 404)){
-                //     setResponseError(error.response.data);
-                //   } else {
-                //     setResponseError("Error.")
-                //   }
-
-                // });
+                // TODO: TALK ABOUT SUBMITTING BEHAVIOR LATER.
                 setSubmitting(false)
+                navigate('/home')
               }}
             >
               {({
@@ -157,15 +150,14 @@ const Aircrafts: React.FC = () => {
                         </Form.Group>
                       </Row> */}
 
+                      <Row>
+                        <Button type="submit">Submit</Button>
+                      </Row>
                       {responseError ? (
                         <Row className="pb-3 text-center text-danger">
                           <Col>{responseError}</Col>
                         </Row>
                       ) : null}
-
-                      <Row>
-                        <Button type="submit">Submit</Button>
-                      </Row>
                     </Col>
                   </Container>
                 </FormikForm>

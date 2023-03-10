@@ -9,7 +9,6 @@ import AircraftsUpdateGentle from './AircraftsUpdateGentle'
 import AircraftsDelete from './AircraftsDelete'
 import './App.css'
 import NavBar from './NavBar'
-import { useState, useEffect } from 'react'
 import AircraftDetails from './AircraftDetails'
 import Profile from './Profile'
 
