@@ -30,11 +30,7 @@ const Home: React.FC = () => {
       {aircrafts.map((aircraft, index) => {
         return (
           <Col key={index} xs={12} lg={4}>
-            <AircraftCard
-              id={aircraft._id}
-              image="placeholder image"
-              name={aircraft.name}
-            />
+            <AircraftCard aircraft={aircraft} />
           </Col>
         )
       })}

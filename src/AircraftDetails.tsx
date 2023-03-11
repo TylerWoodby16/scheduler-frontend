@@ -3,7 +3,7 @@ import './App.css'
 import { useState, useEffect } from 'react'
 import { authGet } from './authHelpers'
 import './AircraftDetails.css'
-import { useParams } from 'react-router-dom'
+import { useParams, useLocation } from 'react-router-dom'
 import { Aircraft } from './models/Aircraft'
 import Table from 'react-bootstrap/Table'
 import ProgressBar from 'react-bootstrap/ProgressBar'
@@ -15,6 +15,7 @@ import { DateTime } from 'luxon'
 // how can we pass an object as a parameter in react-router?
 const AircraftDetails: React.FC = () => {
   let { id } = useParams()
+  let { state } = useLocation()
 
   // Initialize aircraft to a dummy value.
   const [aircraft, setAircraft] = useState<Aircraft>({
@@ -32,7 +33,6 @@ const AircraftDetails: React.FC = () => {
   // let checkDate = DateTime.fromFormat(aircraft.annualCheckDate, 'MM/dd/yyyy')
   let checkDate = DateTime.fromISO(aircraft.annualCheckDate)
 
-  console.log(checkDate)
   let annualCheckDate = checkDate.plus({ months: 12 })
 
   let diffInDaysFromCurrentDate = annualCheckDate.diff(date, 'days')
@@ -57,7 +57,11 @@ const AircraftDetails: React.FC = () => {
   }
 
   useEffect(() => {
-    getAircraft()
+    if (state == null) {
+      getAircraft()
+    } else {
+      setAircraft(state)
+    }
   }, [])
 
   return (

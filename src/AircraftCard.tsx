@@ -3,21 +3,20 @@ import './App.css'
 import './AircraftCard.css'
 import Card from 'react-bootstrap/Card'
 import { Link } from 'react-router-dom'
+import { Aircraft } from './models/Aircraft'
 
-type AircraftProps = {
-  id: string
-  name: string
-  image: string
+type Props = {
+  aircraft: Aircraft
 }
 
-const AircraftCard: React.FC<AircraftProps> = ({ id, name, image }) => {
+const AircraftCard: React.FC<Props> = ({ aircraft }) => {
   return (
     <Card style={{ width: '18rem' }} className="card-link">
-      <Link to={`/aircraftdetails/${id}`}>
-        <Card.Img variant="top" src={image} />
+      <Link to={`/aircraftdetails/${aircraft._id}`} state={aircraft}>
+        <Card.Img variant="top" src={'temp'} />
         <Card.Body>
-          <Card.Title>{name}</Card.Title>
-          <Card.Text>{id}</Card.Text>
+          <Card.Title>{aircraft.name}</Card.Title>
+          <Card.Text>{aircraft._id}</Card.Text>
         </Card.Body>
       </Link>
     </Card>
