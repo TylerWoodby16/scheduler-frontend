@@ -37,7 +37,7 @@ const AircraftsUpdate: React.FC = () => {
         <Col>
           <div>
             <h1 style={{ textAlign: 'center' }}>Aircrafts</h1>
-            <Formik
+            {/* <Formik
               initialValues={{
                 _id: '',
                 name: '',
@@ -109,7 +109,7 @@ const AircraftsUpdate: React.FC = () => {
                   </Container>
                 </FormikForm>
               )}
-            </Formik>
+            </Formik> */}
           </div>
         </Col>
       </Row>

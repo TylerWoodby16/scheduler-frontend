@@ -55,30 +55,30 @@ export default function App() {
             </RequireAuth>
           }
         />
-        <Route
+        {/* <Route
           path="/aircraftsupdate"
           element={
             <RequireAuth>
               <AircraftsUpdate />
             </RequireAuth>
           }
-        />
-        <Route
+        /> */}
+        {/* <Route
           path="/aircraftsupdategentle"
           element={
             <RequireAuth>
               <AircraftsUpdateGentle />
             </RequireAuth>
           }
-        />
-        <Route
+        /> */}
+        {/* <Route
           path="/aircraftsdelete"
           element={
             <RequireAuth>
               <AircraftsDelete />
             </RequireAuth>
           }
-        />
+        /> */}
 
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />

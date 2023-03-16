@@ -21,6 +21,7 @@ const Aircrafts: React.FC = () => {
   const [annualCheckDate, setAnnualCheckDate] = useState<Date | null>(
     new Date()
   )
+  const [vorCheckDate, setVorCheckDate] = useState<Date | null>(new Date())
 
   const postAircraft = async (aircraftObject: Aircraft) => {
     const statusCode = await authPost(
@@ -50,6 +51,7 @@ const Aircrafts: React.FC = () => {
                 name: '',
                 year: -1,
                 annualCheckDate: '',
+                vorCheckDate: '',
               }}
               validationSchema={SignupSchema}
               onSubmit={async (
@@ -64,6 +66,7 @@ const Aircrafts: React.FC = () => {
 
                 try {
                   values.annualCheckDate = annualCheckDate!.toISOString()
+                  values.vorCheckDate = vorCheckDate!.toISOString()
                   await postAircraft(values)
                   navigate('/home')
                 } catch (error) {
@@ -88,7 +91,7 @@ const Aircrafts: React.FC = () => {
                     <Col className="mx-auto" lg={4} md={6} sm={8} xs={10}>
                       <Row className="mb-1">
                         <Form.Group className="mb-3" controlId="formName">
-                          <Form.Label>Name</Form.Label>
+                          <Form.Label className="text-light">Name</Form.Label>
                           <Form.Control
                             name="name"
                             onChange={handleChange}
@@ -107,7 +110,7 @@ const Aircrafts: React.FC = () => {
 
                       <Row className="mb-1">
                         <Form.Group className="mb-3" controlId="formYear">
-                          <Form.Label>Year</Form.Label>
+                          <Form.Label className="text-light">Year</Form.Label>
                           <Form.Control
                             name="year"
                             onChange={handleChange}
@@ -126,12 +129,26 @@ const Aircrafts: React.FC = () => {
 
                       <Row className="mb-1">
                         <Form.Group className="mb-3" controlId="formYear">
-                          <Form.Label>Annual Check Date</Form.Label>
+                          <Form.Label className="text-light">
+                            Annual Check Date
+                          </Form.Label>
                           <DatePicker
                             className="w-100 p-2 rounded mb-2"
-                            dateFormat="dd/MM/yyyy"
                             selected={annualCheckDate}
                             onChange={(date) => setAnnualCheckDate(date)}
+                          />
+                        </Form.Group>
+                      </Row>
+
+                      <Row className="mb-1">
+                        <Form.Group className="mb-3" controlId="formYear">
+                          <Form.Label className="text-light">
+                            VOR Check Date
+                          </Form.Label>
+                          <DatePicker
+                            className="w-100 p-2 rounded mb-2"
+                            selected={vorCheckDate}
+                            onChange={(date) => setVorCheckDate(date)}
                           />
                         </Form.Group>
                       </Row>
