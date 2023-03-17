@@ -5,4 +5,9 @@ export type Aircraft = {
   groupId: string
   annualCheckDate: string
   vorCheckDate: string
+  oneHundredHourCheck: number
+  airWorthinessDirectivesCheckDate: string
+  eltCheckDate: string
+  transponderCheckDate: string
+  altimeterCheckDate: string
 }

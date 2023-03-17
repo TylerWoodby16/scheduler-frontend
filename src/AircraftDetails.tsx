@@ -32,14 +32,44 @@ const AircraftDetails: React.FC = () => {
     year: -1,
     annualCheckDate: '',
     vorCheckDate: '',
+    oneHundredHourCheck: 0,
+    airWorthinessDirectivesCheckDate: '',
+    eltCheckDate: '',
+    transponderCheckDate: '',
+    altimeterCheckDate: '',
   })
 
   let annualCheckDate = DateTime.fromISO(aircraft.annualCheckDate)
-  let nextAnnualCheckDate = annualCheckDate.plus({ months: 12 })
+  let nextAnnualCheckDate = annualCheckDate
+    .startOf('month')
+    .plus({ months: 13 })
+  // what if this is 1 this wont work
+  // let nextNextAnnualCheckDate = nextAnnualCheckDate.minus({
+  //   days: parseInt(dayDate(annualCheckDate)),
+  // })
 
   let vorCheckDate = DateTime.fromISO(aircraft.vorCheckDate)
-  console.log(vorCheckDate)
+
   let nextVorCheckDate = vorCheckDate.plus({ days: 30 })
+
+  let oneHundredHourCheck = aircraft.oneHundredHourCheck
+
+  let airWorthinessDirectivesCheckDate = DateTime.fromISO(
+    aircraft.airWorthinessDirectivesCheckDate
+  )
+
+  let eltCheckDate = DateTime.fromISO(aircraft.eltCheckDate)
+  let nextEltCheckDate = eltCheckDate.startOf('month').plus({ months: 13 })
+
+  let transponderCheckDate = DateTime.fromISO(aircraft.transponderCheckDate)
+  let nextTransponderCheckDate = transponderCheckDate
+    .startOf('month')
+    .plus({ months: 25 })
+
+  let altimeterCheckDate = DateTime.fromISO(aircraft.altimeterCheckDate)
+  let nextAltimeterCheckDate = altimeterCheckDate
+    .startOf('month')
+    .plus({ months: 25 })
 
   const getAircraft = async () => {
     try {
@@ -87,28 +117,28 @@ const AircraftDetails: React.FC = () => {
         </tr>
         <tr>
           <td>100 Hour</td>
-          <td>0</td>
-          <td>100</td>
+          <td>{oneHundredHourCheck}</td>
+          <td>{oneHundredHourCheck + 100}</td>
         </tr>
         <tr>
           <td>Airworthiness Directives</td>
-          <td>0</td>
-          <td>5000</td>
+          <td>{displayDate(airWorthinessDirectivesCheckDate)}</td>
+          <td>+5000</td>
         </tr>
         <tr>
           <td>Transponder</td>
-          <td>2/1/23</td>
-          <td>2/30/25</td>
+          <td>{displayDate(transponderCheckDate)}</td>
+          <td>{displayDate(nextTransponderCheckDate)}</td>
         </tr>
         <tr>
           <td>ELT</td>
-          <td>2/1/23</td>
-          <td>2/30/23</td>
+          <td>{displayDate(eltCheckDate)}</td>
+          <td>{displayDate(nextEltCheckDate)}</td>
         </tr>
         <tr>
           <td>Static Encoder/ Altimeter</td>
-          <td>2/1/23</td>
-          <td>2/30/25</td>
+          <td>{displayDate(altimeterCheckDate)}</td>
+          <td>{displayDate(nextAltimeterCheckDate)}</td>
         </tr>
       </tbody>
     </Table>

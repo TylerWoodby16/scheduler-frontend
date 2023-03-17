@@ -23,6 +23,19 @@ const Aircrafts: React.FC = () => {
   )
   const [vorCheckDate, setVorCheckDate] = useState<Date | null>(new Date())
 
+  const [airWorthinessDirectiveCheckDate, setAirWorthinessDirectiveCheckDate] =
+    useState<Date | null>(new Date())
+
+  const [eltCheckDate, setEltCheckDate] = useState<Date | null>(new Date())
+
+  const [transponderCheckDate, setTransponderCheckDate] = useState<Date | null>(
+    new Date()
+  )
+
+  const [altimeterCheckDate, setAltimeterCheckDate] = useState<Date | null>(
+    new Date()
+  )
+
   const postAircraft = async (aircraftObject: Aircraft) => {
     const statusCode = await authPost(
       'http://localhost:5555/aircrafts',
@@ -52,6 +65,11 @@ const Aircrafts: React.FC = () => {
                 year: -1,
                 annualCheckDate: '',
                 vorCheckDate: '',
+                oneHundredHourCheck: 0,
+                airWorthinessDirectivesCheckDate: '',
+                eltCheckDate: '',
+                transponderCheckDate: '',
+                altimeterCheckDate: '',
               }}
               validationSchema={SignupSchema}
               onSubmit={async (
@@ -67,6 +85,14 @@ const Aircrafts: React.FC = () => {
                 try {
                   values.annualCheckDate = annualCheckDate!.toISOString()
                   values.vorCheckDate = vorCheckDate!.toISOString()
+
+                  values.airWorthinessDirectivesCheckDate =
+                    airWorthinessDirectiveCheckDate!.toISOString()
+                  values.eltCheckDate = eltCheckDate!.toISOString()
+                  values.transponderCheckDate =
+                    transponderCheckDate!.toISOString()
+                  values.altimeterCheckDate = altimeterCheckDate!.toISOString()
+
                   await postAircraft(values)
                   navigate('/home')
                 } catch (error) {
@@ -149,6 +175,77 @@ const Aircrafts: React.FC = () => {
                             className="w-100 p-2 rounded mb-2"
                             selected={vorCheckDate}
                             onChange={(date) => setVorCheckDate(date)}
+                          />
+                        </Form.Group>
+                      </Row>
+
+                      <Row className="mb-1">
+                        <Form.Group className="mb-3" controlId="formYear">
+                          <Form.Label className="text-light">Year</Form.Label>
+                          <Form.Control
+                            name="oneHundredHourCheck"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            value={values['oneHundredHourCheck']}
+                            type="number"
+                            placeholder="Enter the Hobbs time"
+                          />
+                          {errors.year && touched.year ? (
+                            <div className="text-danger">
+                              <small>{errors.year}</small>
+                            </div>
+                          ) : null}
+                        </Form.Group>
+                      </Row>
+
+                      <Row className="mb-1">
+                        <Form.Group className="mb-3" controlId="formYear">
+                          <Form.Label className="text-light">
+                            Airworthiness Directive
+                          </Form.Label>
+                          <DatePicker
+                            className="w-100 p-2 rounded mb-2"
+                            selected={airWorthinessDirectiveCheckDate}
+                            onChange={(date) =>
+                              setAirWorthinessDirectiveCheckDate(date)
+                            }
+                          />
+                        </Form.Group>
+                      </Row>
+
+                      <Row className="mb-1">
+                        <Form.Group className="mb-3" controlId="formYear">
+                          <Form.Label className="text-light">ELT</Form.Label>
+                          <DatePicker
+                            className="w-100 p-2 rounded mb-2"
+                            selected={eltCheckDate}
+                            onChange={(date) => setEltCheckDate(date)}
+                          />
+                        </Form.Group>
+                      </Row>
+
+                      <Row className="mb-1">
+                        <Form.Group className="mb-3" controlId="formYear">
+                          <Form.Label className="text-light">
+                            Transponder
+                          </Form.Label>
+                          <DatePicker
+                            className="w-100 p-2 rounded mb-2"
+                            selected={transponderCheckDate}
+                            onChange={(date) => setTransponderCheckDate(date)}
+                          />
+                        </Form.Group>
+                      </Row>
+
+                      <Row className="mb-1">
+                        <Form.Group className="mb-3" controlId="formYear">
+                          <Form.Label className="text-light">
+                            Altimeter
+                          </Form.Label>
+                          <DatePicker
+                            className="w-100 p-2 rounded mb-2"
+                            selected={altimeterCheckDate}
+                            onChange={(date) => setAltimeterCheckDate(date)}
                           />
                         </Form.Group>
                       </Row>
