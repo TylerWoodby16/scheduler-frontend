@@ -1,8 +1,8 @@
 export type Aircraft = {
   _id: string
+  groupId: string
   name: string
   year: number
-  groupId: string
   annualCheckDate: string
   vorCheckDate: string
   oneHundredHourCheck: number

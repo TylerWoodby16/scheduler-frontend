@@ -17,6 +17,7 @@ const Home: React.FC = () => {
       const data = await authGet<Aircraft[]>('http://localhost:5555/aircrafts')
       setAircrafts(data)
     } catch (error: any) {
+      // TODO: HANDLE THE FUCK OUT OF THIS ERROR
       console.log('error: ' + error)
     }
   }

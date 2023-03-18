@@ -14,7 +14,7 @@ import { DateTime } from 'luxon'
 // how can we pass an object as a parameter in react-router?
 const AircraftDetails: React.FC = () => {
   let { id } = useParams()
-  let { state } = useLocation()
+  let { state: aircraftFromRoute } = useLocation()
 
   const displayDate = (date: DateTime) => {
     return date.toLocaleString({
@@ -43,10 +43,6 @@ const AircraftDetails: React.FC = () => {
   let nextAnnualCheckDate = annualCheckDate
     .startOf('month')
     .plus({ months: 13 })
-  // what if this is 1 this wont work
-  // let nextNextAnnualCheckDate = nextAnnualCheckDate.minus({
-  //   days: parseInt(dayDate(annualCheckDate)),
-  // })
 
   let vorCheckDate = DateTime.fromISO(aircraft.vorCheckDate)
 
@@ -73,20 +69,21 @@ const AircraftDetails: React.FC = () => {
 
   const getAircraft = async () => {
     try {
-      const data = await authGet<Aircraft>(
+      const aircraft = await authGet<Aircraft>(
         `http://localhost:5555/aircrafts/${id}`
       )
-      setAircraft(data)
+      setAircraft(aircraft)
     } catch (error: any) {
+      // TODO: HANDLE ERROR CORRECTLY.
       console.log('error: ' + error)
     }
   }
 
   useEffect(() => {
-    if (state == null) {
+    if (aircraftFromRoute == null) {
       getAircraft()
     } else {
-      setAircraft(state)
+      setAircraft(aircraftFromRoute)
     }
   }, [])
 
