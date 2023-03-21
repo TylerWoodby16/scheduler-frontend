@@ -14,6 +14,7 @@ import { Aircraft } from './models/Aircraft'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import * as Yup from 'yup'
+import ResponseError from './ResponseError'
 
 const Aircrafts: React.FC = () => {
   const navigate = useNavigate()
@@ -268,11 +269,7 @@ const Aircrafts: React.FC = () => {
                         <Button type="submit">Submit</Button>
                       </Row>
 
-                      {responseError ? (
-                        <Row className="pb-3 text-center text-danger">
-                          <Col>{responseError}</Col>
-                        </Row>
-                      ) : null}
+                      <ResponseError responseError={responseError} />
                     </Col>
                   </Container>
                 </FormikForm>

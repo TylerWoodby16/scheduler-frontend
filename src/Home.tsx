@@ -1,5 +1,4 @@
 import React from 'react'
-import axios from 'axios'
 import './App.css'
 import { useState, useEffect } from 'react'
 import Row from 'react-bootstrap/Row'
@@ -8,17 +7,18 @@ import { authGet } from './authHelpers'
 import './Home.css'
 import { Aircraft } from './models/Aircraft'
 import AircraftCard from './AircraftCard'
+import ResponseError from './ResponseError'
 
 const Home: React.FC = () => {
   const [aircrafts, setAircrafts] = useState<Aircraft[]>([])
+  const [responseError, setResponseError] = useState<string>()
 
   const getAircrafts = async () => {
     try {
       const data = await authGet<Aircraft[]>('http://localhost:5555/aircrafts')
       setAircrafts(data)
     } catch (error: any) {
-      // TODO: HANDLE THE FUCK OUT OF THIS ERROR
-      console.log('error: ' + error)
+      setResponseError('There was an error getting aircrafts.')
     }
   }
 
@@ -27,15 +27,19 @@ const Home: React.FC = () => {
   }, [])
 
   return (
-    <Row className="home m-3 g-4">
-      {aircrafts.map((aircraft, index) => {
-        return (
-          <Col key={index} xs={12} lg={4}>
-            <AircraftCard aircraft={aircraft} />
-          </Col>
-        )
-      })}
-    </Row>
+    <>
+      <ResponseError responseError={responseError} />
+
+      <Row className="home m-3 g-4">
+        {aircrafts.map((aircraft, index) => {
+          return (
+            <Col key={index} xs={12} lg={4}>
+              <AircraftCard aircraft={aircraft} getAircrafts={getAircrafts} />
+            </Col>
+          )
+        })}
+      </Row>
+    </>
   )
 }
 
