@@ -6,8 +6,17 @@ export type Aircraft = {
   annualCheckDate: string
   vorCheckDate: string
   oneHundredHourCheck: number
-  airWorthinessDirectivesCheckDate: string
+  airworthinessDirectives?: AirworthinessDirective[]
   eltCheckDate: string
   transponderCheckDate: string
   altimeterCheckDate: string
+}
+
+export type AirworthinessDirective = {
+  name: string
+  dateOfCheck: string
+  dateOfNextCheck: string
+  hourCheck: number
+  hourNextCheck: number
+  isHour: boolean
 }

@@ -34,6 +34,7 @@ const AircraftDetails: React.FC = () => {
     vorCheckDate: '',
     oneHundredHourCheck: 0,
     airWorthinessDirectivesCheckDate: '',
+    airWorthinessDirectivesCheckHour: 0,
     eltCheckDate: '',
     transponderCheckDate: '',
     altimeterCheckDate: '',

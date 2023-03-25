@@ -8,6 +8,7 @@ import Button from 'react-bootstrap/Button'
 import { authDelete } from './authHelpers'
 import { Link } from 'react-router-dom'
 import Modal from 'react-bootstrap/Modal'
+import ResponseError from './ResponseError'
 
 type Props = {
   aircraft: Aircraft
@@ -16,12 +17,10 @@ type Props = {
 
 const AircraftCard: React.FC<Props> = ({ aircraft, getAircrafts }) => {
   const [show, setShow] = useState(false)
-  const handleClose = () => setShow(false)
-  const handleShow = () => setShow(true)
+  const [responseError, setResponseError] = useState<string>()
 
   const deleteAircraft = async (id: string) => {
-    const statusCode = await authDelete(`http://localhost:5555/aircrafts/${id}`)
-    // TODO: HANDLE ERRORS CORRECTLY USING TRY/CATCH BLOCK.
+    await authDelete(`http://localhost:5555/aircrafts/${id}`)
   }
 
   return (
@@ -38,6 +37,7 @@ const AircraftCard: React.FC<Props> = ({ aircraft, getAircrafts }) => {
 
         <Button
           onClick={async () => {
+            setShow(true)
             // TODO: this will live in the modal logic
             // try {
             //   await deleteAircraft(aircraft._id)
@@ -53,17 +53,41 @@ const AircraftCard: React.FC<Props> = ({ aircraft, getAircrafts }) => {
         </Button>
       </Card>
 
-      <Modal show={show} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Modal heading</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>Woohoo, you're reading this text in a modal!</Modal.Body>
+      <Modal
+        show={show}
+        onHide={() => {
+          setShow(false)
+          setResponseError(undefined)
+        }}
+      >
+        <Modal.Header />
+        <Modal.Body>
+          Are you sure you want to delete {aircraft.name}?
+          <ResponseError responseError={responseError} />
+        </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Close
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setShow(false)
+              setResponseError(undefined)
+            }}
+          >
+            Cancel
           </Button>
-          <Button variant="primary" onClick={handleClose}>
-            Save Changes
+          <Button
+            variant="danger"
+            onClick={async () => {
+              try {
+                await deleteAircraft(aircraft._id)
+                setShow(false)
+                await getAircrafts()
+              } catch (error: any) {
+                setResponseError('There was an error delete aircrafts.')
+              }
+            }}
+          >
+            Delete Aircraft
           </Button>
         </Modal.Footer>
       </Modal>

@@ -10,7 +10,7 @@ import { Formik, Field, Form as FormikForm, FormikHelpers } from 'formik'
 import { Link, useNavigate } from 'react-router-dom'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
-import { Aircraft } from './models/Aircraft'
+import { Aircraft, AirworthinessDirective } from './models/Aircraft'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import * as Yup from 'yup'
@@ -67,7 +67,6 @@ const Aircrafts: React.FC = () => {
                 annualCheckDate: '',
                 vorCheckDate: '',
                 oneHundredHourCheck: 0,
-                airWorthinessDirectivesCheckDate: '',
                 eltCheckDate: '',
                 transponderCheckDate: '',
                 altimeterCheckDate: '',
@@ -87,8 +86,9 @@ const Aircrafts: React.FC = () => {
                   values.annualCheckDate = annualCheckDate!.toISOString()
                   values.vorCheckDate = vorCheckDate!.toISOString()
 
-                  values.airWorthinessDirectivesCheckDate =
-                    airWorthinessDirectiveCheckDate!.toISOString()
+                  // values.airWorthinessDirectivesCheckDate =
+                  //   airWorthinessDirectiveCheckDate!.toISOString()
+
                   values.eltCheckDate = eltCheckDate!.toISOString()
                   values.transponderCheckDate =
                     transponderCheckDate!.toISOString()
@@ -182,7 +182,9 @@ const Aircrafts: React.FC = () => {
 
                       <Row className="mb-1">
                         <Form.Group className="mb-3" controlId="formYear">
-                          <Form.Label className="text-light">Year</Form.Label>
+                          <Form.Label className="text-light">
+                            100 Hour
+                          </Form.Label>
                           <Form.Control
                             name="oneHundredHourCheck"
                             onChange={handleChange}
