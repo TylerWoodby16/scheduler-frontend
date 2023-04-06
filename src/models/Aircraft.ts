@@ -1,4 +1,4 @@
-export type Aircraft = {
+export interface Aircraft {
   _id: string
   groupId: string
   name: string
@@ -12,7 +12,7 @@ export type Aircraft = {
   altimeterCheckDate: string
 }
 
-export type AirworthinessDirective = {
+export interface AirworthinessDirective {
   name: string
   dateOfCheck: string
   dateOfNextCheck: string
