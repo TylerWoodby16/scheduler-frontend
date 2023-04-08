@@ -14,6 +14,9 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import DatePicker from 'react-datepicker'
 import { authGet, authPost, authUpdate } from './authHelpers'
+import { Link } from 'react-router-dom'
+import { date } from 'yup/lib/locale'
+import { isMethodSignature } from 'typescript'
 
 // TODO: pass the aircraft in as a prop.
 // in the home component, we grab all aircrafts from the database.
@@ -22,20 +25,23 @@ import { authGet, authPost, authUpdate } from './authHelpers'
 const AircraftDetails: React.FC = () => {
   const [responseError, setResponseError] = useState<string>()
   let { id } = useParams()
-  let { state: aircraftFromRoute } = useLocation()
+
+  // let { state: aircraftFromRoute } = useLocation()
+  // console.log(aircraftFromRoute.airworthinessDirectives)
+
   // this is setting up state to show and hide the AD form
   const [showADForm, setShowADForm] = useState(false)
-  // this is for showing the AD form
-  const documentClick = () => {
-    setShowADForm(true)
-  }
-  // this si for hiding the AD form
-  const backClick = () => {
-    setShowADForm(false)
-  }
+
+  const [hourADBox, setHourADBox] = useState(false)
+
+  const [isHour, setIsHour] = useState(false)
 
   // This is the piece of state for formik to select a date with date picker
   const [dateOfCheck, setDateOfCheck] = useState<Date | null>(new Date())
+
+  const [dateOfNextCheck, setDateOfNextCheck] = useState<Date | null>(
+    new Date()
+  )
 
   const displayDate = (date: DateTime) => {
     return date.toLocaleString({
@@ -77,12 +83,6 @@ const AircraftDetails: React.FC = () => {
 
   let oneHundredHourCheck = aircraft.oneHundredHourCheck
 
-  // must assign new AD structure this is the old one
-
-  // let airworthinessDirectives = DateTime.fromISO(
-  //   aircraft.airworthinessDirectives
-  // )
-
   let eltCheckDate = DateTime.fromISO(aircraft.eltCheckDate)
   let nextEltCheckDate = eltCheckDate.startOf('month').plus({ months: 13 })
 
@@ -109,16 +109,35 @@ const AircraftDetails: React.FC = () => {
   }
 
   useEffect(() => {
-    if (aircraftFromRoute == null) {
-      getAircraft()
-    } else {
-      setAircraft(aircraftFromRoute)
-    }
+    getAircraft()
+    // if (aircraftFromRoute == null) {
+    //   getAircraft()
+    // } else {
+    //   setAircraft(aircraftFromRoute)
+    //   console.log(aircraftFromRoute)
+    //   console.log(aircraft.airworthinessDirectives)
+    // }
   }, [])
 
   return (
     <>
-      <Button onClick={() => documentClick()}> Add AD </Button>
+      {/* these links will lead to a place where the owner of the website can upload the appropriate info for the planes */}
+      <Col className="text-center">
+        <span style={{ paddingRight: '10px' }}>
+          <Link to={'home'}> Performance Packet </Link>{' '}
+        </span>
+        <span style={{ paddingRight: '10px' }}>
+          <Link to={'home'}> Procedure Packet </Link>{' '}
+        </span>
+        <span style={{ paddingRight: '10px' }}>
+          <Link to={'home'}> Weight and Balance </Link>
+        </span>
+        <span style={{ paddingRight: '10px' }}>
+          <Link to={'home'}> CheckList </Link>
+        </span>
+      </Col>
+
+      <Button onClick={() => setShowADForm(true)}> Add AD </Button>
       <div className={showADForm ? '' : 'd-none'}>
         <h1 style={{ textAlign: 'center' }}>Airworthiness Directive</h1>
         <Formik
@@ -136,7 +155,19 @@ const AircraftDetails: React.FC = () => {
           ) => {
             // WE DO NOT HANDLE ERRORS.
             // TODO: HANDLE ERRORS.
+
+            values.isHour = isHour
+
+            if (dateOfCheck && dateOfNextCheck) {
+              values.dateOfCheck = dateOfCheck.toISOString()
+              values.dateOfNextCheck = dateOfNextCheck.toISOString()
+            }
+
+            console.log(values)
+
             await updateAD(values)
+            await getAircraft()
+            setShowADForm(false)
 
             // 1. intitial values remain AD values // use aircraft associated with this page for initial values
             // 2. somehow destructure ADs // pull out CURRENT ADs (possibly no ADs) -> aircraft.airworthinessdire gives us an array
@@ -175,15 +206,77 @@ const AircraftDetails: React.FC = () => {
                     </Form.Group>
                   </Row>
 
-                  <Row className="mb-1">
+                  <input
+                    type="button"
+                    value="Click me if your AD is based off of hours"
+                    onClick={() => {
+                      setHourADBox(true)
+                      setIsHour(true)
+                    }}
+                  ></input>
+                  <input
+                    type="button"
+                    value="Click me if your AD is based of the Date"
+                    onClick={() => {
+                      setHourADBox(false)
+                      setIsHour(false)
+                    }}
+                  ></input>
+
+                  <Row className={!hourADBox ? 'mb-1' : 'd-none'}>
                     <Form.Group className="mb-3" controlId="formYear">
                       <Form.Label className="text-light">
-                        Airworthiness Directive
+                        Date of Check
                       </Form.Label>
                       <DatePicker
                         className="w-100 p-2 rounded mb-2"
                         selected={dateOfCheck}
                         onChange={(date) => setDateOfCheck(date)}
+                      />
+                    </Form.Group>
+                  </Row>
+                  <Row className={!hourADBox ? 'mb-1' : 'd-none'}>
+                    <Form.Group className="mb-3" controlId="formYear">
+                      <Form.Label className="text-light">
+                        Date of Next Check
+                      </Form.Label>
+                      <DatePicker
+                        className="w-100 p-2 rounded mb-2"
+                        selected={dateOfNextCheck}
+                        onChange={(date) => setDateOfNextCheck(date)}
+                      />
+                    </Form.Group>
+                  </Row>
+                  <Row className={hourADBox ? 'mb-1' : 'd-none'}>
+                    <Form.Group className="mb-3" controlId="formADhourCheck">
+                      <Form.Label className="text-white">
+                        Hour of AD check{' '}
+                      </Form.Label>
+                      <Form.Control
+                        name="hourCheck"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        value={values['hourCheck']}
+                        type="number"
+                        placeholder="Enter the hour of this AD check"
+                      />
+                    </Form.Group>
+                  </Row>
+                  <Row className={hourADBox ? 'mb-1' : 'd-none'}>
+                    <Form.Group
+                      className="mb-3"
+                      controlId="formADhourNextCheck"
+                    >
+                      <Form.Label className="text-white">
+                        Hour of next check{' '}
+                      </Form.Label>
+                      <Form.Control
+                        name="hourNextCheck"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        value={values['hourNextCheck']}
+                        type="number"
+                        placeholder="Enter the hour of this AD"
                       />
                     </Form.Group>
                   </Row>
@@ -202,7 +295,11 @@ const AircraftDetails: React.FC = () => {
             </FormikForm>
           )}
         </Formik>
-        <Button onClick={() => backClick()} variant="secondary" size="lg">
+        <Button
+          onClick={() => setShowADForm(false)}
+          variant="secondary"
+          size="lg"
+        >
           Back
         </Button>
       </div>
@@ -215,8 +312,8 @@ const AircraftDetails: React.FC = () => {
           </tr>
           <tr>
             <th>Inspection</th>
-            <th>Date of Inspection</th>
-            <th>Date Inspection is Due</th>
+            <th>Date or Hour of Inspection</th>
+            <th>Date or Hour Inspection is Due</th>
           </tr>
         </thead>
         <tbody>
@@ -236,15 +333,6 @@ const AircraftDetails: React.FC = () => {
             <td>{oneHundredHourCheck + 100}</td>
           </tr>
           <tr>
-            <td>Airworthiness Directives</td>
-            <td>
-              {/* {ADs.map((ad) => (
-                <li>{ad}</li>
-              ))} */}
-            </td>
-            <td>+5000</td>
-          </tr>
-          <tr>
             <td>Transponder</td>
             <td>{displayDate(transponderCheckDate)}</td>
             <td>{displayDate(nextTransponderCheckDate)}</td>
@@ -258,6 +346,42 @@ const AircraftDetails: React.FC = () => {
             <td>Static Encoder/ Altimeter</td>
             <td>{displayDate(altimeterCheckDate)}</td>
             <td>{displayDate(nextAltimeterCheckDate)}</td>
+          </tr>
+          <tr>
+            <td>Airworthiness Directives</td>
+          </tr>
+
+          <tr>
+            <td>
+              {aircraft.airworthinessDirectives
+                ? aircraft.airworthinessDirectives.map((ad) => (
+                    <li key={ad.name}>{ad.name}</li>
+                  ))
+                : null}
+            </td>
+            <td>
+              {aircraft.airworthinessDirectives
+                ? aircraft.airworthinessDirectives.map((ad) =>
+                    ad.isHour ? (
+                      <li key={ad.hourCheck}>{ad.hourCheck}</li>
+                    ) : (
+                      <li key={ad.dateOfCheck}>{ad.dateOfCheck}</li>
+                    )
+                  )
+                : null}
+            </td>
+            <td>
+              {aircraft.airworthinessDirectives
+                ? aircraft.airworthinessDirectives.map((ad) => (
+                    <li key={ad.dateOfNextCheck}>{ad.dateOfNextCheck}</li>
+                  ))
+                : null}
+              {aircraft.airworthinessDirectives
+                ? aircraft.airworthinessDirectives.map((ad) => (
+                    <li key={ad.hourNextCheck}>{ad.hourNextCheck}</li>
+                  ))
+                : null}
+            </td>
           </tr>
         </tbody>
       </Table>
