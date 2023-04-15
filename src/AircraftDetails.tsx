@@ -16,7 +16,6 @@ import DatePicker from 'react-datepicker'
 import { authGet, authPost, authUpdate } from './authHelpers'
 import { Link } from 'react-router-dom'
 import { date } from 'yup/lib/locale'
-import { isMethodSignature } from 'typescript'
 
 // TODO: pass the aircraft in as a prop.
 // in the home component, we grab all aircrafts from the database.
@@ -52,9 +51,18 @@ const AircraftDetails: React.FC = () => {
   }
 
   const updateAD = async (AD: AirworthinessDirective) => {
+    // TODO: NEED TO HANDLE ERRORS.
     const statusCode = await authUpdate(
       `http://localhost:5555/aircrafts/updateAD/${aircraft._id}`,
       AD
+    )
+  }
+
+  const updateAircraft = async (aircraft: Aircraft) => {
+    // TODO: NEED TO HANDLE ERRORS.
+    const statusCode = await authUpdate(
+      `http://localhost:5555/aircrafts/${aircraft._id}`,
+      aircraft
     )
   }
 
@@ -110,13 +118,6 @@ const AircraftDetails: React.FC = () => {
 
   useEffect(() => {
     getAircraft()
-    // if (aircraftFromRoute == null) {
-    //   getAircraft()
-    // } else {
-    //   setAircraft(aircraftFromRoute)
-    //   console.log(aircraftFromRoute)
-    //   console.log(aircraft.airworthinessDirectives)
-    // }
   }, [])
 
   return (
@@ -163,20 +164,25 @@ const AircraftDetails: React.FC = () => {
               values.dateOfNextCheck = dateOfNextCheck.toISOString()
             }
 
-            console.log(values)
+            // WAY ONE
+            // await updateAD(values)
 
-            await updateAD(values)
-            await getAircraft()
-            setShowADForm(false)
-
-            // 1. intitial values remain AD values // use aircraft associated with this page for initial values
-            // 2. somehow destructure ADs // pull out CURRENT ADs (possibly no ADs) -> aircraft.airworthinessdire gives us an array
+            // 1. use aircraft associated with this page for initial values
+            // 2. pull out CURRENT ADs (possibly no ADs) -> aircraft.airworthinessdire gives us an array
             // 3. append the NEW AD to the end of the list
             // 4. put the list of ADs back into the aircraft and update
-            // ADsWithNewAD
-            // aircraft.airworthinessDirectives = ADsWithNewAD
-            // updateAircraft(aircraft)
 
+            if (aircraft.airworthinessDirectives == null) {
+              aircraft.airworthinessDirectives = []
+            }
+
+            aircraft.airworthinessDirectives.push(values)
+
+            await updateAircraft(aircraft)
+
+            // Clean up page after updating.
+            await getAircraft()
+            setShowADForm(false)
             setSubmitting(false)
           }}
         >
@@ -351,38 +357,15 @@ const AircraftDetails: React.FC = () => {
             <td>Airworthiness Directives</td>
           </tr>
 
-          <tr>
-            <td>
-              {aircraft.airworthinessDirectives
-                ? aircraft.airworthinessDirectives.map((ad) => (
-                    <li key={ad.name}>{ad.name}</li>
-                  ))
-                : null}
-            </td>
-            <td>
-              {aircraft.airworthinessDirectives
-                ? aircraft.airworthinessDirectives.map((ad) =>
-                    ad.isHour ? (
-                      <li key={ad.hourCheck}>{ad.hourCheck}</li>
-                    ) : (
-                      <li key={ad.dateOfCheck}>{ad.dateOfCheck}</li>
-                    )
-                  )
-                : null}
-            </td>
-            <td>
-              {aircraft.airworthinessDirectives
-                ? aircraft.airworthinessDirectives.map((ad) => (
-                    <li key={ad.dateOfNextCheck}>{ad.dateOfNextCheck}</li>
-                  ))
-                : null}
-              {aircraft.airworthinessDirectives
-                ? aircraft.airworthinessDirectives.map((ad) => (
-                    <li key={ad.hourNextCheck}>{ad.hourNextCheck}</li>
-                  ))
-                : null}
-            </td>
-          </tr>
+          {aircraft.airworthinessDirectives
+            ? aircraft.airworthinessDirectives.map((ad) => (
+                <tr key={ad.name}>
+                  <td>{ad.name}</td>
+                  <td>{ad.isHour ? ad.hourCheck : ad.dateOfCheck}</td>
+                  <td>{ad.isHour ? ad.hourNextCheck : ad.dateOfNextCheck}</td>
+                </tr>
+              ))
+            : null}
         </tbody>
       </Table>
     </>
