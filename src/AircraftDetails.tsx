@@ -34,19 +34,10 @@ const AircraftDetails: React.FC = () => {
   // this is setting up state to show and hide the AD form
   const [showADForm, setShowADForm] = useState(false)
 
-  const [hourADBox, setHourADBox] = useState(false)
-
-  const [isHour, setIsHour] = useState(false)
-
   // this is setting up state to show and hide the modal
   const [showModal, setShowModal] = useState(false)
 
-  // This is the piece of state for formik to select a date with date picker
-  const [dateOfCheck, setDateOfCheck] = useState<Date | null>(new Date())
-
-  const [dateOfNextCheck, setDateOfNextCheck] = useState<Date | null>(
-    new Date()
-  )
+  const [aircraftLoaded, setAircraftLoaded] = useState(false)
 
   const displayDate = (date: DateTime) => {
     return date.toLocaleString({
@@ -78,12 +69,12 @@ const AircraftDetails: React.FC = () => {
     name: '',
     groupId: '',
     year: -1,
-    annualCheckDate: '',
-    vorCheckDate: '',
+    annualCheckDate: new Date().toISOString(),
+    vorCheckDate: new Date().toISOString(),
     oneHundredHourCheck: 0,
-    eltCheckDate: '',
-    transponderCheckDate: '',
-    altimeterCheckDate: '',
+    eltCheckDate: new Date().toISOString(),
+    transponderCheckDate: new Date().toISOString(),
+    altimeterCheckDate: new Date().toISOString(),
   })
 
   let annualCheckDate = DateTime.fromISO(aircraft.annualCheckDate)
@@ -116,6 +107,7 @@ const AircraftDetails: React.FC = () => {
         `http://localhost:5555/aircrafts/${id}`
       )
       setAircraft(aircraft)
+      setAircraftLoaded(true)
     } catch (error: any) {
       // TODO: HANDLE ERROR CORRECTLY.
       console.log('error: ' + error)
@@ -124,16 +116,18 @@ const AircraftDetails: React.FC = () => {
 
   useEffect(() => {
     getAircraft()
-    console.log('USE EFFECT TRIGGERED')
   }, [])
 
   return (
     <>
-      <DetailsUpdateModal
-        aircraft={aircraft}
-        showModal={showModal}
-        setShowModal={setShowModal}
-      />
+      {aircraftLoaded ? (
+        <DetailsUpdateModal
+          aircraft={aircraft}
+          showModal={showModal}
+          setShowModal={setShowModal}
+          getAircraft={getAircraft}
+        />
+      ) : null}
 
       {/* these links will lead to a place where the owner of the website can upload the appropriate info for the planes */}
       <Col className="text-center">

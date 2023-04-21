@@ -18,37 +18,37 @@ import { Link } from 'react-router-dom'
 import Modal from 'react-bootstrap/Modal'
 import ResponseError from './ResponseError'
 import AddAD from './AddAD'
+import { group } from 'console'
+import { format } from 'date-fns'
 
 type Props = {
   aircraft: Aircraft
   showModal: boolean
   setShowModal: Function
+  getAircraft: Function
 }
 
 const DetailsUpdateModal: React.FC<Props> = ({
   aircraft,
   showModal,
   setShowModal,
+  getAircraft,
 }) => {
   const [responseError, setResponseError] = useState<string>()
-  let { id } = useParams()
 
-  // let { state: aircraftFromRoute } = useLocation()
-  // console.log(aircraftFromRoute.airworthinessDirectives)
+  const [annualCheckDate, setAnnualCheckDate] = useState<Date | null>(
+    new Date(aircraft.annualCheckDate)
+  )
 
-  // this is setting up state to show and hide the AD form
-  const [showADForm, setShowADForm] = useState(false)
+  const [vorCheckDate, setVorCheckDate] = useState<Date | null>(new Date())
 
-  const [hourADBox, setHourADBox] = useState(false)
+  const [eltCheckDate, setEltCheckDate] = useState<Date | null>(new Date())
 
-  const [isHour, setIsHour] = useState(false)
+  const [transponderCheckDate, setTransponderCheckDate] = useState<Date | null>(
+    new Date()
+  )
 
-  // this is setting up state to show and hide the modal
-
-  // This is the piece of state for formik to select a date with date picker
-  const [dateOfCheck, setDateOfCheck] = useState<Date | null>(new Date())
-
-  const [dateOfNextCheck, setDateOfNextCheck] = useState<Date | null>(
+  const [altimeterCheckDate, setAltimeterCheckDate] = useState<Date | null>(
     new Date()
   )
 
@@ -83,26 +83,30 @@ const DetailsUpdateModal: React.FC<Props> = ({
         <h1 style={{ textAlign: 'center' }}>Airworthiness Directive</h1>
         <Formik
           initialValues={{
-            name: '',
-            dateOfCheck: '',
-            dateOfNextCheck: '',
-            hourCheck: 0,
-            hourNextCheck: 0,
-            isHour: true,
+            _id: aircraft._id,
+            groupId: aircraft.groupId,
+            name: aircraft.name,
+            year: aircraft.year,
+            annualCheckDate: aircraft.annualCheckDate,
+            vorCheckDate: aircraft.vorCheckDate,
+            oneHundredHourCheck: aircraft.oneHundredHourCheck,
+            eltCheckDate: aircraft.eltCheckDate,
+            transponderCheckDate: aircraft.transponderCheckDate,
+            altimeterCheckDate: aircraft.altimeterCheckDate,
           }}
           onSubmit={async (
-            values: AirworthinessDirective,
-            { setSubmitting }: FormikHelpers<AirworthinessDirective>
+            values: Aircraft,
+            { setSubmitting }: FormikHelpers<Aircraft>
           ) => {
             // WE DO NOT HANDLE ERRORS.
             // TODO: HANDLE ERRORS.
 
-            values.isHour = isHour
+            // values.isHour = isHour
 
-            if (dateOfCheck && dateOfNextCheck) {
-              values.dateOfCheck = dateOfCheck.toISOString()
-              values.dateOfNextCheck = dateOfNextCheck.toISOString()
-            }
+            // if (dateOfCheck && dateOfNextCheck) {
+            //   values.dateOfCheck = dateOfCheck.toISOString()
+            //   values.dateOfNextCheck = dateOfNextCheck.toISOString()
+            // }
 
             // WAY ONE
             // await updateAD(values)
@@ -112,16 +116,19 @@ const DetailsUpdateModal: React.FC<Props> = ({
             // 3. append the NEW AD to the end of the list
             // 4. put the list of ADs back into the aircraft and update
 
-            if (aircraft.airworthinessDirectives == null) {
-              aircraft.airworthinessDirectives = []
-            }
+            // if (aircraft.airworthinessDirectives == null) {
+            //   aircraft.airworthinessDirectives = []
+            // }
 
-            aircraft.airworthinessDirectives.push(values)
+            // aircraft.airworthinessDirectives.push(values)
+            values.annualCheckDate = annualCheckDate!.toISOString()
 
-            await updateAircraft(aircraft)
+            await updateAircraft(values)
 
             // Clean up page after updating.
+            await getAircraft()
             setSubmitting(false)
+            setShowModal(false)
           }}
         >
           {({
@@ -137,103 +144,128 @@ const DetailsUpdateModal: React.FC<Props> = ({
               <Container>
                 <Col className="mx-auto" lg={4} md={6} sm={8} xs={10}>
                   <Row className="mb-1">
-                    <Form.Group className="mb-3" controlId="formADname">
-                      <Form.Label>Name of AD </Form.Label>
+                    <Form.Group className="mb-3" controlId="formName">
+                      <Form.Label className="text-light">Name</Form.Label>
                       <Form.Control
                         name="name"
                         onChange={handleChange}
                         onBlur={handleBlur}
                         value={values['name']}
-                        type="string"
-                        placeholder="Enter the name of this AD"
+                        type="name"
+                        placeholder="Enter the planes name"
                       />
+                      {errors.name && touched.name ? (
+                        <div className="text-danger">
+                          <small>{errors.name}</small>
+                        </div>
+                      ) : null}
                     </Form.Group>
                   </Row>
 
-                  <input
-                    type="button"
-                    value="Click me if your AD is based off of hours"
-                    onClick={() => {
-                      setHourADBox(true)
-                      setIsHour(true)
-                    }}
-                  ></input>
-                  <input
-                    type="button"
-                    value="Click me if your AD is based of the Date"
-                    onClick={() => {
-                      setHourADBox(false)
-                      setIsHour(false)
-                    }}
-                  ></input>
+                  <Row className="mb-1">
+                    <Form.Group className="mb-3" controlId="formYear">
+                      <Form.Label className="text-light">Year</Form.Label>
+                      <Form.Control
+                        name="year"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        value={values['year']}
+                        type="year"
+                        placeholder="Enter the year"
+                      />
+                      {errors.year && touched.year ? (
+                        <div className="text-danger">
+                          <small>{errors.year}</small>
+                        </div>
+                      ) : null}
+                    </Form.Group>
+                  </Row>
 
-                  <Row className={!hourADBox ? 'mb-1' : 'd-none'}>
+                  <Row className="mb-1">
                     <Form.Group className="mb-3" controlId="formYear">
                       <Form.Label className="text-light">
-                        Date of Check
+                        Annual Check Date
                       </Form.Label>
                       <DatePicker
                         className="w-100 p-2 rounded mb-2"
-                        selected={dateOfCheck}
-                        onChange={(date) => setDateOfCheck(date)}
-                      />
-                    </Form.Group>
-                  </Row>
-                  <Row className={!hourADBox ? 'mb-1' : 'd-none'}>
-                    <Form.Group className="mb-3" controlId="formYear">
-                      <Form.Label className="text-light">
-                        Date of Next Check
-                      </Form.Label>
-                      <DatePicker
-                        className="w-100 p-2 rounded mb-2"
-                        selected={dateOfNextCheck}
-                        onChange={(date) => setDateOfNextCheck(date)}
-                      />
-                    </Form.Group>
-                  </Row>
-                  <Row className={hourADBox ? 'mb-1' : 'd-none'}>
-                    <Form.Group className="mb-3" controlId="formADhourCheck">
-                      <Form.Label className="text-white">
-                        Hour of AD check{' '}
-                      </Form.Label>
-                      <Form.Control
-                        name="hourCheck"
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        value={values['hourCheck']}
-                        type="number"
-                        placeholder="Enter the hour of this AD check"
-                      />
-                    </Form.Group>
-                  </Row>
-                  <Row className={hourADBox ? 'mb-1' : 'd-none'}>
-                    <Form.Group
-                      className="mb-3"
-                      controlId="formADhourNextCheck"
-                    >
-                      <Form.Label className="text-white">
-                        Hour of next check{' '}
-                      </Form.Label>
-                      <Form.Control
-                        name="hourNextCheck"
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        value={values['hourNextCheck']}
-                        type="number"
-                        placeholder="Enter the hour of this AD"
+                        selected={annualCheckDate}
+                        onChange={(date) => setAnnualCheckDate(date)}
                       />
                     </Form.Group>
                   </Row>
 
-                  {responseError ? (
-                    <Row className="pb-3 text-center text-danger">
-                      <Col>{responseError}</Col>
-                    </Row>
-                  ) : null}
+                  <Row className="mb-1">
+                    <Form.Group className="mb-3" controlId="formYear">
+                      <Form.Label className="text-light">
+                        VOR Check Date
+                      </Form.Label>
+                      <DatePicker
+                        className="w-100 p-2 rounded mb-2"
+                        selected={vorCheckDate}
+                        onChange={(date) => setVorCheckDate(date)}
+                      />
+                    </Form.Group>
+                  </Row>
+
+                  <Row className="mb-1">
+                    <Form.Group className="mb-3" controlId="formYear">
+                      <Form.Label className="text-light">100 Hour</Form.Label>
+                      <Form.Control
+                        name="oneHundredHourCheck"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        value={values['oneHundredHourCheck']}
+                        type="number"
+                        placeholder="Enter the Hobbs time"
+                      />
+                      {errors.year && touched.year ? (
+                        <div className="text-danger">
+                          <small>{errors.year}</small>
+                        </div>
+                      ) : null}
+                    </Form.Group>
+                  </Row>
+
+                  <Row className="mb-1">
+                    <Form.Group className="mb-3" controlId="formYear">
+                      <Form.Label className="text-light">ELT</Form.Label>
+                      <DatePicker
+                        className="w-100 p-2 rounded mb-2"
+                        selected={eltCheckDate}
+                        onChange={(date) => setEltCheckDate(date)}
+                      />
+                    </Form.Group>
+                  </Row>
+
+                  <Row className="mb-1">
+                    <Form.Group className="mb-3" controlId="formYear">
+                      <Form.Label className="text-light">
+                        Transponder
+                      </Form.Label>
+                      <DatePicker
+                        className="w-100 p-2 rounded mb-2"
+                        selected={transponderCheckDate}
+                        onChange={(date) => setTransponderCheckDate(date)}
+                      />
+                    </Form.Group>
+                  </Row>
+
+                  <Row className="mb-1">
+                    <Form.Group className="mb-3" controlId="formYear">
+                      <Form.Label className="text-light">Altimeter</Form.Label>
+                      <DatePicker
+                        className="w-100 p-2 rounded mb-2"
+                        selected={altimeterCheckDate}
+                        onChange={(date) => setAltimeterCheckDate(date)}
+                      />
+                    </Form.Group>
+                  </Row>
 
                   <Row>
                     <Button type="submit">Submit</Button>
                   </Row>
+
+                  <ResponseError responseError={responseError} />
                 </Col>
               </Container>
             </FormikForm>
