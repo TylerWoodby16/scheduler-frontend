@@ -80,20 +80,23 @@ const DetailsUpdateModal: React.FC<Props> = ({
       <Modal.Body>
         {/* Formik Form here  */}
         Would you like to update {aircraft.name}?
-        <h1 style={{ textAlign: 'center' }}>Airworthiness Directive</h1>
+        <h1 style={{ textAlign: 'center' }}>Update Aircraft</h1>
         <Formik
-          initialValues={{
-            _id: aircraft._id,
-            groupId: aircraft.groupId,
-            name: aircraft.name,
-            year: aircraft.year,
-            annualCheckDate: aircraft.annualCheckDate,
-            vorCheckDate: aircraft.vorCheckDate,
-            oneHundredHourCheck: aircraft.oneHundredHourCheck,
-            eltCheckDate: aircraft.eltCheckDate,
-            transponderCheckDate: aircraft.transponderCheckDate,
-            altimeterCheckDate: aircraft.altimeterCheckDate,
-          }}
+          initialValues={
+            {
+              _id: aircraft._id,
+              groupId: aircraft.groupId,
+              name: aircraft.name,
+              year: aircraft.year,
+              annualCheckDate: aircraft.annualCheckDate,
+              vorCheckDate: aircraft.vorCheckDate,
+              oneHundredHourCheck: aircraft.oneHundredHourCheck,
+              eltCheckDate: aircraft.eltCheckDate,
+              transponderCheckDate: aircraft.transponderCheckDate,
+              altimeterCheckDate: aircraft.altimeterCheckDate,
+              airworthinessDirectives: aircraft.airworthinessDirectives,
+            } as Aircraft
+          }
           onSubmit={async (
             values: Aircraft,
             { setSubmitting }: FormikHelpers<Aircraft>
@@ -142,7 +145,7 @@ const DetailsUpdateModal: React.FC<Props> = ({
           }) => (
             <FormikForm onSubmit={handleSubmit}>
               <Container>
-                <Col className="mx-auto" lg={4} md={6} sm={8} xs={10}>
+                <Col className="mx-auto">
                   <Row className="mb-1">
                     <Form.Group className="mb-3" controlId="formName">
                       <Form.Label className="text-light">Name</Form.Label>
@@ -150,7 +153,7 @@ const DetailsUpdateModal: React.FC<Props> = ({
                         name="name"
                         onChange={handleChange}
                         onBlur={handleBlur}
-                        value={values['name']}
+                        value={values.name}
                         type="name"
                         placeholder="Enter the planes name"
                       />
@@ -169,7 +172,7 @@ const DetailsUpdateModal: React.FC<Props> = ({
                         name="year"
                         onChange={handleChange}
                         onBlur={handleBlur}
-                        value={values['year']}
+                        value={values.year}
                         type="year"
                         placeholder="Enter the year"
                       />
@@ -214,7 +217,7 @@ const DetailsUpdateModal: React.FC<Props> = ({
                         name="oneHundredHourCheck"
                         onChange={handleChange}
                         onBlur={handleBlur}
-                        value={values['oneHundredHourCheck']}
+                        value={values.oneHundredHourCheck}
                         type="number"
                         placeholder="Enter the Hobbs time"
                       />
@@ -260,6 +263,56 @@ const DetailsUpdateModal: React.FC<Props> = ({
                       />
                     </Form.Group>
                   </Row>
+
+                  <h2 style={{ textAlign: 'center' }}>
+                    Airworthiness Directives
+                  </h2>
+
+                  {aircraft.airworthinessDirectives &&
+                  values.airworthinessDirectives
+                    ? aircraft.airworthinessDirectives.map((ad, index) => (
+                        <div>
+                          <Row>
+                            <Col>{ad.name}</Col>
+                          </Row>
+                          {/* <Row>
+                            <Col>
+                              {ad.isHour ? (
+                                <Row className="mb-1">
+                                  <Form.Group
+                                    className="mb-3"
+                                    controlId="formAirworthinessDirectives"
+                                  >
+                                    <Form.Label className="text-light">
+                                      airworthinessDirectives
+                                    </Form.Label>
+                                    <Form.Control
+                                      name="airworthinessDirectives"
+                                      onChange={handleChange}
+                                      onBlur={handleBlur}
+                                      value={
+                                        values.airworthinessDirectives![index]
+                                          .hourCheck
+                                      }
+                                      type="number"
+                                      placeholder="Enter the year"
+                                    />
+                                    {errors.year && touched.year ? (
+                                      <div className="text-danger">
+                                        <small>{errors.year}</small>
+                                      </div>
+                                    ) : null}
+                                  </Form.Group>
+                                </Row>
+                              ) : (
+                                ad.dateOfCheck
+                              )}
+                            </Col>
+                            <Col>{ad.dateOfNextCheck}</Col>
+                          </Row> */}
+                        </div>
+                      ))
+                    : null}
 
                   <Row>
                     <Button type="submit">Submit</Button>
