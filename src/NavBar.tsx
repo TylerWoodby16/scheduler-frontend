@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom'
 import { useLocation } from 'react-router-dom'
 import Button from 'react-bootstrap/Button'
 import { useNavigate } from 'react-router-dom'
-import { getToken } from './authHelpers'
+import { getToken, hasToken } from './authHelpers'
 
 const NavBar: React.FC = () => {
   const location = useLocation()
@@ -23,11 +23,6 @@ const NavBar: React.FC = () => {
 
   /// need to figure out a way to make navbar re-render when the state of
   // our token changes (whether or not we have one)
-
-  const hasToken = () => {
-    const userToken = localStorage.getItem('token')
-    return !!userToken
-  }
 
   return (
     <>

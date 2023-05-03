@@ -61,3 +61,8 @@ export const getToken = () => {
   const decodedToken = jwt_decode<UserToken>(token)
   return decodedToken
 }
+
+export const hasToken = () => {
+  const userToken = localStorage.getItem('token')
+  return !!userToken
+}
