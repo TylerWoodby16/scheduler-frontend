@@ -6,7 +6,7 @@ export interface User {
   password: string
   firstName: string
   lastName: string
-  //groupId: ObjectId;
+  groupId: string
 
   role: 'Admin' | 'CFI' | 'User'
 }

@@ -1,3 +1,8 @@
 .profile-background {
   background-color: #808b95;
 }
+
+.tab:hover {
+  opacity: 0.5;
+  background-color: rgb(143, 143, 143);
+}
