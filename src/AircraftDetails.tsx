@@ -19,7 +19,7 @@ import Modal from 'react-bootstrap/Modal'
 import ResponseError from './ResponseError'
 import AddAD from './AddAD'
 import DetailsUpdateModal from './DetailsUpdateModal'
-
+// possibly already done due to the modal
 // TODO: pass the aircraft in as a prop.
 // in the home component, we grab all aircrafts from the database.
 // we should not re-query the database for this details page because we already have the aircraft.

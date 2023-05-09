@@ -2,10 +2,7 @@ import React from 'react'
 import './App.css'
 import { useState, useEffect } from 'react'
 import './AircraftDetails.css'
-import { useParams, useLocation } from 'react-router-dom'
 import { Aircraft, AirworthinessDirective } from './models/Aircraft'
-import Table from 'react-bootstrap/Table'
-import { DateTime } from 'luxon'
 import { Button } from 'react-bootstrap'
 import { Formik, Form as FormikForm, FormikHelpers } from 'formik'
 import Form from 'react-bootstrap/Form'
@@ -14,12 +11,8 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import DatePicker from 'react-datepicker'
 import { authGet, authPost, authUpdate } from './authHelpers'
-import { Link } from 'react-router-dom'
 import Modal from 'react-bootstrap/Modal'
 import ResponseError from './ResponseError'
-import AddAD from './AddAD'
-import { group } from 'console'
-import { format } from 'date-fns'
 
 type Props = {
   aircraft: Aircraft
@@ -34,7 +27,7 @@ const DetailsUpdateModal: React.FC<Props> = ({
   setShowModal,
   getAircraft,
 }) => {
-  const [responseError, setResponseError] = useState<string>()
+  const [errorCode, setErrorCode] = useState<number>()
 
   const [annualCheckDate, setAnnualCheckDate] = useState<Date | null>(
     new Date(aircraft.annualCheckDate)
@@ -62,10 +55,22 @@ const DetailsUpdateModal: React.FC<Props> = ({
 
   const updateAircraft = async (aircraft: Aircraft) => {
     // TODO: NEED TO HANDLE ERRORS.
+    // Possible Solution to TODO have the eye of providence aka michael take a look see
+
     const statusCode = await authUpdate(
       `http://localhost:5555/aircrafts/${aircraft._id}`,
       aircraft
     )
+
+    // try {
+    //   const statusCode = await authUpdate(
+    //     `http://localhost:5555/aircrafts/${aircraft._id}ghsdfgjsfrjs`,
+    //     aircraft
+    //   )
+    // } catch (error: any) {
+    //   setResponseError(error.message)
+    //   console.log(error.message)
+    // }
   }
 
   return (
@@ -73,7 +78,7 @@ const DetailsUpdateModal: React.FC<Props> = ({
       show={showModal}
       onHide={() => {
         setShowModal(false)
-        setResponseError(undefined)
+        setErrorCode(undefined)
       }}
     >
       <Modal.Header />
@@ -126,12 +131,15 @@ const DetailsUpdateModal: React.FC<Props> = ({
             // aircraft.airworthinessDirectives.push(values)
             values.annualCheckDate = annualCheckDate!.toISOString()
 
-            await updateAircraft(values)
+            try {
+              await updateAircraft(values)
+              setShowModal(false)
+              await getAircraft()
+            } catch (error: any) {
+              setErrorCode(error.response.status)
+            }
 
-            // Clean up page after updating.
-            await getAircraft()
             setSubmitting(false)
-            setShowModal(false)
           }}
         >
           {({
@@ -318,20 +326,19 @@ const DetailsUpdateModal: React.FC<Props> = ({
                     <Button type="submit">Submit</Button>
                   </Row>
 
-                  <ResponseError responseError={responseError} />
+                  <ResponseError statusCode={errorCode} />
                 </Col>
               </Container>
             </FormikForm>
           )}
         </Formik>
-        <ResponseError responseError={responseError} />
       </Modal.Body>
       <Modal.Footer>
         <Button
           variant="secondary"
           onClick={() => {
             setShowModal(false)
-            setResponseError(undefined)
+            setErrorCode(undefined)
           }}
         >
           Cancel

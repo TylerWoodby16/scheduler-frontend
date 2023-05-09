@@ -7,6 +7,16 @@ export interface User {
   firstName: string
   lastName: string
   groupId: string
+  emergencyContact?: string
+  photoId?: String | HTMLImageElement
+  commercialLicense?: string
+  medicalCertificate?: String | HTMLImageElement
+  flightInstructorCertificate?: String | HTMLImageElement
+  tsaCitizenship?: String | HTMLImageElement
+  tsaSecurity?: String | HTMLImageElement
+  currency141?: String | HTMLImageElement
+  endorsements?: String | HTMLImageElement
+  aircraftCheckout?: String | HTMLImageElement
 
-  role: 'Admin' | 'CFI' | 'User'
+  role?: 'Admin' | 'CFI' | 'User'
 }
