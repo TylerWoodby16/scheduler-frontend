@@ -7,7 +7,7 @@ import SignupForm from './Signup'
 import './App.css'
 import NavBar from './NavBar'
 import AircraftDetails from './AircraftDetails'
-import Profile from './Profile'
+import Profile from './profile/Profile'
 
 export default function App() {
   const Landing = () => (

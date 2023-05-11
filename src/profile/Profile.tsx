@@ -3,14 +3,14 @@ import './Profile.css'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-import { authGet } from './authHelpers'
-import './Home.css'
-import { User } from './models/User'
+import { authGet } from '../authHelpers'
+import { User } from '../models/User'
 import { useState, useEffect } from 'react'
-import { getToken, hasToken } from './authHelpers'
+import { getToken, hasToken } from '../authHelpers'
 import Image from 'react-bootstrap/Image'
 import { Button } from 'react-bootstrap'
 import ProfileModal from './ProfileModal'
+import EmergencyContact from './EmergencyContact'
 
 const Profile: React.FC = () => {
   const [user, setUser] = useState<User>({
@@ -126,13 +126,7 @@ const Profile: React.FC = () => {
           <Col className="profile-background">
             <div>
               <Row className={view == 'Emergency' ? '' : 'd-none'}>
-                {' '}
-                <Row>name: {user?.emergencyContact}</Row>
-                <Row>phone: </Row>
-                <Row>relationship:</Row>
-                <Row>
-                  <Button onClick={() => setShowModal(true)}>Update</Button>
-                </Row>
+                <EmergencyContact user={user} />
               </Row>
               <Row className={view == 'Photo' ? '' : 'd-none'}>
                 <Row>ID number</Row>

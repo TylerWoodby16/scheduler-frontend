@@ -1,9 +1,7 @@
 import React from 'react'
-import './App.css'
 import { useState, useEffect } from 'react'
-import './AircraftDetails.css'
-import { Aircraft, AirworthinessDirective } from './models/Aircraft'
-import { User } from './models/User'
+import { Aircraft, AirworthinessDirective } from '../models/Aircraft'
+import { User } from '../models/User'
 import { Button } from 'react-bootstrap'
 import { Formik, Form as FormikForm, FormikHelpers } from 'formik'
 import Form from 'react-bootstrap/Form'
@@ -11,9 +9,9 @@ import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import DatePicker from 'react-datepicker'
-import { authGet, authPost, authUpdate } from './authHelpers'
+import { authGet, authPost, authUpdate } from '../authHelpers'
 import Modal from 'react-bootstrap/Modal'
-import ResponseError from './ResponseError'
+import ResponseError from '../ResponseError'
 
 type Props = {
   user: User
