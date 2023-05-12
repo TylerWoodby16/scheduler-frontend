@@ -280,10 +280,10 @@ const DetailsUpdateModal: React.FC<Props> = ({
                   values.airworthinessDirectives
                     ? aircraft.airworthinessDirectives.map((ad, index) => (
                         <div>
-                          <Row>
+                          {/* <Row>
                             <Col>{ad.name}</Col>
                           </Row>
-                          {/* <Row>
+                          <Row>
                             <Col>
                               {ad.isHour ? (
                                 <Row className="mb-1">

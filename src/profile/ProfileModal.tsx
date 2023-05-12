@@ -20,7 +20,7 @@ type Props = {
   getUser: Function
 }
 
-const EmergencyContactModal: React.FC<Props> = ({
+const ProfileModal: React.FC<Props> = ({
   user,
   showModal,
   setShowModal,
@@ -103,13 +103,13 @@ const EmergencyContactModal: React.FC<Props> = ({
                         name="emergencyContact"
                         onChange={handleChange}
                         onBlur={handleBlur}
-                        value={values.emergencyContact}
+                        // value={values.emergencyContact[]}
                         type="string"
                         placeholder="Enter the planes name"
                       />
                       {errors.emergencyContact && touched.emergencyContact ? (
                         <div className="text-danger">
-                          <small>{errors.emergencyContact}</small>
+                          {/* <small>{errors.emergencyContact}</small> */}
                         </div>
                       ) : null}
                     </Form.Group>
@@ -142,4 +142,4 @@ const EmergencyContactModal: React.FC<Props> = ({
   )
 }
 
-export default EmergencyContactModal
+export default ProfileModal

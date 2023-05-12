@@ -9,35 +9,11 @@ import { useState, useEffect } from 'react'
 import { getToken, hasToken } from '../authHelpers'
 import Image from 'react-bootstrap/Image'
 import { Button } from 'react-bootstrap'
-import ProfileModal from './ProfileModal'
 import EmergencyContact from './EmergencyContact'
 
 const Profile: React.FC = () => {
-  const [user, setUser] = useState<User>({
-    _id: '',
-    email: '',
-    password: '',
-    firstName: '',
-    lastName: '',
-    groupId: '',
-    emergencyContact: '',
-    photoId: '',
-    commercialLicense: '',
-    medicalCertificate: '',
-    flightInstructorCertificate: '',
-    tsaCitizenship: '',
-    tsaSecurity: '',
-    currency141: '',
-    endorsements: '',
-    aircraftCheckout: '',
-  })
+  const [user, setUser] = useState<User>()
   const [view, setView] = useState('Emergency')
-
-  // this is setting up state to show and hide the AD form
-  const [showADForm, setShowADForm] = useState(false)
-
-  // this is setting up state to show and hide the modal
-  const [showModal, setShowModal] = useState(false)
 
   const getUser = async () => {
     try {
@@ -56,13 +32,6 @@ const Profile: React.FC = () => {
 
   return (
     <>
-      <ProfileModal
-        user={user}
-        showModal={showModal}
-        setShowModal={setShowModal}
-        getUser={getUser}
-      />
-
       <Container>
         <Row>
           <Col>

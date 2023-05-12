@@ -7,7 +7,7 @@ export interface User {
   firstName: string
   lastName: string
   groupId: string
-  emergencyContact?: string
+  emergencyContact?: EmergencyContact
   photoId?: String | HTMLImageElement
   commercialLicense?: string
   medicalCertificate?: String | HTMLImageElement
@@ -19,4 +19,10 @@ export interface User {
   aircraftCheckout?: String | HTMLImageElement
 
   role?: 'Admin' | 'CFI' | 'User'
+}
+
+export interface EmergencyContact {
+  name: string
+  phone: string
+  relationship: string
 }
