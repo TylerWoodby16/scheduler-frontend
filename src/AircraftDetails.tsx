@@ -8,9 +8,6 @@ import Table from 'react-bootstrap/Table'
 import { DateTime } from 'luxon'
 import { Button } from 'react-bootstrap'
 import { Formik, Form as FormikForm, FormikHelpers } from 'formik'
-import Form from 'react-bootstrap/Form'
-import Container from 'react-bootstrap/Container'
-import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import DatePicker from 'react-datepicker'
 import { authGet, authPost, authUpdate } from './authHelpers'
@@ -132,16 +129,16 @@ const AircraftDetails: React.FC = () => {
       {/* these links will lead to a place where the owner of the website can upload the appropriate info for the planes */}
       <Col className="text-center">
         <span style={{ paddingRight: '10px' }}>
-          <Link to={'home'}> Performance Packet </Link>{' '}
+          <Link to={'/schedule'}> Performance Packet </Link>{' '}
         </span>
         <span style={{ paddingRight: '10px' }}>
-          <Link to={'home'}> Procedure Packet </Link>{' '}
+          <Link to={'/schedule'}> Procedure Packet </Link>{' '}
         </span>
         <span style={{ paddingRight: '10px' }}>
-          <Link to={'home'}> Weight and Balance </Link>
+          <Link to={'/schedule'}> Weight and Balance </Link>
         </span>
         <span style={{ paddingRight: '10px' }}>
-          <Link to={'home'}> CheckList </Link>
+          <Link to={'/schedule'}> CheckList </Link>
         </span>
       </Col>
 

@@ -34,7 +34,7 @@ const Login = () => {
             .post('http://localhost:5555/login', values)
             .then((response) => {
               localStorage.setItem('token', response.data.token)
-              navigate('/home')
+              navigate('/schedule')
             })
             .catch((error) => {
               if (
@@ -100,7 +100,7 @@ const Login = () => {
                 </Row>
               </Col>
 
-              <Nav className="justify-content-center" activeKey="/home">
+              <Nav className="justify-content-center" activeKey="/schedule">
                 <Nav.Item>
                   <Nav.Link as={Link} to="/forgotpassword">
                     Forgot Password?

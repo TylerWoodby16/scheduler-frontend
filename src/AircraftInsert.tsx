@@ -15,7 +15,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 import * as Yup from 'yup'
 import ResponseError from './ResponseError'
 
-const Aircrafts: React.FC = () => {
+const AircraftInsert: React.FC = () => {
   const navigate = useNavigate()
   const [responseError, setResponseError] = useState<string>()
   const [annualCheckDate, setAnnualCheckDate] = useState<Date | null>(
@@ -94,7 +94,7 @@ const Aircrafts: React.FC = () => {
                   values.altimeterCheckDate = altimeterCheckDate!.toISOString()
 
                   await postAircraft(values)
-                  navigate('/home')
+                  navigate('/aircrafts')
                 } catch (error) {
                   setResponseError('Can not submit information at this time.')
                 }
@@ -283,4 +283,4 @@ const Aircrafts: React.FC = () => {
   )
 }
 
-export default Aircrafts
+export default AircraftInsert

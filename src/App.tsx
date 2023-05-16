@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
-import Aircrafts from './AircraftInsert'
-import Home from './Home'
+import AircraftInsert from './AircraftInsert'
+import Aircrafts from './Aircrafts'
 import Login from './Login'
 import { RequireAuth } from './RequireAuth'
 import SignupForm from './Signup'
@@ -8,6 +8,7 @@ import './App.css'
 import NavBar from './NavBar'
 import AircraftDetails from './AircraftDetails'
 import Profile from './profile/Profile'
+import Schedule from './Schedule'
 
 export default function App() {
   const Landing = () => (
@@ -21,13 +22,23 @@ export default function App() {
       <NavBar />
       <Routes>
         <Route
-          path="/home"
+          path="/schedule"
           element={
             <RequireAuth>
-              <Home />
+              <Schedule />
             </RequireAuth>
           }
         />
+
+        <Route
+          path="/aircrafts"
+          element={
+            <RequireAuth>
+              <Aircrafts />
+            </RequireAuth>
+          }
+        />
+
         <Route
           path="/aircraftdetails/:id"
           element={
@@ -36,6 +47,7 @@ export default function App() {
             </RequireAuth>
           }
         />
+
         <Route
           path="/profile"
           element={
@@ -44,38 +56,15 @@ export default function App() {
             </RequireAuth>
           }
         />
+
         <Route
-          path="/insertaircrafts"
+          path="/aircrafts/new"
           element={
             <RequireAuth>
-              <Aircrafts />
+              <AircraftInsert />
             </RequireAuth>
           }
         />
-        {/* <Route
-          path="/aircraftsupdate"
-          element={
-            <RequireAuth>
-              <AircraftsUpdate />
-            </RequireAuth>
-          }
-        /> */}
-        {/* <Route
-          path="/aircraftsupdategentle"
-          element={
-            <RequireAuth>
-              <AircraftsUpdateGentle />
-            </RequireAuth>
-          }
-        /> */}
-        {/* <Route
-          path="/aircraftsdelete"
-          element={
-            <RequireAuth>
-              <AircraftsDelete />
-            </RequireAuth>
-          }
-        /> */}
 
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />

@@ -4,12 +4,13 @@ import { useState, useEffect } from 'react'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import { authGet } from './authHelpers'
-import './Home.css'
+import './Aircrafts.css'
 import { Aircraft } from './models/Aircraft'
 import AircraftCard from './AircraftCard'
 import ResponseError from './ResponseError'
+import { Link } from 'react-router-dom'
 
-const Home: React.FC = () => {
+const Aircrafts: React.FC = () => {
   const [aircrafts, setAircrafts] = useState<Aircraft[]>([])
   const [responseError, setResponseError] = useState<string>()
 
@@ -28,8 +29,8 @@ const Home: React.FC = () => {
 
   return (
     <>
+      <Link to={'/aircrafts/new'}> Insert New Aircraft</Link>
       <ResponseError responseError={responseError} />
-
       <Row className="home m-3 g-4">
         {aircrafts.map((aircraft, index) => {
           return (
@@ -43,4 +44,4 @@ const Home: React.FC = () => {
   )
 }
 
-export default Home
+export default Aircrafts

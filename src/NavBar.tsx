@@ -28,7 +28,7 @@ const NavBar: React.FC = () => {
     <>
       <Navbar bg="dark" variant="dark" expand="lg">
         <Container>
-          <Navbar.Brand as={Link} to="/home">
+          <Navbar.Brand as={Link} to="/schedule">
             Flight-Hub
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -37,23 +37,9 @@ const NavBar: React.FC = () => {
               <Nav.Link
                 className={hasToken() ? '' : 'd-none'}
                 as={Link}
-                to="/insertaircrafts"
+                to="/aircrafts"
               >
-                Insert
-              </Nav.Link>
-              <Nav.Link
-                className={hasToken() ? '' : 'd-none'}
-                as={Link}
-                to="/aircraftsupdate"
-              >
-                Update
-              </Nav.Link>
-              <Nav.Link
-                className={hasToken() ? '' : 'd-none'}
-                as={Link}
-                to="/aircraftsdelete"
-              >
-                Delete
+                Aircrafts
               </Nav.Link>
               <Nav.Link
                 className={hasToken() ? '' : 'd-none'}
@@ -62,12 +48,19 @@ const NavBar: React.FC = () => {
               >
                 Profile
               </Nav.Link>
-              <Nav.Link as={Link} to="/signup">
-                Signup
-              </Nav.Link>
-              <Nav.Link as={Link} to="/login">
-                Login
-              </Nav.Link>
+
+              {!hasToken() ? (
+                <>
+                  <Nav.Link as={Link} to="/signup">
+                    Signup
+                  </Nav.Link>
+
+                  <Nav.Link as={Link} to="/login">
+                    Login
+                  </Nav.Link>
+                </>
+              ) : null}
+
               <Button
                 className={hasToken() ? '' : 'd-none'}
                 variant="success"
