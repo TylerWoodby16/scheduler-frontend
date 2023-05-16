@@ -14,33 +14,41 @@ import axios from 'axios'
 import { Formik, Field, Form as FormikForm, FormikHelpers } from 'formik'
 import Form from 'react-bootstrap/Form'
 import { authGet, authPost, authUpdate } from '../authHelpers'
+import ResponseError from '../ResponseError'
+import * as Yup from 'yup'
+import './EmergencyContact.css'
 
 interface Props {
   user?: User
 }
 
 const EmergencyContactDetails: React.FC<Props> = ({ user }) => {
-  // const initialValues: MyFormValues = { firstName: '' }
+  const SignupSchema = Yup.object().shape({
+    name: Yup.string()
+      .min(2, 'Too Short!')
+      .max(50, 'Too Long!')
+      .required('Required'),
+    phone: Yup.string()
+      .matches(/^(\+?\d{1,4}[ -]?)?\d{10}$/, 'Invalid phone number')
+      .required('Required'),
+    relationship: Yup.string()
+      .min(2, 'Too Short!')
+      .max(50, 'Too Long!')
+      .required('Required'),
+  })
   const [formDisabled, setFormDisabled] = useState(true)
-  const [responseError, setResponseError] = useState<string>()
-
-  const updateUser = async (user: User) => {
-    // TODO: NEED TO HANDLE ERRORS.
-
-    const statusCode = await authUpdate(
-      `http://localhost:5555/users/${user._id}`,
-      user
-    )
-  }
+  const [errorCode, setErrorCode] = useState<number>()
 
   if (!user) return null
+
+  // TODO: ADD YUP
 
   return (
     <div>
       <Formik
         initialValues={
           {
-            // change this
+            // TODO change this
             name: user.emergencyContact ? user.emergencyContact.name : '',
             phone: user.emergencyContact ? user.emergencyContact.phone : '',
             relationship: user.emergencyContact
@@ -48,16 +56,19 @@ const EmergencyContactDetails: React.FC<Props> = ({ user }) => {
               : '',
           } as EmergencyContact
         }
+        validationSchema={SignupSchema}
         onSubmit={async (
           values: EmergencyContact,
           { setSubmitting }: FormikHelpers<EmergencyContact>
         ) => {
           user.emergencyContact = values
 
-          console.log('FIRED')
-
-          // TODO HANDLE ERRORS
-          await updateUser(user)
+          try {
+            await authUpdate(`http://localhost:5555/users/${user._id}`, user)
+            setFormDisabled(true)
+          } catch (error: any) {
+            setErrorCode(error.response.status)
+          }
 
           setSubmitting(false)
         }}
@@ -74,9 +85,9 @@ const EmergencyContactDetails: React.FC<Props> = ({ user }) => {
           <FormikForm onSubmit={handleSubmit}>
             <Container>
               <Col>
-                <Row>
+                <Row className="p-4">
                   <Form.Group controlId="formName">
-                    <Form.Label>Name</Form.Label>
+                    <Form.Label className="pb-2 text-2xl">Name</Form.Label>
                     <Form.Control
                       name="name"
                       onChange={handleChange}
@@ -87,22 +98,73 @@ const EmergencyContactDetails: React.FC<Props> = ({ user }) => {
                       disabled={formDisabled}
                     />
                   </Form.Group>
+                  {errors.name && touched.name ? (
+                    <div className="text-danger">
+                      <small>{errors.name}</small>
+                    </div>
+                  ) : null}
                 </Row>
 
-                {/* TODO USE RESPONSEERROR COMPONENT */}
-                {responseError ? (
-                  <Row className="pb-3 text-center text-danger">
-                    <Col>{responseError}</Col>
-                  </Row>
-                ) : null}
+                <Row className="p-4">
+                  <Form.Group controlId="formPhone">
+                    <Form.Label className="pb-2 text-2xl">
+                      Phone Number: enter the numbers only
+                    </Form.Label>
+                    <Form.Control
+                      name="phone"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.phone}
+                      type="string"
+                      placeholder="Phone Number: enter only the numbers"
+                      disabled={formDisabled}
+                    />
+                  </Form.Group>
+                  {errors.phone && touched.phone ? (
+                    <div className="text-danger">
+                      <>{errors.phone}</>
+                    </div>
+                  ) : null}
+                </Row>
 
-                <Row>
+                <Row className="p-4">
+                  <Form.Group controlId="formRelationship">
+                    <Form.Label className="pb-2 text-2xl">
+                      Relationship
+                    </Form.Label>
+                    <Form.Control
+                      name="relationship"
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      value={values.relationship}
+                      type="string"
+                      placeholder="Relationship"
+                      disabled={formDisabled}
+                    />
+                  </Form.Group>
+                  {errors.relationship && touched.relationship ? (
+                    <div className="text-danger">
+                      <small>{errors.relationship}</small>
+                    </div>
+                  ) : null}
+                </Row>
+
+                <ResponseError statusCode={errorCode} />
+
+                <Row className="p-4">
                   {formDisabled ? (
-                    <Button onClick={() => setFormDisabled(false)}>Edit</Button>
-                  ) : (
-                    <Button type="submit" onClick={() => setFormDisabled(true)}>
-                      Save
+                    <Button
+                      variant="success"
+                      onClick={() =>
+                        setTimeout(() => {
+                          setFormDisabled(false) // TODO: FIGURE OUT A WAY TO REMOVE THIS DELAY
+                        }, 1)
+                      }
+                    >
+                      Edit
                     </Button>
+                  ) : (
+                    <Button type="submit">Save</Button>
                   )}
                 </Row>
               </Col>
@@ -110,10 +172,6 @@ const EmergencyContactDetails: React.FC<Props> = ({ user }) => {
           </FormikForm>
         )}
       </Formik>
-
-      {/* <Row>name: {user?.emergencyContact}</Row>
-      <Row>phone: </Row>
-      <Row>relationship:</Row> */}
     </div>
   )
 }

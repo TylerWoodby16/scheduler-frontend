@@ -47,7 +47,7 @@ const DetailsUpdateModal: React.FC<Props> = ({
 
   const updateAD = async (AD: AirworthinessDirective) => {
     // TODO: NEED TO HANDLE ERRORS.
-    const statusCode = await authUpdate(
+    await authUpdate(
       `http://localhost:5555/aircrafts/updateAD/${aircraft._id}`,
       AD
     )
@@ -57,7 +57,7 @@ const DetailsUpdateModal: React.FC<Props> = ({
     // TODO: NEED TO HANDLE ERRORS.
     // Possible Solution to TODO have the eye of providence aka michael take a look see
 
-    const statusCode = await authUpdate(
+    await authUpdate(
       `http://localhost:5555/aircrafts/${aircraft._id}`,
       aircraft
     )

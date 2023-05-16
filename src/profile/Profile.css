@@ -1,8 +1,61 @@
 .profile-background {
   background-color: #808b95;
+  border-radius: 5px;
 }
 
 .tab:hover {
-  opacity: 0.5;
+  opacity: 1;
   background-color: rgb(143, 143, 143);
+  border-radius: 5px;
+}
+
+/* .customBorder:hover {
+  border-style: solid;
+  border-width: 8px;
+  border-color: #198754;
+  border-bottom: none;
+  border-right: none;
+  border-top: none;
+  padding: 5px;
+} */
+
+/* .customBorder:hover {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+}
+
+.customBorder::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -0.25rem;
+
+  bottom: 0;
+  width: calc(100% + 0.25rem);
+  background: #198754;
+  z-index: -1;
+  transform: scaleX(0.1);
+  transform-origin: left;
+} */
+
+.indicator {
+  position: relative;
+}
+
+.indicator::after {
+  content: '';
+  display: block;
+  position: relative;
+  background-color: #198754;
+  padding: 1em 3em;
+  border-radius: 5px;
+
+  bottom: 28px;
+  left: -100px;
+  transform: scale(0);
+}
+
+.indicator:hover::after {
+  transform: scale(1);
 }

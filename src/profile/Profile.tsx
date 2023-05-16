@@ -10,6 +10,7 @@ import { getToken, hasToken } from '../authHelpers'
 import Image from 'react-bootstrap/Image'
 import { Button } from 'react-bootstrap'
 import EmergencyContact from './EmergencyContact'
+import logo from '../images/ahlogo.png'
 
 const Profile: React.FC = () => {
   const [user, setUser] = useState<User>()
@@ -34,65 +35,78 @@ const Profile: React.FC = () => {
     <>
       <Container>
         <Row>
-          <Col>
-            <Image
-              fluid
-              roundedCircle
-              src={'logo.svg'}
-              height="100"
-              width="100"
-            />
-            <Row className="text-white">----------------------</Row>
+          <Col lg={4}>
+            <Image fluid roundedCircle src={logo} height="100" width="100" />
           </Col>
-          <Col className="text-center text-white">
+          <Col className="text-center text-white" lg={4}>
             <Row>
-              <h1>
-                {user?.firstName} {user?.lastName}
-              </h1>
+              <Col>
+                <h1>
+                  {user?.firstName} {user?.lastName}
+                </h1>
+              </Col>
             </Row>
             <Row>
               <span className="text-white">{user?.email}</span>
             </Row>
           </Col>
-          <Col>
-            <Button>Update</Button>
+          <Col className="text-end">
+            <Image fluid roundedCircle src={logo} height="100" width="100" />
           </Col>
         </Row>
 
-        <Row>
+        <Row className="pt-5">
           <Col className="text-white" lg={2}>
-            <Row onClick={() => setView('Emergency')} className="tab">
+            <Row
+              onClick={() => setView('Emergency')}
+              className="indicator tab p-2"
+            >
               Emergency Contact
             </Row>
-            <Row onClick={() => setView('Photo')} className="tab">
-              Photo ID
+            <Row onClick={() => setView('Photo')} className="indicator tab p-2">
+              Photo Identification
             </Row>
-            <Row onClick={() => setView('Commercial')} className="tab">
+            <Row
+              onClick={() => setView('Commercial')}
+              className="indicator tab p-2"
+            >
               Commercial License
             </Row>
-            <Row onClick={() => setView('Medical')} className="tab">
+            <Row
+              onClick={() => setView('Medical')}
+              className="indicator tab p-2"
+            >
               Medical Certificate
             </Row>
-            <Row onClick={() => setView('Flight')} className="tab">
+            <Row
+              onClick={() => setView('Flight')}
+              className="indicator tab p-2"
+            >
               Flight Instructor Certificate
             </Row>
-            <Row onClick={() => setView('TSAC')} className="tab">
+            <Row onClick={() => setView('TSAC')} className="indicator tab p-2">
               TSA Citizenship
             </Row>
-            <Row onClick={() => setView('TSAS')} className="tab">
+            <Row onClick={() => setView('TSAS')} className="indicator tab p-2">
               TSA Security Training
             </Row>
-            <Row onClick={() => setView('141')} className="tab">
-              141 Currency
+            <Row onClick={() => setView('141')} className="indicator tab p-2">
+              Part 141 Currency
             </Row>
-            <Row onClick={() => setView('Endorsements')} className="tab">
-              Endorsements
+            <Row
+              onClick={() => setView('Endorsements')}
+              className="indicator tab p-2"
+            >
+              Pilot Endorsements
             </Row>
-            <Row onClick={() => setView('Aircraft')} className="tab">
+            <Row
+              onClick={() => setView('Aircraft')}
+              className="indicator tab p-2"
+            >
               Aircraft Checkout
             </Row>
           </Col>
-          <Col className="profile-background">
+          <Col className="profile-background pt-4">
             <div>
               <Row className={view == 'Emergency' ? '' : 'd-none'}>
                 <EmergencyContact user={user} />
