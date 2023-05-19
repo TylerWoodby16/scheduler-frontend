@@ -7,7 +7,7 @@ import Form from 'react-bootstrap/Form'
 import Nav from 'react-bootstrap/Nav'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { Formik, Field, Form as FormikForm, FormikHelpers } from 'formik'
+import { Formik, Form as FormikForm, FormikHelpers } from 'formik'
 
 interface Values {
   email: string
@@ -39,7 +39,7 @@ const Login = () => {
             .catch((error) => {
               if (
                 error.response &&
-                (error.response.status == 401 || error.response.status == 404)
+                (error.response.status === 401 || error.response.status === 404)
               ) {
                 setResponseError(error.response.data)
               } else {

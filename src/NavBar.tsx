@@ -27,7 +27,7 @@ const NavBar: React.FC = () => {
   return (
     <>
       <Navbar bg="dark" variant="dark" expand="lg">
-        <Container>
+        <Nav className="">
           <Navbar.Brand as={Link} to="/schedule">
             Flight-Hub
           </Navbar.Brand>
@@ -55,11 +55,15 @@ const NavBar: React.FC = () => {
                     Signup
                   </Nav.Link>
 
-                  <Nav.Link as={Link} to="/login">
+                  <Nav.Link className="" as={Link} to="/login">
                     Login
                   </Nav.Link>
                 </>
               ) : null}
+
+              <Navbar.Text className={hasToken() ? '' : 'd-none'}>
+                {hasToken() ? getToken().userName : 'd-none'}
+              </Navbar.Text>
 
               <Button
                 className={hasToken() ? '' : 'd-none'}
@@ -68,12 +72,9 @@ const NavBar: React.FC = () => {
               >
                 Log Out
               </Button>
-              <Navbar.Text className={hasToken() ? '' : 'd-none'}>
-                {hasToken() ? getToken().userName : 'd-none'}
-              </Navbar.Text>
             </Nav>
           </Navbar.Collapse>
-        </Container>
+        </Nav>
       </Navbar>
     </>
   )

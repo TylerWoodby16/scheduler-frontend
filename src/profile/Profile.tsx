@@ -6,15 +6,25 @@ import Col from 'react-bootstrap/Col'
 import { authGet } from '../authHelpers'
 import { User } from '../models/User'
 import { useState, useEffect } from 'react'
-import { getToken, hasToken } from '../authHelpers'
+import { getToken } from '../authHelpers'
 import Image from 'react-bootstrap/Image'
 import { Button } from 'react-bootstrap'
 import EmergencyContact from './EmergencyContact'
 import logo from '../images/ahlogo.png'
+import PhotoIdentification from './PhotoIdentification'
+import CommercialLicenseComp from './CommercialLicesneComp'
+import MedicalCertificateComp from './MedicalCertificateComp'
+import FlightInstructorCertComp from './FlightInstructorCertComp'
+import TSACitizenComp from './TSACitizenComp'
+import TSASecurityComp from './TSASecurityComp'
+import Currency141Comp from './Currency141Comp'
+import PilotEndorsementsComp from './PilotEndorsementsComp'
+import AircraftCheckOutComp from './AircraftCheckOutComp'
 
 const Profile: React.FC = () => {
   const [user, setUser] = useState<User>()
   const [view, setView] = useState('Emergency')
+  const [userLoaded, setUserLoaded] = useState(false)
 
   const getUser = async () => {
     try {
@@ -22,6 +32,7 @@ const Profile: React.FC = () => {
         `http://localhost:5555/users/${getToken().userId}`
       )
       setUser(data)
+      setUserLoaded(true)
     } catch (error: any) {
       //setResponseError('There was an error getting aircrafts.')
     }
@@ -108,17 +119,18 @@ const Profile: React.FC = () => {
           </Col>
           <Col className="profile-background pt-4">
             <div>
-              <Row className={view == 'Emergency' ? '' : 'd-none'}>
+              <Row className={view === 'Emergency' ? '' : 'd-none'}>
                 <EmergencyContact user={user} />
               </Row>
-              <Row className={view == 'Photo' ? '' : 'd-none'}>
+              <Row className={view === 'Photo' ? '' : 'd-none'}>
+                {userLoaded ? <PhotoIdentification user={user} /> : null}
                 <Row>ID number</Row>
                 <Row>Experation Date</Row>
                 <Row>IMAGE OF FRONT S3?????</Row>
                 <Row>IMAGE OF BACK S3?????</Row>
-                <Button>Update</Button>
               </Row>
-              <Row className={view == 'Commercial' ? '' : 'd-none'}>
+              <Row className={view === 'Commercial' ? '' : 'd-none'}>
+                {userLoaded ? <CommercialLicenseComp user={user} /> : null}
                 <Row>Certificate Type</Row>
                 <Row>Certification Number</Row>
                 <Row>Issued On</Row>
@@ -130,7 +142,8 @@ const Profile: React.FC = () => {
                 <Row>IMAGE OF BACK S3?????</Row>
                 <Button>Update</Button>
               </Row>
-              <Row className={view == 'Medical' ? '' : 'd-none'}>
+              <Row className={view === 'Medical' ? '' : 'd-none'}>
+                {userLoaded ? <MedicalCertificateComp user={user} /> : null}
                 <Row>Class / BasicMed</Row>
                 <Row>Certification Number</Row>
                 <Row>Date of Birth</Row>
@@ -143,7 +156,8 @@ const Profile: React.FC = () => {
                 <Row>IMAGE OF BACK S3?????</Row>
                 <Button>Update</Button>
               </Row>
-              <Row className={view == 'Flight' ? '' : 'd-none'}>
+              <Row className={view === 'Flight' ? '' : 'd-none'}>
+                {userLoaded ? <FlightInstructorCertComp user={user} /> : null}
                 <Row>Certification Number</Row>
                 <Row>Issued On</Row>
                 <Row>Expires</Row>
@@ -154,31 +168,36 @@ const Profile: React.FC = () => {
                 <Row>IMAGE OF BACK S3?????</Row>
                 <Button>Update</Button>
               </Row>
-              <Row className={view == 'TSAC' ? '' : 'd-none'}>
+              <Row className={view === 'TSAC' ? '' : 'd-none'}>
                 TSA Citizenship
+                {userLoaded ? <TSACitizenComp user={user} /> : null}
                 <Row>Type: Passport</Row>
                 <Row>Uploaded File s3 </Row>
                 <Button>Update</Button>
               </Row>
-              <Row className={view == 'TSAS' ? '' : 'd-none'}>
+              <Row className={view === 'TSAS' ? '' : 'd-none'}>
+                {userLoaded ? <TSASecurityComp user={user} /> : null}
                 <Row>Date</Row>
                 <Row>Expiration</Row>
                 <Row>Employee ID</Row>
                 <Row>Trainer</Row>
                 <Button>Update</Button>
               </Row>
-              <Row className={view == '141' ? '' : 'd-none'}>
+              <Row className={view === '141' ? '' : 'd-none'}>
+                {userLoaded ? <Currency141Comp user={user} /> : null}
                 <Row>Expirtion date</Row>
                 <Row>Image of thing s3</Row>
                 <Button>Update</Button>
               </Row>
-              <Row className={view == 'Endorsements' ? '' : 'd-none'}>
+              <Row className={view === 'Endorsements' ? '' : 'd-none'}>
                 <Row>Endorsements</Row>
+                {userLoaded ? <PilotEndorsementsComp user={user} /> : null}
                 <Row>Date Given</Row>
                 <Button>Update</Button>
               </Row>
-              <Row className={view == 'Aircraft' ? '' : 'd-none'}>
+              <Row className={view === 'Aircraft' ? '' : 'd-none'}>
                 <Row>Aircraft Make and Model</Row>
+                {userLoaded ? <AircraftCheckOutComp user={user} /> : null}
                 <Button>Update</Button>
               </Row>
             </div>
