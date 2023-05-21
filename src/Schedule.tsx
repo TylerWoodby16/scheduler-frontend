@@ -7,14 +7,23 @@ import Col from 'react-bootstrap/Col'
 import './Schedule.css'
 import DatePicker from 'react-datepicker'
 import { Container } from 'react-bootstrap'
+import AppointmentModal from './AppoinmentModal'
 
 const Schedule: React.FC = () => {
   const [aircrafts, setAircrafts] = useState<Aircraft[]>([])
   const [responseError, setResponseError] = useState<string>()
-  const [fillBox, setFillBox] = useState<boolean>(false)
+  const [appointmentModalShow, setAppointmentModalShow] =
+    useState<boolean>(false)
   const [dateForSomething, setDateForSomething] = useState<Date | null>(
     new Date()
   )
+
+  // TODO: FIGURE OUT HOW TO JUST USE A FOR LOOP WHAT THE FUCK
+  const times = [
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+    21, 22, 23,
+  ]
+
   // how do i get the airplanes ???
   // should i pass them as a prop from airplanes?? instead what is the risk anal
   // how do i loop through the airplanes
@@ -35,6 +44,7 @@ const Schedule: React.FC = () => {
   return (
     <div>
       <div className="text-white text-center">SCHEDULE</div>
+
       <Row>
         <Col lg={2} className="text-center">
           <DatePicker
@@ -52,64 +62,30 @@ const Schedule: React.FC = () => {
               <tbody>
                 <tr>
                   <th>name</th>
-                  <th>0:00</th>
-                  <th>1:00</th>
-                  <th>2:00</th>
-                  <th>3:00</th>
-                  <th>4:00</th>
-                  <th>5:00</th>
-                  <th>6:00</th>
-                  <th>7:00</th>
-                  <th>8:00</th>
-                  <th>9:00</th>
-                  <th>10:00</th>
-                  <th>11:00</th>
-                  <th>12:00</th>
-                  <th>13:00</th>
-                  <th>14:00</th>
-                  <th>15:00</th>
-                  <th>16:00</th>
-                  <th>17:00</th>
-                  <th>18:00</th>
-                  <th>19:00</th>
-                  <th>20:00</th>
-                  <th>21:00</th>
-                  <th>22:00</th>
-                  <th>23:00</th>
+                  {times.map((hour) => {
+                    return <th>{hour}</th>
+                  })}
                 </tr>
                 {aircrafts.map((aircraft, index) => {
                   return (
                     <tr>
-                      <th>{aircraft.name}</th>
-                      <th
-                        className={fillBox ? 'box' : ''}
-                        onClick={() => setFillBox(true)}
-                      >
-                        WHERE AM I
-                      </th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
+                      <td>{aircraft.name}</td>
+                      {times.map((hour) => {
+                        return (
+                          <>
+                            <td
+                              onClick={() => setAppointmentModalShow(true)}
+                            ></td>
+
+                            <AppointmentModal
+                              aircraft={aircrafts[0]}
+                              time={hour.toString()}
+                              showModal={appointmentModalShow}
+                              setShowModal={setAppointmentModalShow}
+                            />
+                          </>
+                        )
+                      })}
                     </tr>
                   )
                 })}
@@ -118,38 +94,6 @@ const Schedule: React.FC = () => {
           </Col>
         </Row>
       </Container>
-
-      <table className="table table-dark table-striped table-hover">
-        <thead>
-          {/* tr th tr <- first airplane tr th tr <- second airplane  */}
-
-          <tr>
-            <th scope="col"></th>
-            <th scope="col">First</th>
-            <th scope="col">Last</th>
-            <th scope="col">Handle</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th scope="row">1</th>
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>@mdo</td>
-          </tr>
-          <tr>
-            <th scope="row">2</th>
-            <td>Jacob</td>
-            <td>Thornton</td>
-            <td>@fat</td>
-          </tr>
-          <tr>
-            <th scope="row">3</th>
-            <td>Larry the Bird</td>
-            <td>@twitter</td>
-          </tr>
-        </tbody>
-      </table>
     </div>
   )
 }
