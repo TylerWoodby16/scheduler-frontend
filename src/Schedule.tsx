@@ -7,16 +7,20 @@ import Col from 'react-bootstrap/Col'
 import './Schedule.css'
 import DatePicker from 'react-datepicker'
 import { Container } from 'react-bootstrap'
+
 import AppointmentModal from './AppoinmentModal'
+import { string } from 'yup'
 
 const Schedule: React.FC = () => {
   const [aircrafts, setAircrafts] = useState<Aircraft[]>([])
   const [responseError, setResponseError] = useState<string>()
-  const [appointmentModalShow, setAppointmentModalShow] =
-    useState<boolean>(false)
   const [dateForSomething, setDateForSomething] = useState<Date | null>(
     new Date()
   )
+  const [showModal, setShowModal] = useState<boolean>(false)
+
+  const [selectedAircraft, setSelectedAircraft] = useState<Aircraft>()
+  const [selectedTime, setSelectedTime] = useState<number>()
 
   // TODO: FIGURE OUT HOW TO JUST USE A FOR LOOP WHAT THE FUCK
   const times = [
@@ -24,10 +28,6 @@ const Schedule: React.FC = () => {
     21, 22, 23,
   ]
 
-  // how do i get the airplanes ???
-  // should i pass them as a prop from airplanes?? instead what is the risk anal
-  // how do i loop through the airplanes
-  // how do i get that loop to produce the Y axis of my table
   const getAircrafts = async () => {
     try {
       const data = await authGet<Aircraft[]>('http://localhost:5555/aircrafts')
@@ -74,15 +74,12 @@ const Schedule: React.FC = () => {
                         return (
                           <>
                             <td
-                              onClick={() => setAppointmentModalShow(true)}
+                              onClick={() => {
+                                setSelectedAircraft(aircraft)
+                                setSelectedTime(hour)
+                                setShowModal(true)
+                              }}
                             ></td>
-
-                            <AppointmentModal
-                              aircraft={aircrafts[0]}
-                              time={hour.toString()}
-                              showModal={appointmentModalShow}
-                              setShowModal={setAppointmentModalShow}
-                            />
                           </>
                         )
                       })}
@@ -94,6 +91,13 @@ const Schedule: React.FC = () => {
           </Col>
         </Row>
       </Container>
+
+      <AppointmentModal
+        aircraft={selectedAircraft}
+        time={selectedTime}
+        showModal={showModal}
+        setShowModal={setShowModal}
+      />
     </div>
   )
 }

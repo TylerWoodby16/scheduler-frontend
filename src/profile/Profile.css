@@ -1,5 +1,5 @@
 .profile-background {
-  background-color: #808b95;
+  background-color: #000000;
   border-radius: 5px;
 }
 
@@ -47,13 +47,13 @@
   content: '';
   display: block;
   position: relative;
-  background-color: #198754;
-  padding: 1em 3em;
+  background-color: #83fba1;
+  padding: 1em 0.5em;
   border-radius: 5px;
 
   bottom: 28px;
-  left: -100px;
-  transform: scale(0);
+  left: -35px;
+  transform: scale(1);
 }
 
 .indicator:hover::after {

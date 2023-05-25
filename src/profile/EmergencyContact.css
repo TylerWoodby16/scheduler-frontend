@@ -2,3 +2,12 @@
   font-size: 24px;
   line-height: 32px;
 }
+
+.btn-custom {
+  background: #83fba1;
+  color: #83fba1;
+  border: 2px solid red;
+  border-radius: 3px;
+  padding: 5px 10px;
+  text-transform: uppercase;
+}

@@ -80,7 +80,9 @@ const EmergencyContactDetails: React.FC<Props> = ({ user }) => {
               <Col>
                 <Row className="p-4">
                   <Form.Group controlId="formName">
-                    <Form.Label className="pb-2 text-2xl">Name</Form.Label>
+                    <Form.Label className="pb-2 text-2xl text-white">
+                      Name
+                    </Form.Label>
                     <Form.Control
                       name="name"
                       onChange={handleChange}
@@ -100,7 +102,7 @@ const EmergencyContactDetails: React.FC<Props> = ({ user }) => {
 
                 <Row className="p-4">
                   <Form.Group controlId="formPhone">
-                    <Form.Label className="pb-2 text-2xl">
+                    <Form.Label className="pb-2 text-2xl text-white">
                       Phone Number: enter the numbers only
                     </Form.Label>
                     <Form.Control
@@ -122,7 +124,7 @@ const EmergencyContactDetails: React.FC<Props> = ({ user }) => {
 
                 <Row className="p-4">
                   <Form.Group controlId="formRelationship">
-                    <Form.Label className="pb-2 text-2xl">
+                    <Form.Label className="pb-2 text-2xl text-white">
                       Relationship
                     </Form.Label>
                     <Form.Control
@@ -147,7 +149,7 @@ const EmergencyContactDetails: React.FC<Props> = ({ user }) => {
                 <Row className="p-4">
                   {formDisabled ? (
                     <Button
-                      variant="success"
+                      variant="custom"
                       onClick={() =>
                         setTimeout(() => {
                           setFormDisabled(false) // TODO: FIGURE OUT A WAY TO REMOVE THIS DELAY

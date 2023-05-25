@@ -1,5 +1,5 @@
 import React from 'react'
-import './App.css'
+import './AppointmentModal.css'
 import { useState } from 'react'
 import './AircraftDetails.css'
 import { Aircraft } from './models/Aircraft'
@@ -15,9 +15,9 @@ import Modal from 'react-bootstrap/Modal'
 import ResponseError from './ResponseError'
 
 type Props = {
-  aircraft: Aircraft
-  time: string
-  showModal: boolean | undefined
+  aircraft: Aircraft | undefined
+  time: number | undefined
+  showModal: boolean
   setShowModal: Function
 }
 
@@ -30,31 +30,33 @@ const AppointmentModal: React.FC<Props> = ({
   const [errorCode, setErrorCode] = useState<number>()
 
   return (
-    <Modal
-      show={showModal}
-      onHide={() => {
-        setShowModal(false)
-        setErrorCode(undefined)
-      }}
-    >
-      <Modal.Header />
-      <Modal.Body>
-        {/* Formik Form here  */}
-        TEST
-        <h1 style={{ textAlign: 'center' }}>{time}</h1>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button
-          variant="secondary"
-          onClick={() => {
-            setShowModal(false)
-            setErrorCode(undefined)
-          }}
-        >
-          Cancel
-        </Button>
-      </Modal.Footer>
-    </Modal>
+    <>
+      <Modal
+        show={showModal}
+        onHide={() => {
+          setShowModal(false)
+          setErrorCode(undefined)
+        }}
+      >
+        <Modal.Header />
+        <Modal.Body>
+          {/* Formik Form here  */}
+          {aircraft ? aircraft.name : null}
+          <h1 style={{ textAlign: 'center' }}>{time}</h1>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setShowModal(false)
+              setErrorCode(undefined)
+            }}
+          >
+            Cancel
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
   )
 }
 

@@ -17,17 +17,10 @@ const NavBar: React.FC = () => {
     navigate('/login')
   }
 
-  // check token
-  // set flag if has token flag = true
-  // => hasToken = true or false
-
-  /// need to figure out a way to make navbar re-render when the state of
-  // our token changes (whether or not we have one)
-
   return (
     <>
       <Navbar bg="dark" variant="dark" expand="lg">
-        <Nav className="">
+        <Container>
           <Navbar.Brand as={Link} to="/schedule">
             Flight-Hub
           </Navbar.Brand>
@@ -66,7 +59,7 @@ const NavBar: React.FC = () => {
               </Navbar.Text>
 
               <Button
-                className={hasToken() ? '' : 'd-none'}
+                className={hasToken() ? 'justify-content-end' : 'd-none'}
                 variant="success"
                 onClick={() => LogOut()}
               >
@@ -74,7 +67,7 @@ const NavBar: React.FC = () => {
               </Button>
             </Nav>
           </Navbar.Collapse>
-        </Nav>
+        </Container>
       </Navbar>
     </>
   )
