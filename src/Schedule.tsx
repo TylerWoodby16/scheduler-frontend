@@ -8,7 +8,7 @@ import './Schedule.css'
 import DatePicker from 'react-datepicker'
 import { Container } from 'react-bootstrap'
 
-import AppointmentModal from './AppoinmentModal'
+import FlightModal from './FlightModal'
 import { string } from 'yup'
 
 const Schedule: React.FC = () => {
@@ -92,7 +92,7 @@ const Schedule: React.FC = () => {
         </Row>
       </Container>
 
-      <AppointmentModal
+      <FlightModal
         aircraft={selectedAircraft}
         time={selectedTime}
         showModal={showModal}
