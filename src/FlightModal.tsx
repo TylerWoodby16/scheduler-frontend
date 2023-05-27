@@ -1,6 +1,6 @@
 import React from 'react'
 import './AppointmentModal.css'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './AircraftDetails.css'
 import { Aircraft } from './models/Aircraft'
 import { Flight } from './models/Flight'
@@ -12,7 +12,7 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Modal from 'react-bootstrap/Modal'
 import ResponseError from './ResponseError'
-import { authPost } from './authHelpers'
+import { authPost, authGet } from './authHelpers'
 
 type Props = {
   aircraft: Aircraft | undefined
@@ -31,16 +31,20 @@ const AppointmentModal: React.FC<Props> = ({
   // How do we get the appointment values ?? backend call ?? but isnt it null???
   // So we need to set the appointment here with the props given to us and the token
   // and a user get call for the student
-  const [appointment, setAppointment] = useState<{
-    aircraft: Aircraft | undefined
-    time: number | undefined
-  }>({
-    aircraft: aircraft,
-    time: time,
-  })
+  // const [appointment, setAppointment] = useState<{
+  //   aircraft: Aircraft | undefined
+  //   time: number | undefined
+  // }>({
+  //   aircraft: aircraft,
+  //   time: time,
+  // })
 
   const insertFlight = (flight: Flight) => {
     authPost('http://localhost:5555/flights', flight)
+  }
+
+  const getUsers = () => {
+    authGet('http://localhost:5555/users')
   }
 
   return (
@@ -60,8 +64,8 @@ const AppointmentModal: React.FC<Props> = ({
           <Formik
             initialValues={
               {
-                aircraft: appointment.aircraft,
-                time: appointment.time,
+                aircraftId: aircraft?._id,
+                time: time,
               } as Flight
             }
             onSubmit={async (

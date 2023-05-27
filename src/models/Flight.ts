@@ -1,12 +1,9 @@
-import { Aircraft } from './Aircraft'
-import { User } from './User'
-
 export interface Flight {
   _id: string
   groupId: string
-  userStudent: User
-  userInstructor: User
-  aircraft: Aircraft
+  studentUserId: string
+  instructorUserId: string
+  aircraftId: string
   time: number
   type: string
 }

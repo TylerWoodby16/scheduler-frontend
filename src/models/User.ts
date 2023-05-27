@@ -18,7 +18,7 @@ export interface User {
   endorsements?: Endorsements
   aircraftCheckout?: AircraftCheckOut
 
-  role?: 'Admin' | 'CFI' | 'User'
+  role?: 'Admin' | 'CFI' | 'Student'
 }
 
 export interface EmergencyContact {
