@@ -1,0 +1,59 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+.right-aligned {
+  justify-content: flex-end !important;
+}
+
+.btn {
+  justify-content: flex-end !important;
+}
+
+.row {
+  flex-wrap: nowrap !important;
+}
+
+.navPosition {
+  position: relative;
+  --bs-navbar-padding-x: 0;
+  --bs-navbar-padding-y: 2rem !important;
+}
+/* Took this out would go over the Schedule link but that shrinks the grey back ground of the nav bar */
+.schedulePosition {
+  position: absolute;
+  left: 4%;
+  top: 20%;
+  /* padding: 10px 25px; */
+  /* why this ^ no work  */
+}
+.aircraftPostion {
+  position: absolute;
+  left: 12%;
+  top: 20%;
+}
+
+.profilePostion {
+  position: absolute;
+  left: 18%;
+  top: 20%;
+}
+
+.userNamePostion {
+  position: absolute;
+
+  left: 83%;
+  top: 20%;
+}
+
+.logOutButtonPostion {
+  position: absolute;
+
+  left: 90%;
+  top: 20%;
+}
+
+/* .col-lg-4 {
+  width: 100vw !important;
+  position: absolute;
+} */

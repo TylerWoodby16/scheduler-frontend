@@ -2,12 +2,7 @@ import Container from 'react-bootstrap/Container'
 import Button from 'react-bootstrap/Button'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-import {
-  Currency141,
-  FlightInstructorCertifcate,
-  TSASecurity,
-  User,
-} from '../models/User'
+import { Currency141, User } from '../models/User'
 import { useState } from 'react'
 import { Formik, Form as FormikForm, FormikHelpers } from 'formik'
 import Form from 'react-bootstrap/Form'

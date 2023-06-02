@@ -84,6 +84,7 @@ const EmergencyContactDetails: React.FC<Props> = ({ user }) => {
                       Name
                     </Form.Label>
                     <Form.Control
+                      className={formDisabled ? 'form-control-disabled' : ''}
                       name="name"
                       onChange={handleChange}
                       onBlur={handleBlur}
@@ -106,6 +107,7 @@ const EmergencyContactDetails: React.FC<Props> = ({ user }) => {
                       Phone Number: enter the numbers only
                     </Form.Label>
                     <Form.Control
+                      className={formDisabled ? 'form-control-disabled' : ''}
                       name="phone"
                       onChange={handleChange}
                       onBlur={handleBlur}
@@ -128,6 +130,7 @@ const EmergencyContactDetails: React.FC<Props> = ({ user }) => {
                       Relationship
                     </Form.Label>
                     <Form.Control
+                      className={formDisabled ? 'form-control-disabled' : ''}
                       name="relationship"
                       onChange={handleChange}
                       onBlur={handleBlur}
@@ -148,16 +151,31 @@ const EmergencyContactDetails: React.FC<Props> = ({ user }) => {
 
                 <Row className="p-4">
                   {formDisabled ? (
-                    <Button
-                      variant="custom"
-                      onClick={() =>
-                        setTimeout(() => {
-                          setFormDisabled(false) // TODO: FIGURE OUT A WAY TO REMOVE THIS DELAY
-                        }, 1)
-                      }
-                    >
-                      Edit
-                    </Button>
+                    <>
+                      {/* <style type="text/css">
+                        {`
+                .btn-flat {
+                  background-color: #83fba1;
+                  color: white;
+                }
+            
+                .btn-xxl {
+                  padding: 1rem 1.5rem;
+                  font-size: 1.5rem;
+                }
+                `}
+                      </style> */}
+                      <Button
+                        variant="flat"
+                        onClick={() =>
+                          setTimeout(() => {
+                            setFormDisabled(false) // TODO: FIGURE OUT A WAY TO REMOVE THIS DELAY
+                          }, 1)
+                        }
+                      >
+                        Edit
+                      </Button>
+                    </>
                   ) : (
                     <Button type="submit">Save</Button>
                   )}

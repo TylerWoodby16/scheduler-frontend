@@ -3,13 +3,14 @@ import Container from 'react-bootstrap/Container'
 import Nav from 'react-bootstrap/Nav'
 import Navbar from 'react-bootstrap/Navbar'
 import { Link } from 'react-router-dom'
-import { useLocation } from 'react-router-dom'
+// import { useLocation } from 'react-router-dom'
 import Button from 'react-bootstrap/Button'
 import { useNavigate } from 'react-router-dom'
 import { getToken, hasToken } from './authHelpers'
+import './NavBar.css'
 
 const NavBar: React.FC = () => {
-  const location = useLocation()
+  // const location = useLocation()
   const navigate = useNavigate()
 
   const LogOut = () => {
@@ -19,23 +20,25 @@ const NavBar: React.FC = () => {
 
   return (
     <>
-      <Navbar bg="dark" variant="dark" expand="lg">
+      <Navbar className="navPosition" bg="dark" variant="dark" expand="lg">
         <Container>
-          <Navbar.Brand as={Link} to="/schedule">
+          <Navbar.Brand as={Link} to="/schedule" className="schedulePosition">
             Flight-Hub
           </Navbar.Brand>
+
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
               <Nav.Link
-                className={hasToken() ? '' : 'd-none'}
+                className={hasToken() ? 'aircraftPostion' : 'd-none'}
                 as={Link}
                 to="/aircrafts"
               >
                 Aircrafts
               </Nav.Link>
+
               <Nav.Link
-                className={hasToken() ? '' : 'd-none'}
+                className={hasToken() ? 'profilePostion' : 'd-none'}
                 as={Link}
                 to="/profile"
               >
@@ -54,13 +57,31 @@ const NavBar: React.FC = () => {
                 </>
               ) : null}
 
-              <Navbar.Text className={hasToken() ? '' : 'd-none'}>
+              <Navbar.Text
+                className={hasToken() ? 'userNamePostion' : 'd-none'}
+              >
                 {hasToken() ? getToken().userName : 'd-none'}
               </Navbar.Text>
 
+              <style type="text/css">
+                {`
+                
+                .btn-flat {
+                  background-color: #83fba1;
+                  color: white;
+                  justify-content: flex-end !important;
+                }
+            
+                .btn-xxl {
+                  padding: 1rem 1.5rem;
+                  font-size: 1.5rem;
+                  justify-content: flex-end ;
+                }
+                `}
+              </style>
               <Button
-                className={hasToken() ? 'justify-content-end' : 'd-none'}
-                variant="success"
+                className={hasToken() ? 'logOutButtonPostion' : 'd-none'}
+                variant="flat"
                 onClick={() => LogOut()}
               >
                 Log Out

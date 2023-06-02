@@ -1,14 +1,13 @@
 import * as React from 'react'
-import * as ReactDOM from 'react-dom'
+// import * as ReactDOM from 'react-dom'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import * as Yup from 'yup'
-import { Formik, Field, Form as FormikForm, FormikHelpers } from 'formik'
+import { Formik, Form as FormikForm, FormikHelpers } from 'formik'
 import axios from 'axios'
-import { useState, useEffect } from 'react'
 
 interface Values {
   firstName: string
@@ -16,7 +15,6 @@ interface Values {
   email: string
   password: string
   role: string
-  
 }
 
 const SignupForm: React.FC<any> = () => {
@@ -42,7 +40,7 @@ const SignupForm: React.FC<any> = () => {
           email: '',
           password: '',
           role: '',
-          
+
           // confirmPassword: "",
         }}
         validationSchema={SignupSchema}
@@ -172,7 +170,7 @@ const SignupForm: React.FC<any> = () => {
                     ) : null}
                   </Form.Group>
                 </Row>
-                
+
                 <Row>
                   <Button type="submit">Submit</Button>
                 </Row>

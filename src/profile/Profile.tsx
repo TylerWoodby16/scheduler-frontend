@@ -77,63 +77,65 @@ const Profile: React.FC = () => {
           <Col className="text-white" lg={2}>
             <Row
               onClick={() => setView('Emergency')}
-              className={view == 'Emergency' ? 'indicator tab p-2' : 'tab p-2'}
+              className={view === 'Emergency' ? 'indicator tab p-2' : 'tab p-2'}
             >
               Emergency Contact
             </Row>
             <Row
               onClick={() => setView('Photo')}
-              className={view == 'Photo' ? 'indicator tab p-2' : 'tab p-2'}
+              className={view === 'Photo' ? 'indicator tab p-2' : 'tab p-2'}
             >
               Photo Identification
             </Row>
             <Row
               onClick={() => setView('Commercial')}
-              className={view == 'Commercial' ? 'indicator tab p-2' : 'tab p-2'}
+              className={
+                view === 'Commercial' ? 'indicator tab p-2' : 'tab p-2'
+              }
             >
               Commercial License
             </Row>
             <Row
               onClick={() => setView('Medical')}
-              className={view == 'Medical' ? 'indicator tab p-2' : 'tab p-2'}
+              className={view === 'Medical' ? 'indicator tab p-2' : 'tab p-2'}
             >
               Medical Certificate
             </Row>
             <Row
               onClick={() => setView('Flight')}
-              className={view == 'Flight' ? 'indicator tab p-2' : 'tab p-2'}
+              className={view === 'Flight' ? 'indicator tab p-2' : 'tab p-2'}
             >
               Flight Instructor Certificate
             </Row>
             <Row
               onClick={() => setView('TSAC')}
-              className={view == 'TSAC' ? 'indicator tab p-2' : 'tab p-2'}
+              className={view === 'TSAC' ? 'indicator tab p-2' : 'tab p-2'}
             >
               TSA Citizenship
             </Row>
             <Row
               onClick={() => setView('TSAS')}
-              className={view == 'TSAS' ? 'indicator tab p-2' : 'tab p-2'}
+              className={view === 'TSAS' ? 'indicator tab p-2' : 'tab p-2'}
             >
               TSA Security Training
             </Row>
             <Row
               onClick={() => setView('141')}
-              className={view == '141' ? 'indicator tab p-2' : 'tab p-2'}
+              className={view === '141' ? 'indicator tab p-2' : 'tab p-2'}
             >
               Part 141 Currency
             </Row>
             <Row
               onClick={() => setView('Endorsements')}
               className={
-                view == 'Endorsements' ? 'indicator tab p-2' : 'tab p-2'
+                view === 'Endorsements' ? 'indicator tab p-2' : 'tab p-2'
               }
             >
               Pilot Endorsements
             </Row>
             <Row
               onClick={() => setView('Aircraft')}
-              className={view == 'Aircraft' ? 'indicator tab p-2' : 'tab p-2'}
+              className={view === 'Aircraft' ? 'indicator tab p-2' : 'tab p-2'}
             >
               Aircraft Checkout
             </Row>

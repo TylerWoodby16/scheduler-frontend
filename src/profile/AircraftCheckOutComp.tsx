@@ -2,13 +2,7 @@ import Container from 'react-bootstrap/Container'
 import Button from 'react-bootstrap/Button'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-import {
-  AircraftCheckOut,
-  Endorsements,
-  FlightInstructorCertifcate,
-  TSASecurity,
-  User,
-} from '../models/User'
+import { AircraftCheckOut, User } from '../models/User'
 import { useState } from 'react'
 import { Formik, Form as FormikForm, FormikHelpers } from 'formik'
 import Form from 'react-bootstrap/Form'
@@ -16,7 +10,6 @@ import { authUpdate } from '../authHelpers'
 import ResponseError from '../ResponseError'
 // import * as Yup from 'yup'
 import './EmergencyContact.css'
-import DatePicker from 'react-datepicker'
 
 interface Props {
   user?: User
@@ -36,17 +29,17 @@ const AircraftCheckOutComp: React.FC<Props> = ({ user }) => {
   const [formDisabled, setFormDisabled] = useState(true)
   const [errorCode, setErrorCode] = useState<number>()
 
-  const [date, setDate] = useState<Date | null>(
-    user?.commercialLicense?.issuedDate
-      ? new Date(user?.commercialLicense?.issuedDate)
-      : null
-  )
+  // const [date, setDate] = useState<Date | null>(
+  //   user?.commercialLicense?.issuedDate
+  //     ? new Date(user?.commercialLicense?.issuedDate)
+  //     : null
+  // )
 
-  const [expiration, setExpiration] = useState<Date | null>(
-    user?.flightInstructorCertificate?.expiration
-      ? new Date(user?.flightInstructorCertificate?.expiration)
-      : null
-  )
+  // const [expiration, setExpiration] = useState<Date | null>(
+  //   user?.flightInstructorCertificate?.expiration
+  //     ? new Date(user?.flightInstructorCertificate?.expiration)
+  //     : null
+  // )
 
   if (!user) return null
 

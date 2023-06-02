@@ -2,7 +2,7 @@ import Container from 'react-bootstrap/Container'
 import Button from 'react-bootstrap/Button'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-import { PhotoId, TSACitizenship, User } from '../models/User'
+import { TSACitizenship, User } from '../models/User'
 import { useState } from 'react'
 import { Formik, Form as FormikForm, FormikHelpers } from 'formik'
 import Form from 'react-bootstrap/Form'
@@ -10,7 +10,6 @@ import { authUpdate } from '../authHelpers'
 import ResponseError from '../ResponseError'
 // import * as Yup from 'yup'
 import './EmergencyContact.css'
-import DatePicker from 'react-datepicker'
 
 interface Props {
   user?: User

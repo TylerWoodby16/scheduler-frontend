@@ -9,7 +9,7 @@ import DatePicker from 'react-datepicker'
 import { Container } from 'react-bootstrap'
 
 import FlightModal from './FlightModal'
-import { string } from 'yup'
+// import { string } from 'yup'
 
 const Schedule: React.FC = () => {
   const [aircrafts, setAircrafts] = useState<Aircraft[]>([])
@@ -62,18 +62,19 @@ const Schedule: React.FC = () => {
               <tbody>
                 <tr>
                   <th>name</th>
-                  {times.map((hour) => {
-                    return <th>{hour}</th>
+                  {times.map((hour, index) => {
+                    return <th key={index}>{hour}</th>
                   })}
                 </tr>
                 {aircrafts.map((aircraft, index) => {
                   return (
                     <tr>
-                      <td>{aircraft.name}</td>
-                      {times.map((hour) => {
+                      <td key={index}>{aircraft.name}</td>
+                      {times.map((hour, index) => {
                         return (
                           <>
                             <td
+                              key={index}
                               onClick={() => {
                                 setSelectedAircraft(aircraft)
                                 setSelectedTime(hour)

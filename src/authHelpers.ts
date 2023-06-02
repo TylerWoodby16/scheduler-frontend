@@ -1,6 +1,6 @@
 import axios from 'axios'
 import jwt_decode from 'jwt-decode'
-import { decode } from 'punycode'
+// import { decode } from 'punycode'
 
 export interface UserToken {
   userId: string

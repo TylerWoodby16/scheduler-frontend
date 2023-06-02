@@ -86,6 +86,7 @@ const PhotoIdentification: React.FC<Props> = ({ user }) => {
                       Photo ID number
                     </Form.Label>
                     <Form.Control
+                      className={formDisabled ? 'form-control-disabled' : ''}
                       name="photoId"
                       onChange={handleChange}
                       onBlur={handleBlur}
@@ -108,7 +109,11 @@ const PhotoIdentification: React.FC<Props> = ({ user }) => {
                       Experation Date
                     </Form.Label>
                     <DatePicker
-                      className="w-100 p-2 rounded mb-2"
+                      className={
+                        formDisabled
+                          ? ' w-100 p-2 rounded mb-2 input-custom'
+                          : ''
+                      }
                       selected={experationDate}
                       onChange={(date) => setExperationDate(date)}
                       disabled={formDisabled}

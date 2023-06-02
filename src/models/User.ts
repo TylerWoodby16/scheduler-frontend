@@ -1,3 +1,5 @@
+import userEvent from '@testing-library/user-event'
+
 export interface User {
   // TODO: find out if I need to get the user _id and groupId
   // if so what types do they need to be ??
@@ -18,7 +20,7 @@ export interface User {
   endorsements?: Endorsements
   aircraftCheckout?: AircraftCheckOut
 
-  role?: 'Admin' | 'CFI' | 'Student'
+  roles: Role[]
 }
 
 export interface EmergencyContact {
@@ -96,3 +98,5 @@ export interface Endorsements {
 export interface AircraftCheckOut {
   makeModel: string
 }
+
+export type Role = 'Admin' | 'CFI' | 'Student'

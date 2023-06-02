@@ -3,6 +3,7 @@ export interface Flight {
   groupId: string
   studentUserId: string
   instructorUserId: string
+
   aircraftId: string
   time: number
   type: string

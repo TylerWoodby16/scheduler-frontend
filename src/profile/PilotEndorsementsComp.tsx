@@ -2,12 +2,7 @@ import Container from 'react-bootstrap/Container'
 import Button from 'react-bootstrap/Button'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-import {
-  Endorsements,
-  FlightInstructorCertifcate,
-  TSASecurity,
-  User,
-} from '../models/User'
+import { Endorsements, User } from '../models/User'
 import { useState } from 'react'
 import { Formik, Form as FormikForm, FormikHelpers } from 'formik'
 import Form from 'react-bootstrap/Form'
@@ -41,11 +36,11 @@ const PilotEndorsementsComp: React.FC<Props> = ({ user }) => {
       : null
   )
 
-  const [expiration, setExpiration] = useState<Date | null>(
-    user?.flightInstructorCertificate?.expiration
-      ? new Date(user?.flightInstructorCertificate?.expiration)
-      : null
-  )
+  // const [expiration, setExpiration] = useState<Date | null>(
+  //   user?.flightInstructorCertificate?.expiration
+  //     ? new Date(user?.flightInstructorCertificate?.expiration)
+  //     : null
+  // )
 
   if (!user) return null
 
