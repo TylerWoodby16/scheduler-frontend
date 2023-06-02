@@ -13,6 +13,7 @@ import Col from 'react-bootstrap/Col'
 import Modal from 'react-bootstrap/Modal'
 import ResponseError from './ResponseError'
 import { authPost, authGet } from './authHelpers'
+import { User } from './models/User'
 
 type Props = {
   aircraft: Aircraft | undefined
@@ -28,24 +29,34 @@ const AppointmentModal: React.FC<Props> = ({
   setShowModal,
 }) => {
   const [errorCode, setErrorCode] = useState<number>()
-  // How do we get the appointment values ?? backend call ?? but isnt it null???
-  // So we need to set the appointment here with the props given to us and the token
-  // and a user get call for the student
-  // const [appointment, setAppointment] = useState<{
-  //   aircraft: Aircraft | undefined
-  //   time: number | undefined
-  // }>({
-  //   aircraft: aircraft,
-  //   time: time,
-  // })
+  const [users, setUsers] = useState<User[]>()
+  const [cfis, setCfis] = useState<User[]>()
+
+  //TODO: INTEGRATE YUP INTO THE FORM
 
   const insertFlight = (flight: Flight) => {
     authPost('http://localhost:5555/flights', flight)
   }
 
-  const getUsers = () => {
-    authGet('http://localhost:5555/users')
+  const getUsers = async () => {
+    try {
+      // tell me why when i try to hit /users/studentUserId endpoint it gives me a 500 error when it is the same code ??
+      const foundUsers = await authGet<User[]>(`http://localhost:5555/users`)
+      const foundCfis = await authGet<User[]>(
+        `http://localhost:5555/users/cfis`
+      )
+
+      setUsers(foundUsers)
+      setCfis(foundCfis)
+    } catch (error: any) {
+      // TODO: HANDLE ERROR CORRECTLY.
+      console.log('error: ' + error)
+    }
   }
+
+  useEffect(() => {
+    getUsers()
+  }, [])
 
   return (
     <>
@@ -59,6 +70,7 @@ const AppointmentModal: React.FC<Props> = ({
         <Modal.Header />
         <Modal.Body>
           {/* Formik Form here  */}
+
           {aircraft ? aircraft.name : null}
           <h1 style={{ textAlign: 'center' }}>{time}</h1>
           <Formik
@@ -66,6 +78,7 @@ const AppointmentModal: React.FC<Props> = ({
               {
                 aircraftId: aircraft?._id,
                 time: time,
+                studentUserId: '',
               } as Flight
             }
             onSubmit={async (
@@ -94,24 +107,57 @@ const AppointmentModal: React.FC<Props> = ({
               <FormikForm onSubmit={handleSubmit}>
                 <Container>
                   <Col className="mx-auto">
-                    {/* <Row className="mb-1">
-                      <Form.Group className="mb-3" controlId="formName">
+                    <Row className="mb-1">
+                      <Form.Group
+                        className="mb-3"
+                        controlId="formStudentUserId"
+                      >
                         <Form.Label className="text-light">Name</Form.Label>
-                        <Form.Control
-                          name="name"
+
+                        <select
+                          name="studentUserId"
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          value={values.name}
-                          type="name"
-                          placeholder="Enter the planes name"
-                        />
-                        {errors.name && touched.name ? (
-                          <div className="text-danger">
-                            <small>{errors.name}</small>
-                          </div>
-                        ) : null}
+                          value={values.studentUserId}
+                          placeholder={'block'}
+                        >
+                          {/* TODO: getUsers then map through them and return the options */}
+
+                          {users
+                            ? users.map((user, index) => {
+                                return (
+                                  <option
+                                    value={user._id}
+                                    label={user.firstName + ' ' + user.lastName}
+                                    key={index}
+                                  ></option>
+                                )
+                              })
+                            : null}
+                        </select>
+                        <select
+                          name="studentUserId"
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          value={values.studentUserId}
+                          placeholder={'block'}
+                        >
+                          {/* TODO: getUsers then map through them and return the options */}
+
+                          {users
+                            ? users.map((user, index) => {
+                                return (
+                                  <option
+                                    value={user._id}
+                                    label={user.firstName + ' ' + user.lastName}
+                                    key={index}
+                                  ></option>
+                                )
+                              })
+                            : null}
+                        </select>
                       </Form.Group>
-                    </Row> */}
+                    </Row>
 
                     <Row>
                       <Button type="submit">Submit</Button>
