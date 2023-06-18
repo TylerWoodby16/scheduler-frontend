@@ -4,27 +4,29 @@ import { useState, useEffect } from 'react'
 import './AircraftDetails.css'
 import { Aircraft } from './models/Aircraft'
 import { Flight } from './models/Flight'
-import { Button } from 'react-bootstrap'
-import { Formik, Form as FormikForm, FormikHelpers } from 'formik'
+import { Button, Dropdown } from 'react-bootstrap'
+import { Formik, Field, Form as FormikForm, FormikHelpers } from 'formik'
 import Form from 'react-bootstrap/Form'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Modal from 'react-bootstrap/Modal'
 import ResponseError from './ResponseError'
-import { authPost, authGet } from './authHelpers'
+import { authPost, authGet, getToken } from './authHelpers'
 import { User } from './models/User'
 
 type Props = {
   aircraft: Aircraft | undefined
   time: number | undefined
+  endTime: number | undefined
   showModal: boolean
   setShowModal: Function
 }
 
-const AppointmentModal: React.FC<Props> = ({
+const FlightModal: React.FC<Props> = ({
   aircraft,
   time,
+  endTime,
   showModal,
   setShowModal,
 }) => {
@@ -33,6 +35,7 @@ const AppointmentModal: React.FC<Props> = ({
   const [cfis, setCfis] = useState<User[]>()
 
   //TODO: INTEGRATE YUP INTO THE FORM
+  const groupId = getToken().groupId
 
   const insertFlight = (flight: Flight) => {
     authPost('http://localhost:5555/flights', flight)
@@ -72,25 +75,39 @@ const AppointmentModal: React.FC<Props> = ({
           {/* Formik Form here  */}
 
           {aircraft ? aircraft.name : null}
-          <h1 style={{ textAlign: 'center' }}>{time}</h1>
+          <h1 style={{ textAlign: 'center' }}>
+            {time}
+
+            {'----' + endTime}
+          </h1>
+
           <Formik
+            enableReinitialize
             initialValues={
               {
+                // to stop updating the group id in the be we need to set it as an initial value
+                groupId: groupId,
                 aircraftId: aircraft?._id,
                 time: time,
+                endTime: endTime,
                 studentUserId: '',
+                instructorUserId: '',
               } as Flight
             }
             onSubmit={async (
               values: Flight,
               { setSubmitting }: FormikHelpers<Flight>
             ) => {
-              try {
-                setShowModal(false)
-                insertFlight(values)
-              } catch (error: any) {
-                setErrorCode(error.response.status)
-              }
+              // try {
+              //   console.log(values)
+              //   setShowModal(false)
+              //   insertFlight(values)
+              // } catch (error: any) {
+              //   setErrorCode(error.response.status)
+              // }
+
+              console.log('MODAL VALUES')
+              console.log(values)
 
               setSubmitting(false)
             }}
@@ -103,59 +120,35 @@ const AppointmentModal: React.FC<Props> = ({
               handleBlur,
               handleSubmit,
               isSubmitting,
+              getFieldHelpers,
             }) => (
               <FormikForm onSubmit={handleSubmit}>
                 <Container>
                   <Col className="mx-auto">
-                    <Row className="mb-1">
+                    <Row>
                       <Form.Group
                         className="mb-3"
-                        controlId="formStudentUserId"
+                        controlId="formInstructorUserId"
                       >
-                        <Form.Label className="text-light">Name</Form.Label>
-
-                        <select
-                          name="studentUserId"
+                        <Form.Control
+                          as="select"
+                          name="instructorUserId"
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          value={values.studentUserId}
-                          placeholder={'block'}
+                          value={values.instructorUserId}
                         >
-                          {/* TODO: getUsers then map through them and return the options */}
-
-                          {users
-                            ? users.map((user, index) => {
+                          {cfis
+                            ? cfis.map((cfi, index) => {
                                 return (
                                   <option
-                                    value={user._id}
-                                    label={user.firstName + ' ' + user.lastName}
+                                    value={cfi._id}
+                                    label={cfi.firstName + ' ' + cfi.lastName}
                                     key={index}
-                                  ></option>
+                                  />
                                 )
                               })
                             : null}
-                        </select>
-                        <select
-                          name="studentUserId"
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          value={values.studentUserId}
-                          placeholder={'block'}
-                        >
-                          {/* TODO: getUsers then map through them and return the options */}
-
-                          {users
-                            ? users.map((user, index) => {
-                                return (
-                                  <option
-                                    value={user._id}
-                                    label={user.firstName + ' ' + user.lastName}
-                                    key={index}
-                                  ></option>
-                                )
-                              })
-                            : null}
-                        </select>
+                        </Form.Control>
                       </Form.Group>
                     </Row>
 
@@ -186,4 +179,4 @@ const AppointmentModal: React.FC<Props> = ({
   )
 }
 
-export default AppointmentModal
+export default FlightModal

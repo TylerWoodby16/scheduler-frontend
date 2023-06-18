@@ -7,9 +7,7 @@ import Col from 'react-bootstrap/Col'
 import './Schedule.css'
 import DatePicker from 'react-datepicker'
 import { Container } from 'react-bootstrap'
-
 import FlightModal from './FlightModal'
-// import { string } from 'yup'
 
 const Schedule: React.FC = () => {
   const [aircrafts, setAircrafts] = useState<Aircraft[]>([])
@@ -21,6 +19,7 @@ const Schedule: React.FC = () => {
 
   const [selectedAircraft, setSelectedAircraft] = useState<Aircraft>()
   const [selectedTime, setSelectedTime] = useState<number>()
+  const [selectedEndTime, setSelectedEndTime] = useState<number>()
 
   // TODO: FIGURE OUT HOW TO JUST USE A FOR LOOP WHAT THE FUCK
   const times = [
@@ -75,11 +74,21 @@ const Schedule: React.FC = () => {
                           <>
                             <td
                               key={index}
-                              onClick={() => {
+                              onPointerDown={(e) => setSelectedTime(hour)}
+                              onPointerMove={(e) =>
+                                console.log('onPointerMove')
+                              }
+                              onPointerUp={(e) => {
                                 setSelectedAircraft(aircraft)
-                                setSelectedTime(hour)
+                                setSelectedEndTime(hour)
                                 setShowModal(true)
                               }}
+
+                              // onClick={() => {
+                              //   setSelectedAircraft(aircraft)
+                              //   setSelectedTime(hour)
+                              //   setShowModal(true)
+                              // }}
                             ></td>
                           </>
                         )
@@ -96,6 +105,7 @@ const Schedule: React.FC = () => {
       <FlightModal
         aircraft={selectedAircraft}
         time={selectedTime}
+        endTime={selectedEndTime}
         showModal={showModal}
         setShowModal={setShowModal}
       />
