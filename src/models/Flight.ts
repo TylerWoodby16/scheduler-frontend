@@ -4,7 +4,7 @@ export interface Flight {
   studentUserId: string
   instructorUserId: string
   aircraftId: string
-  time: number
+  startTime: number
   endTime: number
   type: string
 }

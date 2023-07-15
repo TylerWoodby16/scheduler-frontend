@@ -1,6 +1,7 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
 import { Aircraft } from './models/Aircraft'
+import { Flight } from './models/Flight'
 import { authGet } from './authHelpers'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
@@ -17,9 +18,13 @@ const Schedule: React.FC = () => {
   )
   const [showModal, setShowModal] = useState<boolean>(false)
 
+  const [selectedFlight, setSelectedFlight] = useState<Flight>()
   const [selectedAircraft, setSelectedAircraft] = useState<Aircraft>()
   const [selectedTime, setSelectedTime] = useState<number>()
   const [selectedEndTime, setSelectedEndTime] = useState<number>()
+
+  const [scheduledFlights, setScheduledFlights] =
+    useState<Map<string, Map<number, Flight>>>()
 
   // TODO: FIGURE OUT HOW TO JUST USE A FOR LOOP WHAT THE FUCK
   const times = [
@@ -36,15 +41,49 @@ const Schedule: React.FC = () => {
     }
   }
 
+  // first attempt at trying to highlight the td when a flight is set
+  const getFlights = async () => {
+    try {
+      const data = await authGet<Flight[]>('http://localhost:5555/flights')
+      const scheduled = buildScheduledFlights(data)
+      console.log(scheduled)
+      setScheduledFlights(scheduled)
+    } catch (error: any) {
+      setResponseError('There was an error getting flights.')
+    }
+  }
+
   useEffect(() => {
     getAircrafts()
+    getFlights()
   }, [])
+
+  const buildScheduledFlights = (flights: Flight[]) => {
+    const scheduledFlights = new Map<string, Map<number, Flight>>()
+
+    flights.map((flight, index) => {
+      let aircraftId = flight.aircraftId
+      let startTime = flight.startTime
+
+      if (scheduledFlights.has(aircraftId)) {
+        const hourToScheduled = scheduledFlights.get(aircraftId)!
+        hourToScheduled?.set(startTime, flight)
+        scheduledFlights.set(aircraftId, hourToScheduled)
+      } else {
+        const hourToScheduled = new Map<number, Flight>()
+        hourToScheduled.set(startTime, flight)
+        scheduledFlights.set(aircraftId, hourToScheduled)
+      }
+    })
+    return scheduledFlights
+  }
 
   return (
     <div>
       <div className="text-white text-center">SCHEDULE</div>
 
       <Row>
+        <Col></Col>
         <Col lg={2} className="text-center">
           <DatePicker
             className="w-100 p-2 rounded mb-2"
@@ -52,11 +91,12 @@ const Schedule: React.FC = () => {
             onChange={(date) => setDateForSomething(date)}
           />
         </Col>
+        <Col></Col>
       </Row>
       <Container>
         <Row>
           <Col>
-            <table className="table table-dark table-striped table-hover table-bordered">
+            <table className="table table-dark  table-bordered">
               <thead></thead>
               <tbody>
                 <tr>
@@ -68,28 +108,42 @@ const Schedule: React.FC = () => {
                 {aircrafts.map((aircraft, index) => {
                   return (
                     <tr>
-                      <td key={index}>{aircraft.name}</td>
+                      <td key={index}>
+                        {aircraft.name} {aircraft._id}
+                      </td>
                       {times.map((hour, index) => {
                         return (
                           <>
                             <td
                               key={index}
-                              onPointerDown={(e) => setSelectedTime(hour)}
-                              onPointerMove={(e) =>
-                                console.log('onPointerMove')
+                              className={
+                                scheduledFlights?.get(aircraft._id)?.get(hour)
+                                  ? 'scheduledFlightBox'
+                                  : ''
                               }
+                              onPointerDown={(e) => {
+                                setSelectedTime(hour)
+                              }}
+                              onPointerMove={(e) => {
+                                // console.log('onPointerMove')
+                              }}
                               onPointerUp={(e) => {
+                                const flight = scheduledFlights
+                                  ?.get(aircraft._id)
+                                  ?.get(hour)
+
+                                if (flight) {
+                                  setSelectedFlight(flight)
+                                } else {
+                                  setSelectedFlight(undefined)
+                                }
                                 setSelectedAircraft(aircraft)
                                 setSelectedEndTime(hour)
                                 setShowModal(true)
                               }}
-
-                              // onClick={() => {
-                              //   setSelectedAircraft(aircraft)
-                              //   setSelectedTime(hour)
-                              //   setShowModal(true)
-                              // }}
-                            ></td>
+                            >
+                              1
+                            </td>
                           </>
                         )
                       })}
@@ -104,10 +158,12 @@ const Schedule: React.FC = () => {
 
       <FlightModal
         aircraft={selectedAircraft}
-        time={selectedTime}
+        startTime={selectedTime}
         endTime={selectedEndTime}
         showModal={showModal}
         setShowModal={setShowModal}
+        getFlights={getFlights}
+        flight={selectedFlight}
       />
     </div>
   )

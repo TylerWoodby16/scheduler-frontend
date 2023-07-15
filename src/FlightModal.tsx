@@ -12,44 +12,46 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Modal from 'react-bootstrap/Modal'
 import ResponseError from './ResponseError'
-import { authPost, authGet, getToken } from './authHelpers'
+import { authPost, authGet, getToken, authDelete } from './authHelpers'
 import { User } from './models/User'
 
 type Props = {
-  aircraft: Aircraft | undefined
-  time: number | undefined
-  endTime: number | undefined
+  aircraft?: Aircraft
+  startTime?: number
+  endTime?: number
   showModal: boolean
   setShowModal: Function
+  getFlights: Function
+  flight?: Flight
 }
 
 const FlightModal: React.FC<Props> = ({
   aircraft,
-  time,
+  startTime,
   endTime,
   showModal,
   setShowModal,
+  getFlights,
+  flight,
 }) => {
   const [errorCode, setErrorCode] = useState<number>()
-  const [users, setUsers] = useState<User[]>()
+  const [students, setStudents] = useState<User[]>()
   const [cfis, setCfis] = useState<User[]>()
 
-  //TODO: INTEGRATE YUP INTO THE FORM
+  // TODO: INTEGRATE YUP INTO THE FORM
   const groupId = getToken().groupId
-
-  const insertFlight = (flight: Flight) => {
-    authPost('http://localhost:5555/flights', flight)
-  }
 
   const getUsers = async () => {
     try {
       // tell me why when i try to hit /users/studentUserId endpoint it gives me a 500 error when it is the same code ??
-      const foundUsers = await authGet<User[]>(`http://localhost:5555/users`)
+      const foundStudents = await authGet<User[]>(`http://localhost:5555/users`)
+      // TODO: MAKE /users/students endpoint work correctly and call it here.
+      // make state for setStudents()
       const foundCfis = await authGet<User[]>(
         `http://localhost:5555/users/cfis`
       )
 
-      setUsers(foundUsers)
+      setStudents(foundStudents)
       setCfis(foundCfis)
     } catch (error: any) {
       // TODO: HANDLE ERROR CORRECTLY.
@@ -76,7 +78,7 @@ const FlightModal: React.FC<Props> = ({
 
           {aircraft ? aircraft.name : null}
           <h1 style={{ textAlign: 'center' }}>
-            {time}
+            {startTime}
 
             {'----' + endTime}
           </h1>
@@ -85,29 +87,25 @@ const FlightModal: React.FC<Props> = ({
             enableReinitialize
             initialValues={
               {
-                // to stop updating the group id in the be we need to set it as an initial value
                 groupId: groupId,
                 aircraftId: aircraft?._id,
-                time: time,
+                startTime: startTime,
                 endTime: endTime,
-                studentUserId: '',
-                instructorUserId: '',
+                studentUserId: flight ? flight.studentUserId : '',
+                instructorUserId: getToken().userId, //has a bug that if you sign in as not an instuctor it defaults to the first option
               } as Flight
             }
             onSubmit={async (
               values: Flight,
               { setSubmitting }: FormikHelpers<Flight>
             ) => {
-              // try {
-              //   console.log(values)
-              //   setShowModal(false)
-              //   insertFlight(values)
-              // } catch (error: any) {
-              //   setErrorCode(error.response.status)
-              // }
-
-              console.log('MODAL VALUES')
-              console.log(values)
+              try {
+                await authPost('http://localhost:5555/flights', values)
+                getFlights()
+                setShowModal(false)
+              } catch (error: any) {
+                setErrorCode(error.response.status)
+              }
 
               setSubmitting(false)
             }}
@@ -137,6 +135,10 @@ const FlightModal: React.FC<Props> = ({
                           onBlur={handleBlur}
                           value={values.instructorUserId}
                         >
+                          {/* This option is currently not used since we set the current user as instructor in initial values */}
+                          {values.instructorUserId == '' ? (
+                            <option value="" label="Select Instructor" />
+                          ) : null}
                           {cfis
                             ? cfis.map((cfi, index) => {
                                 return (
@@ -153,10 +155,47 @@ const FlightModal: React.FC<Props> = ({
                     </Row>
 
                     <Row>
+                      <Form.Group
+                        className="mb-3"
+                        controlId="formStudentUserId"
+                      >
+                        <Form.Control
+                          as="select"
+                          name="studentUserId"
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          value={values.studentUserId}
+                        >
+                          {values.studentUserId == '' ? (
+                            <option value="" label="Select Student" />
+                          ) : null}
+
+                          {students
+                            ? students.map((student, index) => {
+                                return (
+                                  <option
+                                    value={student._id}
+                                    label={
+                                      student.firstName + ' ' + student.lastName
+                                    }
+                                    key={index}
+                                  />
+                                )
+                              })
+                            : null}
+                        </Form.Control>
+                      </Form.Group>
+                    </Row>
+
+                    <Row>
                       <Button type="submit">Submit</Button>
                     </Row>
 
-                    <ResponseError statusCode={errorCode} />
+                    <Row>
+                      <Col>
+                        <ResponseError statusCode={errorCode} />
+                      </Col>
+                    </Row>
                   </Col>
                 </Container>
               </FormikForm>
@@ -164,6 +203,24 @@ const FlightModal: React.FC<Props> = ({
           </Formik>
         </Modal.Body>
         <Modal.Footer>
+          {flight && (
+            <Button
+              variant="danger"
+              onClick={async () => {
+                try {
+                  await authDelete(
+                    `http://localhost:5555/flights/${flight._id}`
+                  )
+                  getFlights()
+                  setShowModal(false)
+                } catch (err: any) {
+                  setErrorCode(err.response.status)
+                }
+              }}
+            >
+              Delete
+            </Button>
+          )}
           <Button
             variant="secondary"
             onClick={() => {
