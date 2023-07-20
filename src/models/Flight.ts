@@ -7,4 +7,5 @@ export interface Flight {
   startTime: number
   endTime: number
   type: string
+  date: string
 }

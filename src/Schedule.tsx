@@ -9,13 +9,18 @@ import './Schedule.css'
 import DatePicker from 'react-datepicker'
 import { Container } from 'react-bootstrap'
 import FlightModal from './FlightModal'
+import { DateTime } from 'luxon'
 
 const Schedule: React.FC = () => {
   const [aircrafts, setAircrafts] = useState<Aircraft[]>([])
   const [responseError, setResponseError] = useState<string>()
-  const [dateForSomething, setDateForSomething] = useState<Date | null>(
-    new Date()
+
+  // TODO: REFACTOR THIS
+  const [dateFromDatePicker, setDateFromDatePicker] = useState<Date>(new Date())
+  const [dateOfFlights, setDateOfFlights] = useState<string>(
+    new Date().toISOString()
   )
+
   const [showModal, setShowModal] = useState<boolean>(false)
 
   const [selectedFlight, setSelectedFlight] = useState<Flight>()
@@ -41,12 +46,12 @@ const Schedule: React.FC = () => {
     }
   }
 
-  // first attempt at trying to highlight the td when a flight is set
   const getFlights = async () => {
     try {
-      const data = await authGet<Flight[]>('http://localhost:5555/flights')
+      const data = await authGet<Flight[]>(
+        `http://localhost:5555/flights/${dateOfFlights}`
+      )
       const scheduled = buildScheduledFlights(data)
-      console.log(scheduled)
       setScheduledFlights(scheduled)
     } catch (error: any) {
       setResponseError('There was an error getting flights.')
@@ -56,7 +61,7 @@ const Schedule: React.FC = () => {
   useEffect(() => {
     getAircrafts()
     getFlights()
-  }, [])
+  }, [dateFromDatePicker])
 
   const buildScheduledFlights = (flights: Flight[]) => {
     const scheduledFlights = new Map<string, Map<number, Flight>>()
@@ -87,8 +92,23 @@ const Schedule: React.FC = () => {
         <Col lg={2} className="text-center">
           <DatePicker
             className="w-100 p-2 rounded mb-2"
-            selected={dateForSomething}
-            onChange={(date) => setDateForSomething(date)}
+            selected={dateFromDatePicker}
+            onChange={(date) => {
+              if (!date) return
+
+              setDateFromDatePicker(date)
+
+              const parsedDate = DateTime.fromJSDate(date)
+
+              // const parsedDate = DateTime.fromISO(date)
+              const formattedDate = parsedDate.toFormat('LLddyyyy')
+              console.log(formattedDate)
+
+              // could be from the !
+
+              // could be from the needed reFactor
+              setDateOfFlights(formattedDate)
+            }}
           />
         </Col>
         <Col></Col>
@@ -123,11 +143,14 @@ const Schedule: React.FC = () => {
                               }
                               onPointerDown={(e) => {
                                 setSelectedTime(hour)
+                                console.log(hour)
                               }}
                               onPointerMove={(e) => {
                                 // console.log('onPointerMove')
                               }}
                               onPointerUp={(e) => {
+                                console.log(hour)
+
                                 const flight = scheduledFlights
                                   ?.get(aircraft._id)
                                   ?.get(hour)
@@ -141,9 +164,7 @@ const Schedule: React.FC = () => {
                                 setSelectedEndTime(hour)
                                 setShowModal(true)
                               }}
-                            >
-                              1
-                            </td>
+                            ></td>
                           </>
                         )
                       })}
@@ -159,6 +180,7 @@ const Schedule: React.FC = () => {
       <FlightModal
         aircraft={selectedAircraft}
         startTime={selectedTime}
+        date={dateOfFlights}
         endTime={selectedEndTime}
         showModal={showModal}
         setShowModal={setShowModal}

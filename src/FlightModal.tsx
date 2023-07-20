@@ -12,8 +12,15 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Modal from 'react-bootstrap/Modal'
 import ResponseError from './ResponseError'
-import { authPost, authGet, getToken, authDelete } from './authHelpers'
+import {
+  authPost,
+  authGet,
+  getToken,
+  authDelete,
+  authUpdate,
+} from './authHelpers'
 import { User } from './models/User'
+import { DateTime } from 'luxon'
 
 type Props = {
   aircraft?: Aircraft
@@ -23,6 +30,7 @@ type Props = {
   setShowModal: Function
   getFlights: Function
   flight?: Flight
+  date: string
 }
 
 const FlightModal: React.FC<Props> = ({
@@ -33,6 +41,7 @@ const FlightModal: React.FC<Props> = ({
   setShowModal,
   getFlights,
   flight,
+  date,
 }) => {
   const [errorCode, setErrorCode] = useState<number>()
   const [students, setStudents] = useState<User[]>()
@@ -87,12 +96,16 @@ const FlightModal: React.FC<Props> = ({
             enableReinitialize
             initialValues={
               {
+                //Current Working theory is that it comes in with no ID so it is always just set by the backend
+                // ?
+                _id: flight ? flight._id : '',
                 groupId: groupId,
                 aircraftId: aircraft?._id,
                 startTime: startTime,
                 endTime: endTime,
                 studentUserId: flight ? flight.studentUserId : '',
                 instructorUserId: getToken().userId, //has a bug that if you sign in as not an instuctor it defaults to the first option
+                date: date,
               } as Flight
             }
             onSubmit={async (
@@ -100,7 +113,15 @@ const FlightModal: React.FC<Props> = ({
               { setSubmitting }: FormikHelpers<Flight>
             ) => {
               try {
-                await authPost('http://localhost:5555/flights', values)
+                if (flight) {
+                  await authUpdate(
+                    `http://localhost:5555/flights/${flight._id}`,
+                    values
+                  )
+                } else {
+                  await authPost('http://localhost:5555/flights', values)
+                }
+
                 getFlights()
                 setShowModal(false)
               } catch (error: any) {
@@ -188,7 +209,13 @@ const FlightModal: React.FC<Props> = ({
                     </Row>
 
                     <Row>
-                      <Button type="submit">Submit</Button>
+                      {flight ? (
+                        <Button type="submit" variant="warning">
+                          Update
+                        </Button>
+                      ) : (
+                        <Button type="submit">Submit</Button>
+                      )}
                     </Row>
 
                     <Row>
