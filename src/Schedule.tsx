@@ -18,18 +18,20 @@ const Schedule: React.FC = () => {
   // TODO: REFACTOR THIS
   const [dateFromDatePicker, setDateFromDatePicker] = useState<Date>(new Date())
   const [dateOfFlights, setDateOfFlights] = useState<string>(
-    new Date().toISOString()
+    DateTime.fromJSDate(new Date()).toFormat('LLddyyyy')
   )
 
   const [showModal, setShowModal] = useState<boolean>(false)
 
   const [selectedFlight, setSelectedFlight] = useState<Flight>()
+
   const [selectedAircraft, setSelectedAircraft] = useState<Aircraft>()
-  const [selectedTime, setSelectedTime] = useState<number>()
+  const [selectedStartTime, setSelectedStartTime] = useState<number>()
   const [selectedEndTime, setSelectedEndTime] = useState<number>()
 
-  const [scheduledFlights, setScheduledFlights] =
-    useState<Map<string, Map<number, Flight>>>()
+  const [aircraftIdToFlights, setAircraftIdToFLights] = useState<
+    Map<string, Flight[]>
+  >(new Map<string, Flight[]>())
 
   // TODO: FIGURE OUT HOW TO JUST USE A FOR LOOP WHAT THE FUCK
   const times = [
@@ -51,8 +53,9 @@ const Schedule: React.FC = () => {
       const data = await authGet<Flight[]>(
         `http://localhost:5555/flights/${dateOfFlights}`
       )
-      const scheduled = buildScheduledFlights(data)
-      setScheduledFlights(scheduled)
+
+      setAircraftIdToFLights(buildAircraftIdToFlights(data))
+      console.log(aircraftIdToFlights)
     } catch (error: any) {
       setResponseError('There was an error getting flights.')
     }
@@ -63,24 +66,79 @@ const Schedule: React.FC = () => {
     getFlights()
   }, [dateFromDatePicker])
 
-  const buildScheduledFlights = (flights: Flight[]) => {
-    const scheduledFlights = new Map<string, Map<number, Flight>>()
+  // const buildScheduledFlights = (flights: Flight[]) => {
+  //   const scheduledFlights = new Map<string, Map<number, Flight>>()
+
+  //   flights.map((flight, index) => {
+  //     let aircraftId = flight.aircraftId
+  //     let startTime = flight.startTime
+
+  //     if (scheduledFlights.has(aircraftId)) {
+  //       const hourToScheduled = scheduledFlights.get(aircraftId)!
+  //       hourToScheduled?.set(startTime, flight)
+  //       scheduledFlights.set(aircraftId, hourToScheduled)
+  //     } else {
+  //       const hourToScheduled = new Map<number, Flight>()
+  //       hourToScheduled.set(startTime, flight)
+  //       scheduledFlights.set(aircraftId, hourToScheduled)
+  //     }
+  //   })
+  //   return scheduledFlights
+  // }
+
+  const buildAircraftIdToFlights = (flights: Flight[]) => {
+    const aircraftIdToFlights = new Map<string, Flight[]>()
 
     flights.map((flight, index) => {
       let aircraftId = flight.aircraftId
-      let startTime = flight.startTime
 
-      if (scheduledFlights.has(aircraftId)) {
-        const hourToScheduled = scheduledFlights.get(aircraftId)!
-        hourToScheduled?.set(startTime, flight)
-        scheduledFlights.set(aircraftId, hourToScheduled)
+      if (!aircraftIdToFlights.get(aircraftId)) {
+        aircraftIdToFlights.set(aircraftId, [flight])
       } else {
-        const hourToScheduled = new Map<number, Flight>()
-        hourToScheduled.set(startTime, flight)
-        scheduledFlights.set(aircraftId, hourToScheduled)
+        const flights = aircraftIdToFlights.get(aircraftId)
+        if (flights) {
+          flights?.push(flight)
+          aircraftIdToFlights.set(aircraftId, flights)
+        }
       }
     })
-    return scheduledFlights
+
+    return aircraftIdToFlights
+  }
+
+  // make a new piece of state called aircraftIdToFlights
+  // create function taking list of flights and returning map of aircraft id -> list of flights for that aircraft
+
+  const hourInRange = (flight?: Flight, hour?: number) => {
+    if (!flight) return false
+    if (!hour) return false
+
+    // TODO: MAYBE THIS IS HELPFUL?
+    // if (flight.aircraftId == '641395566f8230535d710367') {
+    //   console.log(hour)
+    //   console.log(flight.startTime)
+    //   console.log(flight.endTime)
+    // }
+
+    // return flight.startTime <= hour && flight.endTime >= hour
+    return hour >= flight.startTime && hour <= flight.endTime
+  }
+
+  const highlightFlightBox = (
+    flights: Flight[] | undefined,
+    hour: number | undefined
+  ): boolean => {
+    if (!flights) return false
+    if (!hour) return false
+
+    let inRange = false
+    flights.forEach((flight) => {
+      if (hourInRange(flight, hour)) {
+        inRange = true
+      }
+    })
+
+    return inRange
   }
 
   return (
@@ -102,7 +160,7 @@ const Schedule: React.FC = () => {
 
               // const parsedDate = DateTime.fromISO(date)
               const formattedDate = parsedDate.toFormat('LLddyyyy')
-              console.log(formattedDate)
+              // console.log(formattedDate)
 
               // could be from the !
 
@@ -127,7 +185,7 @@ const Schedule: React.FC = () => {
                 </tr>
                 {aircrafts.map((aircraft, index) => {
                   return (
-                    <tr>
+                    <tr key={index}>
                       <td key={index}>
                         {aircraft.name} {aircraft._id}
                       </td>
@@ -137,31 +195,59 @@ const Schedule: React.FC = () => {
                             <td
                               key={index}
                               className={
-                                scheduledFlights?.get(aircraft._id)?.get(hour)
+                                highlightFlightBox(
+                                  aircraftIdToFlights?.get(aircraft._id),
+                                  hour
+                                )
                                   ? 'scheduledFlightBox'
                                   : ''
                               }
                               onPointerDown={(e) => {
-                                setSelectedTime(hour)
-                                console.log(hour)
+                                setSelectedStartTime(hour)
                               }}
                               onPointerMove={(e) => {
                                 // console.log('onPointerMove')
                               }}
                               onPointerUp={(e) => {
-                                console.log(hour)
-
-                                const flight = scheduledFlights
-                                  ?.get(aircraft._id)
-                                  ?.get(hour)
-
-                                if (flight) {
-                                  setSelectedFlight(flight)
-                                } else {
-                                  setSelectedFlight(undefined)
-                                }
-                                setSelectedAircraft(aircraft)
                                 setSelectedEndTime(hour)
+
+                                const flights = aircraftIdToFlights?.get(
+                                  aircraft._id
+                                )
+
+                                // Check if start time is within timeframe of any flight.
+                                let flight: Flight | undefined = undefined
+                                flights?.forEach((currentFlight) => {
+                                  if (
+                                    hourInRange(
+                                      currentFlight,
+                                      selectedStartTime
+                                    )
+                                  ) {
+                                    flight = currentFlight
+                                  }
+                                })
+
+                                // Check if end time is within timeframe of any flight.
+                                flights?.forEach((currentFlight) => {
+                                  if (
+                                    hourInRange(currentFlight, selectedEndTime)
+                                  ) {
+                                    flight = currentFlight
+                                  }
+                                })
+
+                                // Flight can be undefined.
+                                console.log(flight)
+
+                                setSelectedFlight(flight)
+
+                                // case 1: startTime is within range of some flight in flights -> UPDATE
+                                // case 2: endTime is within range of some flight in flights -> DO NOTHING
+                                // case 3: neither startTime nor endTime is within range of some flight in flights -> SUBMIT
+
+                                // setSelectedFlight(???????)
+                                setSelectedAircraft(aircraft)
                                 setShowModal(true)
                               }}
                             ></td>
@@ -179,7 +265,7 @@ const Schedule: React.FC = () => {
 
       <FlightModal
         aircraft={selectedAircraft}
-        startTime={selectedTime}
+        startTime={selectedStartTime}
         date={dateOfFlights}
         endTime={selectedEndTime}
         showModal={showModal}
