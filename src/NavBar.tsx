@@ -63,25 +63,8 @@ const NavBar: React.FC = () => {
                 {hasToken() ? getToken().userName : 'd-none'}
               </Navbar.Text>
 
-              <style type="text/css">
-                {`
-                
-                .btn-flat {
-                  background-color: #83fba1;
-                  color: white;
-                  justify-content: flex-end !important;
-                }
-            
-                .btn-xxl {
-                  padding: 1rem 1.5rem;
-                  font-size: 1.5rem;
-                  justify-content: flex-end ;
-                }
-                `}
-              </style>
               <Button
                 className={hasToken() ? 'logOutButtonPostion' : 'd-none'}
-                variant="flat"
                 onClick={() => LogOut()}
               >
                 Log Out

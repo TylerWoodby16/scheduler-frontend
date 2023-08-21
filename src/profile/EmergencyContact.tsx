@@ -152,21 +152,8 @@ const EmergencyContactDetails: React.FC<Props> = ({ user }) => {
                 <Row className="p-4">
                   {formDisabled ? (
                     <>
-                      {/* <style type="text/css">
-                        {`
-                .btn-flat {
-                  background-color: #83fba1;
-                  color: white;
-                }
-            
-                .btn-xxl {
-                  padding: 1rem 1.5rem;
-                  font-size: 1.5rem;
-                }
-                `}
-                      </style> */}
                       <Button
-                        variant="flat"
+                        className="btnColor"
                         onClick={() =>
                           setTimeout(() => {
                             setFormDisabled(false) // TODO: FIGURE OUT A WAY TO REMOVE THIS DELAY
@@ -177,7 +164,9 @@ const EmergencyContactDetails: React.FC<Props> = ({ user }) => {
                       </Button>
                     </>
                   ) : (
-                    <Button type="submit">Save</Button>
+                    <Button type="submit" className="btnColor">
+                      Save
+                    </Button>
                   )}
                 </Row>
               </Col>

@@ -48,7 +48,11 @@
 
 .logOutButtonPostion {
   position: absolute;
-
+  background-color: #83fba1;
+  --bs-btn-bg: #83fba1 !important;
+  /* maybe change this later  */
+  --bs-btn-hover-bg: #83fba1 !important;
+  --bs-btn-border-color: #83fba1 !important;
   left: 90%;
   top: 20%;
 }
@@ -57,3 +61,15 @@
   width: 100vw !important;
   position: absolute;
 } */
+
+.btn-flat {
+  background-color: #83fba1;
+  color: white;
+  justify-content: flex-end !important;
+}
+
+.btn-xxl {
+  padding: 1rem 1.5rem;
+  font-size: 1.5rem;
+  justify-content: flex-end;
+}

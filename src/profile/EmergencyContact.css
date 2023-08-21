@@ -41,3 +41,10 @@ input-custom:disabled {
   color: -internal-light-dark(rgb(84, 84, 84), rgb(170, 170, 170));
   border-color: green !important;
 }
+
+.btnColor {
+  --bs-btn-bg: #83fba1 !important;
+  /* maybe change this later  */
+  --bs-btn-hover-bg: #83fba1 !important;
+  --bs-btn-border-color: #83fba1 !important;
+}

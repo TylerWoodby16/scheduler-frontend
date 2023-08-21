@@ -36,7 +36,7 @@ const Schedule: React.FC = () => {
   // TODO: FIGURE OUT HOW TO JUST USE A FOR LOOP WHAT THE FUCK
   const times = [
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-    21, 22, 23,
+    21, 22, 23, 24,
   ]
 
   const getAircrafts = async () => {
@@ -55,7 +55,7 @@ const Schedule: React.FC = () => {
       )
 
       setAircraftIdToFLights(buildAircraftIdToFlights(data))
-      console.log(aircraftIdToFlights)
+      // console.log(aircraftIdToFlights)
     } catch (error: any) {
       setResponseError('There was an error getting flights.')
     }
@@ -111,17 +111,13 @@ const Schedule: React.FC = () => {
 
   const hourInRange = (flight?: Flight, hour?: number) => {
     if (!flight) return false
-    if (!hour) return false
+    // this was the bug bc 0 is a falsy so it was returning false and not getting to the highlight part of the code
+    // if (!hour) return false
 
-    // TODO: MAYBE THIS IS HELPFUL?
-    // if (flight.aircraftId == '641395566f8230535d710367') {
-    //   console.log(hour)
-    //   console.log(flight.startTime)
-    //   console.log(flight.endTime)
-    // }
-
-    // return flight.startTime <= hour && flight.endTime >= hour
-    return hour >= flight.startTime && hour <= flight.endTime
+    return (
+      // TODO: Alter this lazy fix with !
+      hour! >= flight.startTime && hour! <= flight.endTime
+    )
   }
 
   const highlightFlightBox = (
@@ -129,11 +125,14 @@ const Schedule: React.FC = () => {
     hour: number | undefined
   ): boolean => {
     if (!flights) return false
-    if (!hour) return false
-
+    // lol this is the bug right here bc
+    // 0: This is the numerical value zero. It is considered falsy in JavaScript, which means it evaluates to false in a boolean context.
+    // if (!hour) return false
+    // console.log(hour)
     let inRange = false
     flights.forEach((flight) => {
       if (hourInRange(flight, hour)) {
+        // console.log(hour)
         inRange = true
       }
     })
@@ -198,6 +197,7 @@ const Schedule: React.FC = () => {
                                 highlightFlightBox(
                                   aircraftIdToFlights?.get(aircraft._id),
                                   hour
+                                  // this hour only has 1-24 leaves out the zero why?
                                 )
                                   ? 'scheduledFlightBox'
                                   : ''
@@ -206,7 +206,7 @@ const Schedule: React.FC = () => {
                                 setSelectedStartTime(hour)
                               }}
                               onPointerMove={(e) => {
-                                // console.log('onPointerMove')
+                                // console.log(hour)
                               }}
                               onPointerUp={(e) => {
                                 setSelectedEndTime(hour)
@@ -238,7 +238,7 @@ const Schedule: React.FC = () => {
                                 })
 
                                 // Flight can be undefined.
-                                console.log(flight)
+                                // console.log(flight)
 
                                 setSelectedFlight(flight)
 
