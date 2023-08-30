@@ -207,6 +207,10 @@ const Schedule: React.FC = () => {
                                 // Check if start time is within timeframe of any flight.
                                 let flight: Flight | undefined = undefined
 
+                                if (selectedStartTime == selectedEndTime) {
+                                  setSelectedEndTime(selectedEndTime + 2)
+                                }
+
                                 if (selectedStartTime > selectedEndTime) {
                                   let prevStartTime = selectedStartTime
                                   setSelectedStartTime(selectedEndTime)
