@@ -228,7 +228,12 @@ const Schedule: React.FC = () => {
                                 flights?.forEach((currentFlight) => {
                                   // TODO: Fix from hour back to selectedEndTime working theory is it has something to do wiht the run time of java hehe
                                   if (hourInRange(currentFlight, hour)) {
-                                    flight = currentFlight
+                                    let newEndTime = flight?.endTime
+                                    let startTimeOfCurrentFlight =
+                                      currentFlight.startTime
+                                    newEndTime = startTimeOfCurrentFlight - 1
+
+                                    setSelectedEndTime(newEndTime)
                                   }
                                 })
 
