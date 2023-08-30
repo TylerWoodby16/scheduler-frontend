@@ -34,7 +34,7 @@ const Aircrafts: React.FC = () => {
       <Row className="home m-3 g-4">
         {aircrafts.map((aircraft, index) => {
           return (
-            <Col key={index} xs={12} lg={4}>
+            <Col className="g-4" key={index} xs={12} lg={4}>
               <AircraftCard aircraft={aircraft} getAircrafts={getAircrafts} />
             </Col>
           )

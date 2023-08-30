@@ -8,6 +8,7 @@ import Form from 'react-bootstrap/Form'
 import * as Yup from 'yup'
 import { Formik, Form as FormikForm, FormikHelpers } from 'formik'
 import axios from 'axios'
+import { useState } from 'react'
 
 interface Values {
   firstName: string
@@ -30,6 +31,8 @@ const SignupForm: React.FC<any> = () => {
     email: Yup.string().email('Invalid email').required('Required'),
   })
 
+  const [errorCode, setErrorCode] = useState<number>()
+
   return (
     <div>
       <h1 style={{ textAlign: 'center' }}>SignUp</h1>
@@ -48,14 +51,23 @@ const SignupForm: React.FC<any> = () => {
           values: Values,
           { setSubmitting }: FormikHelpers<Values>
         ) => {
-          axios
-            .post('http://localhost:5555/users', values) // no try/catch here
-            .then((response) => {
-              // setUserLoggedIn(values.lastName);
-            })
-            .catch((error) => {
-              console.log(error.response)
-            })
+          // Refactor this with a real try catch block
+
+          // TODO: TEST if I completely destroyed my Signup page xx
+          try {
+            axios.post('http://localhost:5555/users', values) // no try/catch here
+          } catch (error: any) {
+            // TODO: .then LOL old shcool where is the await ??? what is this 2018 javascript AS IF BECKYYY this is why you cant sit with us at LUNCH ahahhahaha
+
+            // .then((response) => {
+            //   // setUserLoggedIn(values.lastName);
+            // })
+            setErrorCode(error.response.status)
+          }
+          //TODO: use standardized error here
+          //     .catch((error) => {
+          //       console.log(error.response)
+          //     })
           console.log({ values })
           alert(JSON.stringify(values, null, 2))
           setSubmitting(false)

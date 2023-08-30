@@ -6,6 +6,6 @@ export interface Flight {
   aircraftId: string
   startTime: number
   endTime: number
-  type: string
+  typeOfFlight: string
   date: string
 }

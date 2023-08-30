@@ -10,9 +10,9 @@
   justify-content: flex-end !important;
 }
 
-.row {
+/* .row {
   flex-wrap: nowrap !important;
-}
+} */
 
 .navPosition {
   position: relative;

@@ -7,7 +7,7 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import './Schedule.css'
 import DatePicker from 'react-datepicker'
-import { Container } from 'react-bootstrap'
+import { Container, Placeholder } from 'react-bootstrap'
 import FlightModal from './FlightModal'
 import { DateTime } from 'luxon'
 
@@ -26,8 +26,10 @@ const Schedule: React.FC = () => {
   const [selectedFlight, setSelectedFlight] = useState<Flight>()
 
   const [selectedAircraft, setSelectedAircraft] = useState<Aircraft>()
-  const [selectedStartTime, setSelectedStartTime] = useState<number>()
-  const [selectedEndTime, setSelectedEndTime] = useState<number>()
+
+  // Default to -1 before we have used setter.
+  const [selectedStartTime, setSelectedStartTime] = useState<number>(-1)
+  let [selectedEndTime, setSelectedEndTime] = useState<number>(-1)
 
   const [aircraftIdToFlights, setAircraftIdToFLights] = useState<
     Map<string, Flight[]>
@@ -109,30 +111,19 @@ const Schedule: React.FC = () => {
   // make a new piece of state called aircraftIdToFlights
   // create function taking list of flights and returning map of aircraft id -> list of flights for that aircraft
 
-  const hourInRange = (flight?: Flight, hour?: number) => {
-    if (!flight) return false
-    // this was the bug bc 0 is a falsy so it was returning false and not getting to the highlight part of the code
-    // if (!hour) return false
-
-    return (
-      // TODO: Alter this lazy fix with !
-      hour! >= flight.startTime && hour! <= flight.endTime
-    )
+  const hourInRange = (flight: Flight, hour: number) => {
+    return hour >= flight.startTime && hour <= flight.endTime
   }
 
   const highlightFlightBox = (
     flights: Flight[] | undefined,
-    hour: number | undefined
+    hour: number
   ): boolean => {
     if (!flights) return false
-    // lol this is the bug right here bc
-    // 0: This is the numerical value zero. It is considered falsy in JavaScript, which means it evaluates to false in a boolean context.
-    // if (!hour) return false
-    // console.log(hour)
+
     let inRange = false
     flights.forEach((flight) => {
       if (hourInRange(flight, hour)) {
-        // console.log(hour)
         inRange = true
       }
     })
@@ -197,7 +188,6 @@ const Schedule: React.FC = () => {
                                 highlightFlightBox(
                                   aircraftIdToFlights?.get(aircraft._id),
                                   hour
-                                  // this hour only has 1-24 leaves out the zero why?
                                 )
                                   ? 'scheduledFlightBox'
                                   : ''
@@ -207,16 +197,22 @@ const Schedule: React.FC = () => {
                               }}
                               onPointerMove={(e) => {
                                 // console.log(hour)
+                                setSelectedEndTime(hour)
                               }}
                               onPointerUp={(e) => {
-                                setSelectedEndTime(hour)
-
                                 const flights = aircraftIdToFlights?.get(
                                   aircraft._id
                                 )
 
                                 // Check if start time is within timeframe of any flight.
                                 let flight: Flight | undefined = undefined
+
+                                if (selectedStartTime > selectedEndTime) {
+                                  let prevStartTime = selectedStartTime
+                                  setSelectedStartTime(selectedEndTime)
+                                  setSelectedEndTime(prevStartTime)
+                                }
+
                                 flights?.forEach((currentFlight) => {
                                   if (
                                     hourInRange(
@@ -230,15 +226,11 @@ const Schedule: React.FC = () => {
 
                                 // Check if end time is within timeframe of any flight.
                                 flights?.forEach((currentFlight) => {
-                                  if (
-                                    hourInRange(currentFlight, selectedEndTime)
-                                  ) {
+                                  // TODO: Fix from hour back to selectedEndTime working theory is it has something to do wiht the run time of java hehe
+                                  if (hourInRange(currentFlight, hour)) {
                                     flight = currentFlight
                                   }
                                 })
-
-                                // Flight can be undefined.
-                                // console.log(flight)
 
                                 setSelectedFlight(flight)
 
@@ -272,6 +264,7 @@ const Schedule: React.FC = () => {
         setShowModal={setShowModal}
         getFlights={getFlights}
         flight={selectedFlight}
+        times={times}
       />
     </div>
   )
