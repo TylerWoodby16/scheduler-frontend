@@ -4,8 +4,8 @@ export interface Flight {
   studentUserId: string
   instructorUserId: string
   aircraftId: string
-  startTime: number
-  endTime: number
+  startTime: Date
+  endTime: Date
   typeOfFlight: string
-  date: string
+  // date: string
 }
