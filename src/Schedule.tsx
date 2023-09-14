@@ -29,11 +29,9 @@ const Schedule: React.FC = () => {
 
   const [selectedAircraft, setSelectedAircraft] = useState<Aircraft>()
 
-  // Default to -1 before we have used setter.
   const [selectedStartTime, setSelectedStartTime] = useState<Date>(new Date())
-  // const [selectedStartTime, setSelectedStartTime] = useState<number>(-1)
-  let [selectedEndTime, setSelectedEndTime] = useState<Date>(new Date())
-  // let [selectedEndTime, setSelectedEndTime] = useState<number>(-1)
+  console.log('1. ' + selectedStartTime)
+  const [selectedEndTime, setSelectedEndTime] = useState<Date>(new Date())
 
   const [aircraftIdToFlights, setAircraftIdToFLights] = useState<
     Map<string, Flight[]>
@@ -60,11 +58,13 @@ const Schedule: React.FC = () => {
           minutes: increment * (60 / hourDivision),
         })
 
+        // TODO: POSSSIBLY CLEAN THIS UP.
         times.push(minuteDateTime.toJSDate())
       }
     }
 
     setTimes(times)
+    console.log(times)
   }
 
   const getAircrafts = async () => {
@@ -83,7 +83,6 @@ const Schedule: React.FC = () => {
       )
 
       setAircraftIdToFLights(buildAircraftIdToFlights(data))
-      // console.log(aircraftIdToFlights)
     } catch (error: any) {
       setResponseError('There was an error getting flights.')
     }
@@ -117,7 +116,11 @@ const Schedule: React.FC = () => {
 
   // TODO: Make this work with the Date type
   const dateInRange = (flight: Flight, time: Date) => {
-    return time > flight.startTime && time < flight.endTime
+    console.log('flight start time: ' + flight.startTime)
+    console.log('time: ' + time)
+    return (
+      time >= new Date(flight.startTime) && time <= new Date(flight.endTime)
+    )
   }
 
   // TODO: Make this work with the Date type
@@ -130,7 +133,11 @@ const Schedule: React.FC = () => {
     let inRange = false
     flights.forEach((flight) => {
       // TODO: CHECK THAT THIS DATE COMPARISON WORKS.
-      if (time > flight.startTime && time < flight.endTime) {
+
+      if (
+        time >= new Date(flight.startTime) &&
+        time <= new Date(flight.endTime)
+      ) {
         inRange = true
       }
     })
@@ -179,7 +186,10 @@ const Schedule: React.FC = () => {
                   {times.map((time, index) => {
                     return (
                       <th key={index}>
-                        {time.getHours()}:{time.getMinutes()}
+                        <>
+                          {time.getHours()}:{time.getMinutes()}
+                          {Number(time.getMinutes()) == 0 ? '0' : ''}
+                        </>
                       </th>
                     )
                   })}
@@ -205,16 +215,15 @@ const Schedule: React.FC = () => {
                               }
                               onPointerDown={(e) => {
                                 setSelectedStartTime(time)
+                                console.log('2. ' + selectedStartTime)
                               }}
                               onPointerMove={(e) => {
                                 // console.log(hour)
+                                setSelectedEndTime(time)
                               }}
                               onPointerUp={(e) => {
-                                setSelectedEndTime(time)
-                                console.log(time)
-                                const flights = aircraftIdToFlights?.get(
-                                  aircraft._id
-                                )
+                                const flightsForAircraft =
+                                  aircraftIdToFlights?.get(aircraft._id)
 
                                 // Check if start time is within timeframe of any flight.
                                 let flight: Flight | undefined = undefined
@@ -224,8 +233,9 @@ const Schedule: React.FC = () => {
                                   setSelectedStartTime(selectedEndTime)
                                   setSelectedEndTime(prevStartTime)
                                 }
-
-                                flights?.forEach((currentFlight) => {
+                                // Inside Out
+                                flightsForAircraft?.forEach((currentFlight) => {
+                                  console.log('3. ' + selectedStartTime)
                                   if (
                                     dateInRange(
                                       currentFlight,
@@ -281,7 +291,6 @@ const Schedule: React.FC = () => {
         setShowModal={setShowModal}
         getFlights={getFlights}
         flight={selectedFlight}
-        // follow this down
         times={times}
       />
     </div>

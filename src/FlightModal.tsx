@@ -53,105 +53,9 @@ const FlightModal: React.FC<Props> = ({
   const [cfis, setCfis] = useState<User[]>()
   const [typeOfFlight, setTypeOfFlight] = useState<string>('Dual')
 
-  // Construction zone //////////////////////////////////////////////////////////////////////////////////////////////////////
-  // need to put it in an if loop
-  // aka a function
-
-  // THIS IS TO MANIPULATE THE HOUR IN THE DATE
-  const [dateOfStartTime, setDateOfStartTime] = useState<string>('')
-
-  // const dateStart = startTime?.getDate().toString()
-  // setDateOfStartTime(dateStart!)
-  // dateForDatePicker2 instead of passing it down ??
-  const [dateFromDatePicker2, setDateFromDatePicker2] = useState<Date>(
-    new Date()
-  )
-  // console.log(startTime)
-  // const dateObject = endTime
-  // const hours = dateObject?.getHours()
-  const [
-    placeHolderStartTimeToBeShovedBackIntoFlight,
-    setPlaceHolderStartTimeToBeShovedBackIntoFlight,
-  ] = useState<number>(-1)
-
-  // console.log(placeHolderStartTimeToBeShovedBackIntoFlight)
-
-  // let originalString = startTime?.toString()
-  // // console.log(originalString + 'This is the Original String')
-  // // let searchString = ':'
-  // // let editedPart = 'JavaScript'
-
-  // // let modifiedString = originalString?.replace(searchString, editedPart)
-  // // console.log(modifiedString) // "Hello JavaScript, world!"
-
-  // let startIndex = 16 // Index of the time
-  // let editedPart = (
-  //   placeHolderStartTimeToBeShovedBackIntoFlight +
-  //   ':' +
-  //   startTime!.getMinutes()
-  // ).toString()
-
-  // let modifiedString =
-  //   originalString?.slice(0, startIndex) +
-  //   editedPart +
-  //   originalString?.slice(startIndex + 1)
-
-  // // console.log(modifiedString + 'Here is the Modified String')
-
-  // let startIndexForDelete = 20 // Index of the comma
-  // let endIndex = 24 // Index after the space
-
-  // let modifiedString2 =
-  //   modifiedString.substr(0, startIndexForDelete) +
-  //   modifiedString.substr(endIndex)
-
-  // console.log(modifiedString2 + 'this is the SECOND MS')
-
-  const replaceHour = (flight: Flight) => {
-    let originalString = startTime?.toString()
-    // console.log(originalString + 'This is the Original String')
-    // let searchString = ':'
-    // let editedPart = 'JavaScript'
-
-    // let modifiedString = originalString?.replace(searchString, editedPart)
-    // console.log(modifiedString) // "Hello JavaScript, world!"
-
-    let startIndex = 16 // Index of the time
-    let editedPart = (
-      placeHolderStartTimeToBeShovedBackIntoFlight +
-      ':' +
-      startTime!.getMinutes()
-    ).toString()
-
-    let modifiedString =
-      originalString?.slice(0, startIndex) +
-      editedPart +
-      originalString?.slice(startIndex + 1)
-
-    // console.log(modifiedString + 'Here is the Modified String')
-
-    let startIndexForDelete = 20 // Index of the comma
-    let endIndex = 24 // Index after the space
-
-    let modifiedString2 =
-      modifiedString.substr(0, startIndexForDelete) +
-      modifiedString.substr(endIndex)
-    return modifiedString2
-  }
-
-  // Construction zone //////////////////////////////////////////////////////////////////////////////////////////////////////
-
   // this is for the type of flight bc Formiks onChange wouldnt let me set state
   const handleOnChange = (typeOfFlight: string) => {
     setTypeOfFlight(typeOfFlight)
-  }
-
-  const handleOnChangeForHour = (
-    placeHolderStartTimeToBeShovedBackIntoFlight: number
-  ) => {
-    setPlaceHolderStartTimeToBeShovedBackIntoFlight(
-      placeHolderStartTimeToBeShovedBackIntoFlight
-    )
   }
 
   // TODO: INTEGRATE YUP INTO THE FORM
@@ -192,37 +96,32 @@ const FlightModal: React.FC<Props> = ({
         <Modal.Body>
           <Formik
             enableReinitialize
-            initialValues={
-              {
-                //Current Working theory is that it comes in with no ID so it is always just set by the backend
-                // ?
-                _id: flight ? flight._id : '',
-                groupId: groupId,
-                aircraftId: aircraft?._id,
-                startTime: flight ? flight.startTime : startTime,
-                endTime: flight ? flight.endTime : endTime,
-                studentUserId: flight ? flight.studentUserId : '',
-                instructorUserId: getToken().userId, //has a bug that if you sign in as not an instuctor it defaults to the first option
-                date: date,
-                typeOfFlight: typeOfFlight,
-                dateOfStartTime: dateOfStartTime,
-              } as Flight
-            }
-            onSubmit={async (
-              values: Flight,
-              { setSubmitting }: FormikHelpers<Flight>
-            ) => {
+            initialValues={{
+              _id: flight ? flight._id : '',
+              groupId: groupId,
+              aircraftId: aircraft?._id,
+              startTime: flight
+                ? new Date(flight.startTime).getTime()
+                : startTime?.getTime(),
+              endTime: flight
+                ? new Date(flight.endTime).getTime()
+                : endTime?.getTime(),
+              studentUserId: flight ? flight.studentUserId : '',
+              instructorUserId: getToken().userId, //has a bug that if you sign in as not an instuctor it defaults to the first option
+              date: date,
+              typeOfFlight: typeOfFlight,
+            }}
+            onSubmit={async (values, { setSubmitting }: FormikHelpers<any>) => {
               try {
-                //TODO: Figure out why when you change the hour it turns to string
-                // I could just do it in the backend lol
-                // values.startTime = Number(values.startTime)
-                // values.endTime = Number(values.endTime)
+                // Force startTime and endTime into dates.
+                // Also force them to be numbers because Formik was converting to string.
+                values.startTime = new Date(Number(values.startTime))
+                values.endTime = new Date(Number(values.endTime))
+                console.log(
+                  values.startTime +
+                    'this is the one being sent into the database'
+                )
 
-                // something like this
-                // TODO: fix the ! LOL LOL
-                values.startTime = new Date(replaceHour(flight!))
-                // OK OK OK OK THIS ISNT WORKING AHHAHQAH
-                console.log(values.startTime + ' I made it here ')
                 if (flight) {
                   await authUpdate(
                     `http://localhost:5555/flights/${flight._id}`,
@@ -298,9 +197,9 @@ const FlightModal: React.FC<Props> = ({
                       <Col>Start Time</Col>
                       <Col>End Times</Col>
                     </Row>
-                    <Row lg={2} md={2} sm={2} xs={2}>
+
+                    {/* <Row lg={2} md={2} sm={2} xs={2}>
                       <Col>
-                        {/* what is the value ??? */}
                         <DatePicker
                           className="w-100 p-2 rounded mb-2"
                           selected={dateFromDatePicker2}
@@ -318,25 +217,25 @@ const FlightModal: React.FC<Props> = ({
                           }}
                         />
                       </Col>
-                    </Row>
+                    </Row> */}
+
                     <Row lg={2} md={2} sm={2} xs={2}>
                       <Col>
                         <Form.Group className="mb-3" controlId="formStarttime">
                           <Form.Control
                             as="select"
                             name="startTime"
-                            onChange={(e) =>
-                              handleOnChangeForHour(
-                                new Date(e.currentTarget.value).getHours()
-                              )
-                            }
+                            type="number"
+                            onChange={handleChange}
                             onBlur={handleBlur}
-                            value={placeHolderStartTimeToBeShovedBackIntoFlight}
+                            value={values.startTime}
                           >
                             {times.map((time, index) => {
                               return (
-                                <option value={time.toString()} key={index}>
-                                  {time.toString()}
+                                <option value={time.getTime()} key={index}>
+                                  {time.getHours().toString() +
+                                    ':' +
+                                    time.getMinutes().toString()}
                                 </option>
                               )
                             })}
@@ -350,22 +249,17 @@ const FlightModal: React.FC<Props> = ({
                             name="endTime"
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            // value={values.endTime}
+                            value={values.endTime}
                           >
-                            {/* cant be times lol this wont exist anymore */}
-
-                            {/* {times.map((time, index) => {
+                            {times.map((time, index) => {
                               return (
-                                <option value={time} key={index}>
-                                  {time}
+                                <option value={time.getTime()} key={index}>
+                                  {time.getHours().toString() +
+                                    ':' +
+                                    time.getMinutes().toString()}
                                 </option>
                               )
-                            })} */}
-
-                            {/* I added Date to value here when you command click on value */}
-                            {/* <option value={endTime}>
-                              {endTime?.toString()}
-                            </option> */}
+                            })}
                           </Form.Control>
                         </Form.Group>
                       </Col>
