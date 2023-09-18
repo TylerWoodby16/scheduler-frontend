@@ -96,15 +96,16 @@ const FlightModal: React.FC<Props> = ({
         <Modal.Body>
           <Formik
             enableReinitialize
+            // For the form, we will use Unix epoch time because easier to deal with dropdowns that way.
             initialValues={{
               _id: flight ? flight._id : '',
               groupId: groupId,
               aircraftId: aircraft?._id,
               startTime: flight
-                ? new Date(flight.startTime).getTime()
+                ? new Date(flight.startTime).getTime() // flight.startTime is actually a string, so must convert to Date
                 : startTime?.getTime(),
               endTime: flight
-                ? new Date(flight.endTime).getTime()
+                ? new Date(flight.endTime).getTime() // flight.endTime is actually a string, so must convert to Date
                 : endTime?.getTime(),
               studentUserId: flight ? flight.studentUserId : '',
               instructorUserId: getToken().userId, //has a bug that if you sign in as not an instuctor it defaults to the first option
@@ -117,10 +118,6 @@ const FlightModal: React.FC<Props> = ({
                 // Also force them to be numbers because Formik was converting to string.
                 values.startTime = new Date(Number(values.startTime))
                 values.endTime = new Date(Number(values.endTime))
-                console.log(
-                  values.startTime +
-                    'this is the one being sent into the database'
-                )
 
                 if (flight) {
                   await authUpdate(

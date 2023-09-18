@@ -30,7 +30,6 @@ const Schedule: React.FC = () => {
   const [selectedAircraft, setSelectedAircraft] = useState<Aircraft>()
 
   const [selectedStartTime, setSelectedStartTime] = useState<Date>(new Date())
-  console.log('1. ' + selectedStartTime)
   const [selectedEndTime, setSelectedEndTime] = useState<Date>(new Date())
 
   const [aircraftIdToFlights, setAircraftIdToFLights] = useState<
@@ -58,13 +57,12 @@ const Schedule: React.FC = () => {
           minutes: increment * (60 / hourDivision),
         })
 
-        // TODO: POSSSIBLY CLEAN THIS UP.
         times.push(minuteDateTime.toJSDate())
       }
     }
 
     setTimes(times)
-    console.log(times)
+    // console.log(times)
   }
 
   const getAircrafts = async () => {
@@ -81,6 +79,9 @@ const Schedule: React.FC = () => {
       const data = await authGet<Flight[]>(
         `http://localhost:5555/flights/${dateOfFlights}`
       )
+
+      console.log(data)
+      console.log(data[0].startTime)
 
       setAircraftIdToFLights(buildAircraftIdToFlights(data))
     } catch (error: any) {
@@ -116,8 +117,8 @@ const Schedule: React.FC = () => {
 
   // TODO: Make this work with the Date type
   const dateInRange = (flight: Flight, time: Date) => {
-    console.log('flight start time: ' + flight.startTime)
-    console.log('time: ' + time)
+    // flight.startTime / flight.endTime is actually a (zulu time formatted) string for some reason.
+    // We convert to Date here to localize it and ACTUALLY make it a Date.
     return (
       time >= new Date(flight.startTime) && time <= new Date(flight.endTime)
     )
@@ -132,8 +133,8 @@ const Schedule: React.FC = () => {
 
     let inRange = false
     flights.forEach((flight) => {
-      // TODO: CHECK THAT THIS DATE COMPARISON WORKS.
-
+      // flight.startTime / flight.endTime is actually a (zulu time formatted) string for some reason.
+      // We convert to Date here to localize it and ACTUALLY make it a Date.
       if (
         time >= new Date(flight.startTime) &&
         time <= new Date(flight.endTime)
@@ -164,7 +165,6 @@ const Schedule: React.FC = () => {
 
               // const parsedDate = DateTime.fromISO(date)
               const formattedDate = parsedDate.toFormat('LLddyyyy')
-              // console.log(formattedDate)
 
               setDateOfFlights(formattedDate)
             }}
@@ -215,27 +215,40 @@ const Schedule: React.FC = () => {
                               }
                               onPointerDown={(e) => {
                                 setSelectedStartTime(time)
-                                console.log('2. ' + selectedStartTime)
                               }}
                               onPointerMove={(e) => {
                                 // console.log(hour)
-                                setSelectedEndTime(time)
+                                // setSelectedEndTime(time)
                               }}
+                              // onPointerUp={(e) => {
+                              //   setSelectedEndTime(time)
+                              //   console.log(
+                              //     time + 'this is the selected End Time'
+                              //   )
+                              // }}
                               onPointerUp={(e) => {
+                                setSelectedEndTime(time)
+
+                                console.log(selectedStartTime)
+                                console.log(selectedEndTime)
+
                                 const flightsForAircraft =
                                   aircraftIdToFlights?.get(aircraft._id)
 
                                 // Check if start time is within timeframe of any flight.
                                 let flight: Flight | undefined = undefined
 
-                                if (selectedStartTime > selectedEndTime) {
-                                  let prevStartTime = selectedStartTime
-                                  setSelectedStartTime(selectedEndTime)
-                                  setSelectedEndTime(prevStartTime)
-                                }
+                                // so for some reason this is messing with pointer down
+
+                                // if (selectedStartTime > selectedEndTime) {
+                                //   let prevStartTime = selectedStartTime
+                                //   setSelectedStartTime(selectedEndTime)
+                                //   setSelectedEndTime(prevStartTime)
+                                // }
+
                                 // Inside Out
                                 flightsForAircraft?.forEach((currentFlight) => {
-                                  console.log('3. ' + selectedStartTime)
+                                  // console.log('3. ' + selectedStartTime)
                                   if (
                                     dateInRange(
                                       currentFlight,
