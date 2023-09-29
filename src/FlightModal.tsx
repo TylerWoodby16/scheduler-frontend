@@ -248,6 +248,7 @@ const FlightModal: React.FC<Props> = ({
                             onBlur={handleBlur}
                             value={values.endTime}
                           >
+                            {/* basically i think that i need to bring in the lowestStartTime Variable and use that to cut off the time array (obvi making a new array ) */}
                             {times.map((time, index) => {
                               return (
                                 <option value={time.getTime()} key={index}>

@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Aircraft } from './models/Aircraft'
 import { Flight } from './models/Flight'
 import { authGet } from './authHelpers'
@@ -25,12 +25,13 @@ const Schedule: React.FC = () => {
 
   const [showModal, setShowModal] = useState<boolean>(false)
 
+  // TODO: Could we use useRef here? My hunch is NO but worth an experiment.
   const [selectedFlight, setSelectedFlight] = useState<Flight>()
-
   const [selectedAircraft, setSelectedAircraft] = useState<Aircraft>()
 
-  const [selectedStartTime, setSelectedStartTime] = useState<Date>(new Date())
-  const [selectedEndTime, setSelectedEndTime] = useState<Date>(new Date())
+  // const [selectedStartTime, setSelectedStartTime] = useState<Date>(new Date())
+  const selectedStartTime = useRef(new Date())
+  const selectedEndTime = useRef(new Date())
 
   const [aircraftIdToFlights, setAircraftIdToFLights] = useState<
     Map<string, Flight[]>
@@ -38,7 +39,7 @@ const Schedule: React.FC = () => {
 
   // Get starting DateTime based on datepicker's current day.
   // Defaults to 12:00:00AM
-  const [times, setTimes] = useState<Date[]>([])
+  const [times, setTimes] = useState<Date[]>([]) // TODO: COULD THIS BE A REGULAR VARIABLE? or at least useRef?
 
   const buildScheduleTimes = () => {
     const baseDateTime = DateTime.local(
@@ -62,7 +63,6 @@ const Schedule: React.FC = () => {
     }
 
     setTimes(times)
-    // console.log(times)
   }
 
   const getAircrafts = async () => {
@@ -79,9 +79,6 @@ const Schedule: React.FC = () => {
       const data = await authGet<Flight[]>(
         `http://localhost:5555/flights/${dateOfFlights}`
       )
-
-      console.log(data)
-      console.log(data[0].startTime)
 
       setAircraftIdToFLights(buildAircraftIdToFlights(data))
     } catch (error: any) {
@@ -214,23 +211,27 @@ const Schedule: React.FC = () => {
                                   : ''
                               }
                               onPointerDown={(e) => {
-                                setSelectedStartTime(time)
-                              }}
-                              onPointerMove={(e) => {
-                                // console.log(hour)
-                                // setSelectedEndTime(time)
-                              }}
-                              // onPointerUp={(e) => {
-                              //   setSelectedEndTime(time)
-                              //   console.log(
-                              //     time + 'this is the selected End Time'
-                              //   )
-                              // }}
-                              onPointerUp={(e) => {
-                                setSelectedEndTime(time)
+                                selectedStartTime.current = time
 
-                                console.log(selectedStartTime)
-                                console.log(selectedEndTime)
+                                const flightsForAircraft =
+                                  aircraftIdToFlights?.get(aircraft._id)
+
+                                // What is the endTime of the flight BELOW my current clicked time
+                                // and what is the startTime of the flight ABOVE my current clicked time
+
+                                // Loop through flightsForAircraft. The first flight with start time ABOVE our current time
+                                // will be the UPPER BOUNDING FLIGHT. Then, whatever index upper bounding flight was, the LOWER
+                                // BOUNDING FLIGHT will be index - 1.
+
+                                for (let i = 0; i < xxxx; i++) {}
+                              }}
+                              onPointerMove={(e) => {}}
+                              onPointerUp={(e) => {
+                                // this is for outside Forwards over the flight
+                                //TODO: Think of the impolecations of what happens outside Backwards bc it is behaving differently
+                                // possibly make a new variable for time
+
+                                selectedEndTime.current = time
 
                                 const flightsForAircraft =
                                   aircraftIdToFlights?.get(aircraft._id)
@@ -238,39 +239,63 @@ const Schedule: React.FC = () => {
                                 // Check if start time is within timeframe of any flight.
                                 let flight: Flight | undefined = undefined
 
-                                // so for some reason this is messing with pointer down
-
-                                // if (selectedStartTime > selectedEndTime) {
-                                //   let prevStartTime = selectedStartTime
-                                //   setSelectedStartTime(selectedEndTime)
-                                //   setSelectedEndTime(prevStartTime)
-                                // }
-
-                                // Inside Out
+                                // INSIDE -> OUT
                                 flightsForAircraft?.forEach((currentFlight) => {
-                                  // console.log('3. ' + selectedStartTime)
                                   if (
                                     dateInRange(
                                       currentFlight,
-                                      selectedStartTime
+                                      selectedStartTime.current
                                     )
                                   ) {
                                     flight = currentFlight
                                   }
                                 })
 
+                                // "OUTSIDE -> IN"
                                 // Check if end time is within timeframe of any flight.
-                                // flights?.forEach((currentFlight) => {
-                                //   // TODO: Fix from hour back to selectedEndTime working theory is it has something to do wiht the run time of java hehe
-                                //   if (dateInRange(currentFlight, time)) {
-                                //     let newEndTime = flight?.endTime
-                                //     let startTimeOfCurrentFlight =
-                                //       currentFlight.startTime
-                                //     newEndTime = startTimeOfCurrentFlight
+                                flightsForAircraft?.forEach((currentFlight) => {
+                                  // TODO: Fix from hour back to selectedEndTime working theory is it has something to do wiht the run time of java hehe
+                                  if (
+                                    dateInRange(
+                                      currentFlight,
+                                      selectedEndTime.current
+                                    )
+                                  ) {
+                                    if (
+                                      selectedStartTime.current <
+                                      selectedEndTime.current
+                                    ) {
+                                      selectedEndTime.current = new Date(
+                                        currentFlight.startTime
+                                      )
+                                    } else {
+                                      let prevStartTime =
+                                        selectedStartTime.current
 
-                                //     setSelectedEndTime(newEndTime)
-                                //   }
-                                // })
+                                      selectedStartTime.current =
+                                        selectedEndTime.current
+
+                                      selectedEndTime.current = prevStartTime
+
+                                      selectedStartTime.current = new Date(
+                                        currentFlight.endTime
+                                      )
+                                    }
+                                  }
+                                })
+
+                                // For new flights without overlap, may need to flip times.
+                                if (
+                                  selectedStartTime.current >
+                                  selectedEndTime.current
+                                ) {
+                                  let prevStartTime = selectedStartTime.current
+
+                                  selectedStartTime.current =
+                                    selectedEndTime.current
+
+                                  selectedEndTime.current = prevStartTime
+                                }
 
                                 setSelectedFlight(flight)
 
@@ -297,9 +322,9 @@ const Schedule: React.FC = () => {
 
       <FlightModal
         aircraft={selectedAircraft}
-        startTime={selectedStartTime}
+        startTime={selectedStartTime.current}
         date={dateOfFlights}
-        endTime={selectedEndTime}
+        endTime={selectedEndTime.current}
         showModal={showModal}
         setShowModal={setShowModal}
         getFlights={getFlights}
