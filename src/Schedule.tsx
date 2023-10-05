@@ -41,12 +41,21 @@ const Schedule: React.FC = () => {
   // Defaults to 12:00:00AM
   const [times, setTimes] = useState<Date[]>([]) // TODO: COULD THIS BE A REGULAR VARIABLE? or at least useRef?
 
+  // Used for setting a boundary on the pointerDown function
+
+  // const [upperBoundary, setUpperBoundary] = useState<Date>()
+  const upperBoundaryTime = useRef(new Date())
+  // const [lowerBoundary, setLowerBoundary] = useState<Date>()
+  const lowerBoundaryTime = useRef(new Date())
+
   const buildScheduleTimes = () => {
     const baseDateTime = DateTime.local(
       dateFromDatePicker.getFullYear(),
       dateFromDatePicker.getMonth() + 1,
       dateFromDatePicker.getDate()
     )
+
+    console.log(baseDateTime.toJSDate().toString())
 
     const hourDivision = 4 // 1 = hourly, 2 = half hour, 4 = 15 minutes
     const times: Date[] = []
@@ -213,8 +222,11 @@ const Schedule: React.FC = () => {
                               onPointerDown={(e) => {
                                 selectedStartTime.current = time
 
-                                const flightsForAircraft =
+                                let flightsForAircraft =
                                   aircraftIdToFlights?.get(aircraft._id)
+
+                                if (!flightsForAircraft)
+                                  flightsForAircraft = [] as Flight[]
 
                                 // What is the endTime of the flight BELOW my current clicked time
                                 // and what is the startTime of the flight ABOVE my current clicked time
@@ -223,7 +235,48 @@ const Schedule: React.FC = () => {
                                 // will be the UPPER BOUNDING FLIGHT. Then, whatever index upper bounding flight was, the LOWER
                                 // BOUNDING FLIGHT will be index - 1.
 
-                                for (let i = 0; i < xxxx; i++) {}
+                                // let UpperBoundary = {}
+                                // let LowerBoundary = {}
+                                let forcedBreakCondition = true
+
+                                flightsForAircraft.forEach((flight, index) => {
+                                  if (
+                                    selectedStartTime.current <
+                                      new Date(flight.startTime) &&
+                                    forcedBreakCondition
+                                  ) {
+                                    upperBoundaryTime.current = new Date(
+                                      flight.startTime
+                                    )
+
+                                    forcedBreakCondition = false
+
+                                    if (index != 0) {
+                                      lowerBoundaryTime.current = new Date(
+                                        flightsForAircraft![index - 1].endTime
+                                      )
+                                    }
+                                  }
+                                })
+
+                                if (forcedBreakCondition) {
+                                  lowerBoundaryTime.current = new Date(
+                                    flightsForAircraft[
+                                      flightsForAircraft.length - 1
+                                    ].endTime
+                                  )
+                                }
+
+                                console.log(
+                                  'upper ' + upperBoundaryTime.current
+                                )
+                                console.log(
+                                  'lower ' + lowerBoundaryTime.current
+                                )
+                                // let Boundary = { upperBoundaryTime.current, lowerBoundaryTime.current }
+                                // console.log(Boundary)
+
+                                // make condition where there is only a flight below the aircraft not ontop
                               }}
                               onPointerMove={(e) => {}}
                               onPointerUp={(e) => {
