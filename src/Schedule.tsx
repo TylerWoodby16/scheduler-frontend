@@ -42,20 +42,28 @@ const Schedule: React.FC = () => {
   const [times, setTimes] = useState<Date[]>([]) // TODO: COULD THIS BE A REGULAR VARIABLE? or at least useRef?
 
   // Used for setting a boundary on the pointerDown function
+  // TODO: Can simply use Dates here with setHour(0,0,0,0)
+  let midNightToday = DateTime.local(
+    dateFromDatePicker.getFullYear(),
+    dateFromDatePicker.getMonth() + 1,
+    dateFromDatePicker.getDate()
+  )
 
-  // const [upperBoundary, setUpperBoundary] = useState<Date>()
-  const upperBoundaryTime = useRef(new Date())
-  // const [lowerBoundary, setLowerBoundary] = useState<Date>()
-  const lowerBoundaryTime = useRef(new Date())
+  let midNightTomorrow = DateTime.local(
+    dateFromDatePicker.getFullYear(),
+    dateFromDatePicker.getMonth() + 1,
+    dateFromDatePicker.getDate() + 1
+  )
+  const lowerBoundaryTime = useRef(midNightToday.toJSDate())
+  const upperBoundaryTime = useRef(midNightTomorrow.toJSDate())
 
   const buildScheduleTimes = () => {
+    // Begin by getting 12AM today.
     const baseDateTime = DateTime.local(
       dateFromDatePicker.getFullYear(),
       dateFromDatePicker.getMonth() + 1,
       dateFromDatePicker.getDate()
     )
-
-    console.log(baseDateTime.toJSDate().toString())
 
     const hourDivision = 4 // 1 = hourly, 2 = half hour, 4 = 15 minutes
     const times: Date[] = []
@@ -280,11 +288,29 @@ const Schedule: React.FC = () => {
                               }}
                               onPointerMove={(e) => {}}
                               onPointerUp={(e) => {
-                                // this is for outside Forwards over the flight
-                                //TODO: Think of the impolecations of what happens outside Backwards bc it is behaving differently
-                                // possibly make a new variable for time
+                                if (upperBoundaryTime.current > time) {
+                                  selectedEndTime.current = time
+                                } else {
+                                  selectedEndTime.current =
+                                    upperBoundaryTime.current
+                                }
 
-                                selectedEndTime.current = time
+                                if (lowerBoundaryTime.current > time) {
+                                  selectedEndTime.current =
+                                    lowerBoundaryTime.current
+                                }
+
+                                if (
+                                  selectedEndTime.current <
+                                  selectedStartTime.current
+                                ) {
+                                  let prevStartTime = selectedStartTime.current
+
+                                  selectedStartTime.current =
+                                    selectedEndTime.current
+
+                                  selectedEndTime.current = prevStartTime
+                                }
 
                                 const flightsForAircraft =
                                   aircraftIdToFlights?.get(aircraft._id)
@@ -304,6 +330,7 @@ const Schedule: React.FC = () => {
                                   }
                                 })
 
+                                /*
                                 // "OUTSIDE -> IN"
                                 // Check if end time is within timeframe of any flight.
                                 flightsForAircraft?.forEach((currentFlight) => {
@@ -349,14 +376,13 @@ const Schedule: React.FC = () => {
 
                                   selectedEndTime.current = prevStartTime
                                 }
+                                */
 
                                 setSelectedFlight(flight)
 
                                 // case 1: startTime is within range of some flight in flights -> UPDATE
                                 // case 2: endTime is within range of some flight in flights -> DO NOTHING
                                 // case 3: neither startTime nor endTime is within range of some flight in flights -> SUBMIT
-
-                                // setSelectedFlight(???????)
                                 setSelectedAircraft(aircraft)
                                 setShowModal(true)
                               }}
