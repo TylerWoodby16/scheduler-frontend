@@ -133,9 +133,7 @@ const Schedule: React.FC = () => {
   const dateInRange = (flight: Flight, time: Date) => {
     // flight.startTime / flight.endTime is actually a (zulu time formatted) string for some reason.
     // We convert to Date here to localize it and ACTUALLY make it a Date.
-    return (
-      time >= new Date(flight.startTime) && time <= new Date(flight.endTime)
-    )
+    return time >= new Date(flight.startTime) && time < new Date(flight.endTime)
   }
 
   // TODO: Make this work with the Date type
@@ -151,7 +149,7 @@ const Schedule: React.FC = () => {
       // We convert to Date here to localize it and ACTUALLY make it a Date.
       if (
         time >= new Date(flight.startTime) &&
-        time <= new Date(flight.endTime)
+        time < new Date(flight.endTime)
       ) {
         inRange = true
       }
@@ -243,31 +241,34 @@ const Schedule: React.FC = () => {
                                 // will be the UPPER BOUNDING FLIGHT. Then, whatever index upper bounding flight was, the LOWER
                                 // BOUNDING FLIGHT will be index - 1.
 
-                                // let UpperBoundary = {}
-                                // let LowerBoundary = {}
-                                let forcedBreakCondition = true
-
+                                let boundaryNotFound = true
                                 flightsForAircraft.forEach((flight, index) => {
+                                  // Find first flight above currently selected time.
                                   if (
                                     selectedStartTime.current <
                                       new Date(flight.startTime) &&
-                                    forcedBreakCondition
+                                    boundaryNotFound
                                   ) {
                                     upperBoundaryTime.current = new Date(
                                       flight.startTime
                                     )
 
-                                    forcedBreakCondition = false
+                                    boundaryNotFound = false
 
                                     if (index != 0) {
                                       lowerBoundaryTime.current = new Date(
                                         flightsForAircraft![index - 1].endTime
                                       )
                                     }
+                                    // Otherwise, do nothing and use default value (midnight today).
                                   }
                                 })
 
-                                if (forcedBreakCondition) {
+                                // Possibly flights below and not above.
+                                if (
+                                  boundaryNotFound &&
+                                  flightsForAircraft.length != 0
+                                ) {
                                   lowerBoundaryTime.current = new Date(
                                     flightsForAircraft[
                                       flightsForAircraft.length - 1
