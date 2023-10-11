@@ -10,8 +10,6 @@ import DatePicker from 'react-datepicker'
 import { Container, Placeholder } from 'react-bootstrap'
 import FlightModal from './FlightModal'
 import { DateTime } from 'luxon'
-import { createSecureContext } from 'tls'
-import { createIncrementalCompilerHost, isFunctionLike } from 'typescript'
 
 const Schedule: React.FC = () => {
   const [aircrafts, setAircrafts] = useState<Aircraft[]>([])
@@ -41,21 +39,35 @@ const Schedule: React.FC = () => {
   // Defaults to 12:00:00AM
   const [times, setTimes] = useState<Date[]>([]) // TODO: COULD THIS BE A REGULAR VARIABLE? or at least useRef?
 
+  const lowerBoundaryTime = useRef(new Date())
+  const upperBoundaryTime = useRef(new Date())
+
   // Used for setting a boundary on the pointerDown function
   // TODO: Can simply use Dates here with setHour(0,0,0,0)
-  let midNightToday = DateTime.local(
-    dateFromDatePicker.getFullYear(),
-    dateFromDatePicker.getMonth() + 1,
-    dateFromDatePicker.getDate()
-  )
+  const setDefaultBoundaryTimes = () => {
+    let midNightToday = DateTime.local(
+      dateFromDatePicker.getFullYear(),
+      dateFromDatePicker.getMonth() + 1,
+      dateFromDatePicker.getDate()
+    )
 
-  let midNightTomorrow = DateTime.local(
-    dateFromDatePicker.getFullYear(),
-    dateFromDatePicker.getMonth() + 1,
-    dateFromDatePicker.getDate() + 1
-  )
-  const lowerBoundaryTime = useRef(midNightToday.toJSDate())
-  const upperBoundaryTime = useRef(midNightTomorrow.toJSDate())
+    let midNightTomorrow = DateTime.local(
+      dateFromDatePicker.getFullYear(),
+      dateFromDatePicker.getMonth() + 1,
+      dateFromDatePicker.getDate() + 1
+    )
+
+    lowerBoundaryTime.current = midNightToday.toJSDate()
+    upperBoundaryTime.current = midNightTomorrow.toJSDate()
+  }
+  // const lowerBoundaryTime = useRef(midNightToday.toJSDate())
+  // const upperBoundaryTime = useRef(midNightTomorrow.toJSDate())
+
+  const boundariesReset = () => {
+    // lowerBoundaryTime.current = midNightToday.toJSDate()
+    // upperBoundaryTime.current = midNightTomorrow.toJSDate()
+    setDefaultBoundaryTimes()
+  }
 
   const buildScheduleTimes = () => {
     // Begin by getting 12AM today.
@@ -107,6 +119,7 @@ const Schedule: React.FC = () => {
     getAircrafts()
     getFlights()
     buildScheduleTimes()
+    setDefaultBoundaryTimes()
   }, [dateFromDatePicker])
 
   const buildAircraftIdToFlights = (flights: Flight[]) => {
@@ -129,14 +142,12 @@ const Schedule: React.FC = () => {
     return aircraftIdToFlights
   }
 
-  // TODO: Make this work with the Date type
   const dateInRange = (flight: Flight, time: Date) => {
     // flight.startTime / flight.endTime is actually a (zulu time formatted) string for some reason.
     // We convert to Date here to localize it and ACTUALLY make it a Date.
     return time >= new Date(flight.startTime) && time < new Date(flight.endTime)
   }
 
-  // TODO: Make this work with the Date type
   const highlightFlightBox = (
     flights: Flight[] | undefined,
     time: Date
@@ -227,6 +238,7 @@ const Schedule: React.FC = () => {
                               }
                               onPointerDown={(e) => {
                                 selectedStartTime.current = time
+                                console.log(selectedStartTime.current)
 
                                 let flightsForAircraft =
                                   aircraftIdToFlights?.get(aircraft._id)
@@ -290,13 +302,17 @@ const Schedule: React.FC = () => {
                               onPointerMove={(e) => {}}
                               onPointerUp={(e) => {
                                 if (upperBoundaryTime.current > time) {
+                                  console.log('1')
                                   selectedEndTime.current = time
                                 } else {
+                                  console.log(upperBoundaryTime.current)
+                                  console.log('2')
                                   selectedEndTime.current =
                                     upperBoundaryTime.current
                                 }
 
                                 if (lowerBoundaryTime.current > time) {
+                                  console.log('3')
                                   selectedEndTime.current =
                                     lowerBoundaryTime.current
                                 }
@@ -305,6 +321,7 @@ const Schedule: React.FC = () => {
                                   selectedEndTime.current <
                                   selectedStartTime.current
                                 ) {
+                                  console.log('4')
                                   let prevStartTime = selectedStartTime.current
 
                                   selectedStartTime.current =
@@ -330,6 +347,8 @@ const Schedule: React.FC = () => {
                                     flight = currentFlight
                                   }
                                 })
+
+                                console.log(selectedEndTime.current)
 
                                 /*
                                 // "OUTSIDE -> IN"
@@ -410,6 +429,9 @@ const Schedule: React.FC = () => {
         getFlights={getFlights}
         flight={selectedFlight}
         times={times}
+        lowerBoundaryTime={lowerBoundaryTime}
+        upperBoundaryTime={upperBoundaryTime}
+        boundariesReset={boundariesReset}
       />
     </div>
   )

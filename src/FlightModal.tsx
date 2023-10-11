@@ -21,9 +21,6 @@ import {
   authUpdate,
 } from './authHelpers'
 import { User } from './models/User'
-import { DateTime } from 'luxon'
-import { number } from 'yup/lib/locale'
-import { start } from 'repl'
 
 type Props = {
   aircraft?: Aircraft
@@ -35,6 +32,10 @@ type Props = {
   flight?: Flight
   date: string
   times: Date[]
+  // TODO: maybe need to pass refs using forwardRef?
+  lowerBoundaryTime: React.MutableRefObject<Date>
+  upperBoundaryTime: React.MutableRefObject<Date>
+  boundariesReset: Function
 }
 
 const FlightModal: React.FC<Props> = ({
@@ -47,6 +48,9 @@ const FlightModal: React.FC<Props> = ({
   flight,
   date,
   times,
+  lowerBoundaryTime,
+  upperBoundaryTime,
+  boundariesReset,
 }) => {
   const [errorCode, setErrorCode] = useState<number>()
   const [students, setStudents] = useState<User[]>()
@@ -79,6 +83,11 @@ const FlightModal: React.FC<Props> = ({
     }
   }
 
+  const permittedTimes = times.filter(
+    (time: Date) =>
+      time >= lowerBoundaryTime.current && time <= upperBoundaryTime.current
+  )
+
   useEffect(() => {
     getUsers()
   }, [])
@@ -89,6 +98,7 @@ const FlightModal: React.FC<Props> = ({
         show={showModal}
         onHide={() => {
           setShowModal(false)
+          boundariesReset()
           setErrorCode(undefined)
         }}
       >
@@ -130,6 +140,7 @@ const FlightModal: React.FC<Props> = ({
 
                 getFlights()
                 setShowModal(false)
+                boundariesReset()
               } catch (error: any) {
                 setErrorCode(error.response.status)
               }
@@ -227,7 +238,7 @@ const FlightModal: React.FC<Props> = ({
                             onBlur={handleBlur}
                             value={values.startTime}
                           >
-                            {times.map((time, index) => {
+                            {permittedTimes.map((time, index) => {
                               return (
                                 <option value={time.getTime()} key={index}>
                                   {time.getHours().toString() +
@@ -249,7 +260,7 @@ const FlightModal: React.FC<Props> = ({
                             value={values.endTime}
                           >
                             {/* basically i think that i need to bring in the lowestStartTime Variable and use that to cut off the time array (obvi making a new array ) */}
-                            {times.map((time, index) => {
+                            {permittedTimes.map((time, index) => {
                               return (
                                 <option value={time.getTime()} key={index}>
                                   {time.getHours().toString() +
@@ -356,6 +367,7 @@ const FlightModal: React.FC<Props> = ({
                           )
                           getFlights()
                           setShowModal(false)
+                          boundariesReset()
                         } catch (err: any) {
                           setErrorCode(err.response.status)
                         }
@@ -368,6 +380,7 @@ const FlightModal: React.FC<Props> = ({
                     variant="secondary"
                     onClick={() => {
                       setShowModal(false)
+                      boundariesReset()
                       setErrorCode(undefined)
                     }}
                   >
