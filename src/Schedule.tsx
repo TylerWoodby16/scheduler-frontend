@@ -39,8 +39,8 @@ const Schedule: React.FC = () => {
   // Defaults to 12:00:00AM
   const [times, setTimes] = useState<Date[]>([]) // TODO: COULD THIS BE A REGULAR VARIABLE? or at least useRef?
 
-  const lowerBoundaryTime = useRef(new Date())
-  const upperBoundaryTime = useRef(new Date())
+  let lowerBoundaryTime = useRef(new Date())
+  let upperBoundaryTime = useRef(new Date())
 
   // Used for setting a boundary on the pointerDown function
   // TODO: Can simply use Dates here with setHour(0,0,0,0)
@@ -59,14 +59,6 @@ const Schedule: React.FC = () => {
 
     lowerBoundaryTime.current = midNightToday.toJSDate()
     upperBoundaryTime.current = midNightTomorrow.toJSDate()
-  }
-  // const lowerBoundaryTime = useRef(midNightToday.toJSDate())
-  // const upperBoundaryTime = useRef(midNightTomorrow.toJSDate())
-
-  const boundariesReset = () => {
-    // lowerBoundaryTime.current = midNightToday.toJSDate()
-    // upperBoundaryTime.current = midNightTomorrow.toJSDate()
-    setDefaultBoundaryTimes()
   }
 
   const buildScheduleTimes = () => {
@@ -238,7 +230,6 @@ const Schedule: React.FC = () => {
                               }
                               onPointerDown={(e) => {
                                 selectedStartTime.current = time
-                                console.log(selectedStartTime.current)
 
                                 let flightsForAircraft =
                                   aircraftIdToFlights?.get(aircraft._id)
@@ -252,7 +243,7 @@ const Schedule: React.FC = () => {
                                 // Loop through flightsForAircraft. The first flight with start time ABOVE our current time
                                 // will be the UPPER BOUNDING FLIGHT. Then, whatever index upper bounding flight was, the LOWER
                                 // BOUNDING FLIGHT will be index - 1.
-
+                                console.log(lowerBoundaryTime.current + '1')
                                 let boundaryNotFound = true
                                 flightsForAircraft.forEach((flight, index) => {
                                   // Find first flight above currently selected time.
@@ -275,7 +266,7 @@ const Schedule: React.FC = () => {
                                     // Otherwise, do nothing and use default value (midnight today).
                                   }
                                 })
-
+                                console.log(lowerBoundaryTime.current + '2')
                                 // Possibly flights below and not above.
                                 if (
                                   boundaryNotFound &&
@@ -299,29 +290,26 @@ const Schedule: React.FC = () => {
 
                                 // make condition where there is only a flight below the aircraft not ontop
                               }}
-                              onPointerMove={(e) => {}}
+                              // onPointerMove={(e) => {}}
                               onPointerUp={(e) => {
                                 if (upperBoundaryTime.current > time) {
-                                  console.log('1')
                                   selectedEndTime.current = time
                                 } else {
-                                  console.log(upperBoundaryTime.current)
-                                  console.log('2')
                                   selectedEndTime.current =
                                     upperBoundaryTime.current
                                 }
 
                                 if (lowerBoundaryTime.current > time) {
-                                  console.log('3')
                                   selectedEndTime.current =
                                     lowerBoundaryTime.current
                                 }
+                                console.log(lowerBoundaryTime.current + '3')
 
+                                // If we are selecting backwards, flip start time and end time.
                                 if (
                                   selectedEndTime.current <
                                   selectedStartTime.current
                                 ) {
-                                  console.log('4')
                                   let prevStartTime = selectedStartTime.current
 
                                   selectedStartTime.current =
@@ -337,66 +325,28 @@ const Schedule: React.FC = () => {
                                 let flight: Flight | undefined = undefined
 
                                 // INSIDE -> OUT
-                                flightsForAircraft?.forEach((currentFlight) => {
-                                  if (
-                                    dateInRange(
-                                      currentFlight,
-                                      selectedStartTime.current
-                                    )
-                                  ) {
-                                    flight = currentFlight
-                                  }
-                                })
 
-                                console.log(selectedEndTime.current)
-
-                                /*
-                                // "OUTSIDE -> IN"
-                                // Check if end time is within timeframe of any flight.
-                                flightsForAircraft?.forEach((currentFlight) => {
-                                  // TODO: Fix from hour back to selectedEndTime working theory is it has something to do wiht the run time of java hehe
-                                  if (
-                                    dateInRange(
-                                      currentFlight,
-                                      selectedEndTime.current
-                                    )
-                                  ) {
+                                flightsForAircraft?.forEach(
+                                  (currentFlight, index) => {
                                     if (
-                                      selectedStartTime.current <
-                                      selectedEndTime.current
-                                    ) {
-                                      selectedEndTime.current = new Date(
-                                        currentFlight.startTime
-                                      )
-                                    } else {
-                                      let prevStartTime =
+                                      dateInRange(
+                                        currentFlight,
                                         selectedStartTime.current
-
-                                      selectedStartTime.current =
-                                        selectedEndTime.current
-
-                                      selectedEndTime.current = prevStartTime
-
-                                      selectedStartTime.current = new Date(
-                                        currentFlight.endTime
                                       )
+                                    ) {
+                                      flight = currentFlight
+
+                                      console.log(flightsForAircraft[index + 1])
+                                      upperBoundaryTime.current =
+                                        flightsForAircraft[index + 1]?.startTime
+
+                                      lowerBoundaryTime.current =
+                                        flightsForAircraft[index - 1]?.endTime
                                     }
                                   }
-                                })
+                                )
 
-                                // For new flights without overlap, may need to flip times.
-                                if (
-                                  selectedStartTime.current >
-                                  selectedEndTime.current
-                                ) {
-                                  let prevStartTime = selectedStartTime.current
-
-                                  selectedStartTime.current =
-                                    selectedEndTime.current
-
-                                  selectedEndTime.current = prevStartTime
-                                }
-                                */
+                                // If in flight lets reset the upper and lower boundaires by finding the index of the current flight and using n -1 lower bound  n +1 upper bound
 
                                 setSelectedFlight(flight)
 
@@ -431,7 +381,7 @@ const Schedule: React.FC = () => {
         times={times}
         lowerBoundaryTime={lowerBoundaryTime}
         upperBoundaryTime={upperBoundaryTime}
-        boundariesReset={boundariesReset}
+        setDefaultBoundaryTimes={setDefaultBoundaryTimes}
       />
     </div>
   )
