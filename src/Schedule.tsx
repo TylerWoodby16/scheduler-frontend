@@ -243,7 +243,6 @@ const Schedule: React.FC = () => {
                                 // Loop through flightsForAircraft. The first flight with start time ABOVE our current time
                                 // will be the UPPER BOUNDING FLIGHT. Then, whatever index upper bounding flight was, the LOWER
                                 // BOUNDING FLIGHT will be index - 1.
-                                console.log(lowerBoundaryTime.current + '1')
                                 let boundaryNotFound = true
                                 flightsForAircraft.forEach((flight, index) => {
                                   // Find first flight above currently selected time.
@@ -263,10 +262,17 @@ const Schedule: React.FC = () => {
                                         flightsForAircraft![index - 1].endTime
                                       )
                                     }
+
+                                    console.log(
+                                      'upper ' + upperBoundaryTime.current
+                                    )
+                                    console.log(
+                                      'low ' + lowerBoundaryTime.current
+                                    )
                                     // Otherwise, do nothing and use default value (midnight today).
                                   }
                                 })
-                                console.log(lowerBoundaryTime.current + '2')
+
                                 // Possibly flights below and not above.
                                 if (
                                   boundaryNotFound &&
@@ -278,32 +284,19 @@ const Schedule: React.FC = () => {
                                     ].endTime
                                   )
                                 }
-
-                                console.log(
-                                  'upper ' + upperBoundaryTime.current
-                                )
-                                console.log(
-                                  'lower ' + lowerBoundaryTime.current
-                                )
-                                // let Boundary = { upperBoundaryTime.current, lowerBoundaryTime.current }
-                                // console.log(Boundary)
-
-                                // make condition where there is only a flight below the aircraft not ontop
                               }}
-                              // onPointerMove={(e) => {}}
                               onPointerUp={(e) => {
-                                if (upperBoundaryTime.current > time) {
+                                if (time < upperBoundaryTime.current) {
                                   selectedEndTime.current = time
                                 } else {
                                   selectedEndTime.current =
                                     upperBoundaryTime.current
                                 }
 
-                                if (lowerBoundaryTime.current > time) {
+                                if (time < lowerBoundaryTime.current) {
                                   selectedEndTime.current =
                                     lowerBoundaryTime.current
                                 }
-                                console.log(lowerBoundaryTime.current + '3')
 
                                 // If we are selecting backwards, flip start time and end time.
                                 if (
@@ -325,7 +318,6 @@ const Schedule: React.FC = () => {
                                 let flight: Flight | undefined = undefined
 
                                 // INSIDE -> OUT
-
                                 flightsForAircraft?.forEach(
                                   (currentFlight, index) => {
                                     if (
@@ -335,18 +327,31 @@ const Schedule: React.FC = () => {
                                       )
                                     ) {
                                       flight = currentFlight
+                                      setDefaultBoundaryTimes()
 
-                                      console.log(flightsForAircraft[index + 1])
-                                      upperBoundaryTime.current =
-                                        flightsForAircraft[index + 1]?.startTime
+                                      if (flightsForAircraft.length > 1) {
+                                        if (
+                                          index !=
+                                          flightsForAircraft.length - 1
+                                        ) {
+                                          upperBoundaryTime.current = new Date(
+                                            flightsForAircraft[
+                                              index + 1
+                                            ].startTime
+                                          )
+                                        }
 
-                                      lowerBoundaryTime.current =
-                                        flightsForAircraft[index - 1]?.endTime
+                                        if (index != 0) {
+                                          lowerBoundaryTime.current = new Date(
+                                            flightsForAircraft[
+                                              index - 1
+                                            ].endTime
+                                          )
+                                        }
+                                      }
                                     }
                                   }
                                 )
-
-                                // If in flight lets reset the upper and lower boundaires by finding the index of the current flight and using n -1 lower bound  n +1 upper bound
 
                                 setSelectedFlight(flight)
 
