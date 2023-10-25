@@ -53,6 +53,7 @@ const FlightModal: React.FC<Props> = ({
   setDefaultBoundaryTimes,
 }) => {
   const [errorCode, setErrorCode] = useState<number>()
+  const [userError, setUserError] = useState<string>()
   const [students, setStudents] = useState<User[]>()
   const [cfis, setCfis] = useState<User[]>()
   const [typeOfFlight, setTypeOfFlight] = useState<string>('Dual')
@@ -100,6 +101,7 @@ const FlightModal: React.FC<Props> = ({
           setShowModal(false)
           setDefaultBoundaryTimes()
           setErrorCode(undefined)
+          setUserError(undefined)
         }}
       >
         <Modal.Header />
@@ -124,6 +126,11 @@ const FlightModal: React.FC<Props> = ({
             }}
             onSubmit={async (values, { setSubmitting }: FormikHelpers<any>) => {
               try {
+                if (values.endTime < values.startTime) {
+                  setUserError('Flight cannot end before it starts.')
+                  return
+                }
+
                 // Force startTime and endTime into dates.
                 // Also force them to be numbers because Formik was converting to string.
                 values.startTime = new Date(Number(values.startTime))
@@ -144,7 +151,6 @@ const FlightModal: React.FC<Props> = ({
               } catch (error: any) {
                 setErrorCode(error.response.status)
               }
-
               setSubmitting(false)
             }}
           >
@@ -156,7 +162,6 @@ const FlightModal: React.FC<Props> = ({
               handleBlur,
               handleSubmit,
               isSubmitting,
-              getFieldHelpers,
             }) => (
               <FormikForm onSubmit={handleSubmit}>
                 <Container>
@@ -205,27 +210,6 @@ const FlightModal: React.FC<Props> = ({
                       <Col>Start Time</Col>
                       <Col>End Times</Col>
                     </Row>
-
-                    {/* <Row lg={2} md={2} sm={2} xs={2}>
-                      <Col>
-                        <DatePicker
-                          className="w-100 p-2 rounded mb-2"
-                          selected={dateFromDatePicker2}
-                          onChange={(date) => {
-                            if (!date) return
-
-                            setDateFromDatePicker2(date)
-
-                            const parsedDate = DateTime.fromJSDate(date)
-
-                            // const parsedDate = DateTime.fromISO(date)
-                            const formattedDate =
-                              parsedDate.toFormat('LLddyyyy')
-                            // console.log(formattedDate)
-                          }}
-                        />
-                      </Col>
-                    </Row> */}
 
                     <Row lg={2} md={2} sm={2} xs={2}>
                       <Col>
@@ -346,46 +330,54 @@ const FlightModal: React.FC<Props> = ({
 
                     <Row>
                       <Col>
-                        <ResponseError statusCode={errorCode} />
+                        <ResponseError
+                          statusCode={errorCode}
+                          responseError={userError}
+                        />
                       </Col>
                     </Row>
                   </Col>
-                  {flight ? (
-                    <Button type="submit" variant="warning">
-                      Update
-                    </Button>
-                  ) : (
-                    <Button type="submit">Submit</Button>
-                  )}
-                  {flight && (
-                    <Button
-                      variant="danger"
-                      onClick={async () => {
-                        try {
-                          await authDelete(
-                            `http://localhost:5555/flights/${flight._id}`
-                          )
-                          getFlights()
+                  <Col>
+                    <Row>
+                      {flight ? (
+                        <Button type="submit" variant="warning">
+                          Update
+                        </Button>
+                      ) : (
+                        <Button type="submit">Submit</Button>
+                      )}
+                      {flight && (
+                        <Button
+                          variant="danger"
+                          onClick={async () => {
+                            try {
+                              await authDelete(
+                                `http://localhost:5555/flights/${flight._id}`
+                              )
+                              getFlights()
+                              setShowModal(false)
+                              setDefaultBoundaryTimes()
+                            } catch (err: any) {
+                              setErrorCode(err.response.status)
+                            }
+                          }}
+                        >
+                          Delete
+                        </Button>
+                      )}
+                      <Button
+                        variant="secondary"
+                        onClick={() => {
                           setShowModal(false)
                           setDefaultBoundaryTimes()
-                        } catch (err: any) {
-                          setErrorCode(err.response.status)
-                        }
-                      }}
-                    >
-                      Delete
-                    </Button>
-                  )}
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      setShowModal(false)
-                      setDefaultBoundaryTimes()
-                      setErrorCode(undefined)
-                    }}
-                  >
-                    Cancel
-                  </Button>
+                          setErrorCode(undefined)
+                          setUserError(undefined)
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </Row>
+                  </Col>
                 </Container>
               </FormikForm>
             )}
