@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import './AircraftDetails.css'
 import { Aircraft } from './models/Aircraft'
 import { Flight } from './models/Flight'
-import { FlightType } from './models/FlightType'
 import { Button, Dropdown } from 'react-bootstrap'
 import { Formik, Field, Form as FormikForm, FormikHelpers } from 'formik'
 import Form from 'react-bootstrap/Form'
@@ -22,7 +21,6 @@ import {
   authUpdate,
 } from './authHelpers'
 import { User } from './models/User'
-import axios from 'axios'
 
 type Props = {
   aircraft?: Aircraft
@@ -58,13 +56,12 @@ const FlightModal: React.FC<Props> = ({
   const [userError, setUserError] = useState<string>()
   const [students, setStudents] = useState<User[]>()
   const [cfis, setCfis] = useState<User[]>()
-  const [flightTypes, setFlightTypes] = useState<FlightType[]>()
-  const [flightType, setFlightType] = useState<string>('Dual')
+  const [typeOfFlight, setTypeOfFlight] = useState<string>('Dual')
 
   // this is for the type of flight bc Formiks onChange wouldnt let me set state
-  // const handleOnChange = (flightType: string) => {
-  //   setFlightType(flightType)
-  // }
+  const handleOnChange = (typeOfFlight: string) => {
+    setTypeOfFlight(typeOfFlight)
+  }
 
   // TODO: INTEGRATE YUP INTO THE FORM
   const groupId = getToken().groupId
@@ -87,21 +84,6 @@ const FlightModal: React.FC<Props> = ({
     }
   }
 
-  const getFlightTypes = async () => {
-    try {
-      const data = await authGet<FlightType[]>(
-        'http://localhost:5555/flights/types'
-      )
-
-      console.log(data)
-      // return authGet<FlightType>('http://localhost:5555/flights/types')
-      setFlightTypes(data)
-    } catch (error: any) {
-      // TODO: use the error code or the other one :)
-      console.log(error)
-    }
-  }
-
   const permittedTimes = times.filter(
     (time: Date) =>
       time >= lowerBoundaryTime.current && time <= upperBoundaryTime.current
@@ -109,7 +91,6 @@ const FlightModal: React.FC<Props> = ({
 
   useEffect(() => {
     getUsers()
-    getFlightTypes()
   }, [])
 
   return (
@@ -141,7 +122,7 @@ const FlightModal: React.FC<Props> = ({
               studentUserId: flight ? flight.studentUserId : '',
               instructorUserId: getToken().userId, //has a bug that if you sign in as not an instuctor it defaults to the first option
               date: date,
-              flightType: flightType,
+              typeOfFlight: typeOfFlight,
             }}
             onSubmit={async (values, { setSubmitting }: FormikHelpers<any>) => {
               try {
@@ -197,22 +178,14 @@ const FlightModal: React.FC<Props> = ({
                         <Form.Group className="mb-3" controlId="formEndtime">
                           <Form.Control
                             as="select"
-                            name="flightType"
-                            // onChange={
-                            //   (e) => handleOnChange(e.currentTarget.value) // TODO: Do we need this?
-                            // }
-                            onChange={handleChange}
+                            name="typeOfFlight"
+                            onChange={(e) =>
+                              handleOnChange(e.currentTarget.value)
+                            }
                             onBlur={handleBlur}
-                            value={flightType}
+                            value={typeOfFlight}
                           >
-                            {flightTypes?.map((ft, index) => {
-                              return (
-                                <option value={ft.name} key={index}>
-                                  {ft.name}
-                                </option>
-                              )
-                            })}
-                            {/* <option value="Dual">Dual</option>
+                            <option value="Dual">Dual</option>
                             <option value="Solo">Solo</option>
                             <option value="EOC Stage Check">
                               EOC Stage Check
@@ -228,7 +201,7 @@ const FlightModal: React.FC<Props> = ({
                             <option value="Pro Time">Pro Time</option>
                             <option value="Simulator">Simulator</option>
                             <option value="Student Solo">Student Solo</option>
-                            <option value="Time Off">Time Off</option> */}
+                            <option value="Time Off">Time Off</option>
                           </Form.Control>
                         </Form.Group>
                       </Col>
