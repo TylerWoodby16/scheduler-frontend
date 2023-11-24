@@ -24,7 +24,9 @@ import { User } from './models/User'
 
 type Props = {
   aircraft?: Aircraft
+  aircrafts: Aircraft[]
   startTime?: Date
+  possibleStartTimes?: Date[]
   endTime?: Date
   showModal: boolean
   setShowModal: Function
@@ -40,7 +42,9 @@ type Props = {
 
 const FlightModal: React.FC<Props> = ({
   aircraft,
+  aircrafts,
   startTime,
+  possibleStartTimes,
   endTime,
   showModal,
   setShowModal,
@@ -88,6 +92,8 @@ const FlightModal: React.FC<Props> = ({
     (time: Date) =>
       time >= lowerBoundaryTime.current && time <= upperBoundaryTime.current
   )
+  //Times with start times removed
+  const timesWihoutStartTimes = possibleStartTimes
 
   useEffect(() => {
     getUsers()
@@ -206,6 +212,30 @@ const FlightModal: React.FC<Props> = ({
                         </Form.Group>
                       </Col>
                     </Row>
+
+                    <Row>
+                      <Col>
+                        <Form.Group className="mb-3" controlId="formStarttime">
+                          <Form.Control
+                            as="select"
+                            name="aircraftId"
+                            type="number"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            value={values.aircraftId}
+                          >
+                            {aircrafts.map((aircraft, index) => {
+                              return (
+                                <option value={aircraft._id} key={index}>
+                                  {aircraft.name}
+                                </option>
+                              )
+                            })}
+                          </Form.Control>
+                        </Form.Group>
+                      </Col>
+                    </Row>
+
                     <Row>
                       <Col>Start Time</Col>
                       <Col>End Times</Col>
@@ -234,6 +264,34 @@ const FlightModal: React.FC<Props> = ({
                           </Form.Control>
                         </Form.Group>
                       </Col>
+                    </Row>
+                    <Row>
+                      <Col>Possible Start Time</Col>
+                      <Col>
+                        <Form.Group className="mb-3" controlId="formStarttime">
+                          <Form.Control
+                            as="select"
+                            name="startTime"
+                            type="number"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            value={values.possibleStartTimes}
+                          >
+                            {timesWihoutStartTimes!.map((time, index) => {
+                              return (
+                                <option value={time.getTime()} key={index}>
+                                  {time.getHours().toString() +
+                                    ':' +
+                                    time.getMinutes().toString()}
+                                </option>
+                              )
+                            })}
+                          </Form.Control>
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col>End Time</Col>
                       <Col>
                         <Form.Group className="mb-3" controlId="formEndtime">
                           <Form.Control

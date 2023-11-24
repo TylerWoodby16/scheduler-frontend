@@ -27,9 +27,13 @@ const Schedule: React.FC = () => {
   const [selectedFlight, setSelectedFlight] = useState<Flight>()
   const [selectedAircraft, setSelectedAircraft] = useState<Aircraft>()
 
-  // const [selectedStartTime, setSelectedStartTime] = useState<Date>(new Date())
   const selectedStartTime = useRef(new Date())
   const selectedEndTime = useRef(new Date())
+
+  // First attempt at getting all possible start times
+  const [possibleStartTimes, setPossibleStartTimes] = useState<Date[]>([])
+
+  const [flights, setFlights] = useState<Flight[]>()
 
   const [aircraftIdToFlights, setAircraftIdToFLights] = useState<
     Map<string, Flight[]>
@@ -59,6 +63,71 @@ const Schedule: React.FC = () => {
 
     lowerBoundaryTime.current = midNightToday.toJSDate()
     upperBoundaryTime.current = midNightTomorrow.toJSDate()
+  }
+
+  const settingUpperAndLowerBoundaryTimeIfInsideFlight = (
+    flightsForAircraft: Flight[]
+  ) => {
+    flightsForAircraft.forEach((currentFlight, index) => {
+      // Check if we pointer down in an existing flight's time (which is a date) range.
+      if (dateInRange(currentFlight, selectedStartTime.current)) {
+        // flight = currentFlight
+        setDefaultBoundaryTimes()
+
+        // this is for if we are in a flight
+
+        // If more than one flight exists, and we are NOT selecting the last one,
+        // make the upper boundary time the START time of the NEXT flight.
+        if (flightsForAircraft!.length > 1) {
+          if (index != flightsForAircraft!.length - 1) {
+            upperBoundaryTime.current = new Date(
+              flightsForAircraft![index + 1].startTime
+            )
+          }
+
+          // If we are not selecting the FIRST flight, make the lower boundary time
+          // the END time of the previous flight.
+          if (index != 0) {
+            lowerBoundaryTime.current = new Date(
+              flightsForAircraft![index - 1].endTime
+            )
+          }
+        }
+      }
+    })
+  }
+
+  const settingUpperAndLowerBoundaryTimeNotInFlight = (
+    flightsForAircraft: Flight[]
+  ) => {
+    let boundaryNotFound = true
+    flightsForAircraft.forEach((flight, index) => {
+      // Find first flight above currently selected time.
+      if (
+        selectedStartTime.current < new Date(flight.startTime) &&
+        boundaryNotFound
+      ) {
+        upperBoundaryTime.current = new Date(flight.startTime)
+
+        boundaryNotFound = false
+
+        if (index != 0) {
+          lowerBoundaryTime.current = new Date(
+            flightsForAircraft[index - 1].endTime
+          )
+        }
+
+        // Otherwise, do nothing and use default value (midnight today).
+      }
+    })
+
+    // Possibly flights below and not above.
+
+    if (boundaryNotFound && flightsForAircraft?.length != 0) {
+      lowerBoundaryTime.current = new Date(
+        flightsForAircraft[flightsForAircraft.length - 1].endTime
+      )
+    }
   }
 
   const buildScheduleTimes = () => {
@@ -100,7 +169,8 @@ const Schedule: React.FC = () => {
       const data = await authGet<Flight[]>(
         `http://localhost:5555/flights/${dateOfFlights}`
       )
-
+      // possibly just make the flights usestate and set it here ?
+      setFlights(data)
       setAircraftIdToFLights(buildAircraftIdToFlights(data))
     } catch (error: any) {
       setResponseError('There was an error getting flights.')
@@ -132,6 +202,53 @@ const Schedule: React.FC = () => {
     })
 
     return aircraftIdToFlights
+  }
+
+  // Current issue it is not assciated with a certain Aircraft
+  // Will probably need to incorpartate SetAircraftIdToFlight
+  const startTimesCheck = (flights: Flight[]) => {
+    const startTimesAssociatedWithFlights: Date[] = []
+
+    flights.forEach((flight) => {
+      startTimesAssociatedWithFlights.push(flight.startTime)
+    })
+    return startTimesAssociatedWithFlights
+  }
+  // The issue is the new Date
+  // They are in differnet formats so they arent blocking one another
+  // TODO: chatgpt suugest using the new Set style if runtime complexity is an issue
+  // Maybe convert times instead
+  const nonIntersectingElementsWithOrder = (
+    times: Date[],
+    startTimesCheck: Date[]
+  ) => {
+    // turn them both into numbers aka epoch time
+
+    const numberFormatTimesArray: number[] = []
+    const numberFormatStartTimesCheckArray: number[] = []
+    const editedTimesArrayDateFormat: Date[] = []
+
+    times.forEach((time) => {
+      numberFormatTimesArray.push(new Date(time).getTime())
+    })
+
+    startTimesCheck.forEach((startTimes) => {
+      numberFormatStartTimesCheckArray.push(new Date(startTimes).getTime())
+    })
+
+    // console.log(times)
+    // Use filter to keep only those elements from array1 that are not in array2
+    const result = numberFormatTimesArray.filter(
+      (element) => numberFormatStartTimesCheckArray.indexOf(element) === -1
+    )
+    //Had to turn them to numbers to edit the array
+    //Strings wouldnt work
+
+    result.forEach((time) => {
+      editedTimesArrayDateFormat.push(new Date(time))
+    })
+
+    return editedTimesArrayDateFormat
   }
 
   const dateInRange = (flight: Flight, time: Date) => {
@@ -237,89 +354,91 @@ const Schedule: React.FC = () => {
                                 if (!flightsForAircraft)
                                   flightsForAircraft = [] as Flight[]
 
-                                // const flightsForAircraft =
-                                // aircraftIdToFlights?.get(aircraft._id)
-
                                 // Check if start time is within timeframe of any flight.
                                 let flight: Flight | undefined = undefined
 
-                                flightsForAircraft.forEach(
-                                  (currentFlight, index) => {
-                                    // Check if we pointer down in an existing flight's time (which is a date) range.
-                                    if (
-                                      dateInRange(
-                                        currentFlight,
-                                        selectedStartTime.current
-                                      )
-                                    ) {
-                                      flight = currentFlight
-                                      setDefaultBoundaryTimes()
-
-                                      if (flightsForAircraft!.length > 1) {
-                                        if (
-                                          index !=
-                                          flightsForAircraft!.length - 1
-                                        ) {
-                                          upperBoundaryTime.current = new Date(
-                                            flightsForAircraft![
-                                              index + 1
-                                            ].startTime
-                                          )
-                                        }
-
-                                        if (index != 0) {
-                                          lowerBoundaryTime.current = new Date(
-                                            flightsForAircraft![
-                                              index - 1
-                                            ].endTime
-                                          )
-                                        }
-                                      }
-                                    }
+                                // Check if we pointer down in an existing flight's time (which is a date) range.
+                                flightsForAircraft.forEach((currentFlight) => {
+                                  if (
+                                    dateInRange(
+                                      currentFlight,
+                                      selectedStartTime.current
+                                    )
+                                  ) {
+                                    flight = currentFlight
                                   }
-                                )
+                                })
                                 setSelectedFlight(flight)
 
-                                if (flight) return
+                                // setPossibleStartTimes(
+                                //   // TODO: function that grabs all times that are not blocked out by flight
+
+                                // )
+                                if (flights) {
+                                  setPossibleStartTimes(
+                                    nonIntersectingElementsWithOrder(
+                                      times,
+                                      startTimesCheck(flights)
+                                    )
+                                  )
+                                }
+
+                                // setPossibleStartTimes(
+                                //   nonIntersectingElementsWithOrder(
+                                //     times,
+                                //     startTimesCheck(flights)!
+                                //   )
+                                // )
+
+                                // Set boundary times
+                                if (flight) {
+                                  settingUpperAndLowerBoundaryTimeIfInsideFlight(
+                                    flightsForAircraft
+                                  )
+                                } else {
+                                  settingUpperAndLowerBoundaryTimeNotInFlight(
+                                    flightsForAircraft
+                                  )
+                                }
 
                                 // Loop through flightsForAircraft. The first flight with start time ABOVE our current time
                                 // will be the UPPER BOUNDING FLIGHT. Then, whatever index upper bounding flight was, the LOWER
                                 // BOUNDING FLIGHT will be index - 1.
-                                let boundaryNotFound = true
-                                flightsForAircraft.forEach((flight, index) => {
-                                  // Find first flight above currently selected time.
-                                  if (
-                                    selectedStartTime.current <
-                                      new Date(flight.startTime) &&
-                                    boundaryNotFound
-                                  ) {
-                                    upperBoundaryTime.current = new Date(
-                                      flight.startTime
-                                    )
+                                // let boundaryNotFound = true
+                                // flightsForAircraft.forEach((flight, index) => {
+                                //   // Find first flight above currently selected time.
+                                //   if (
+                                //     selectedStartTime.current <
+                                //       new Date(flight.startTime) &&
+                                //     boundaryNotFound
+                                //   ) {
+                                //     upperBoundaryTime.current = new Date(
+                                //       flight.startTime
+                                //     )
 
-                                    boundaryNotFound = false
+                                //     boundaryNotFound = false
 
-                                    if (index != 0) {
-                                      lowerBoundaryTime.current = new Date(
-                                        flightsForAircraft![index - 1].endTime
-                                      )
-                                    }
+                                //     if (index != 0) {
+                                //       lowerBoundaryTime.current = new Date(
+                                //         flightsForAircraft![index - 1].endTime
+                                //       )
+                                //     }
 
-                                    // Otherwise, do nothing and use default value (midnight today).
-                                  }
-                                })
+                                //     // Otherwise, do nothing and use default value (midnight today).
+                                //   }
+                                // })
 
-                                // Possibly flights below and not above.
-                                if (
-                                  boundaryNotFound &&
-                                  flightsForAircraft.length != 0
-                                ) {
-                                  lowerBoundaryTime.current = new Date(
-                                    flightsForAircraft[
-                                      flightsForAircraft.length - 1
-                                    ].endTime
-                                  )
-                                }
+                                // // Possibly flights below and not above.
+                                // if (
+                                //   boundaryNotFound &&
+                                //   flightsForAircraft.length != 0
+                                // ) {
+                                //   lowerBoundaryTime.current = new Date(
+                                //     flightsForAircraft[
+                                //       flightsForAircraft.length - 1
+                                //     ].endTime
+                                //   )
+                                // }
                               }}
                               onPointerUp={(e) => {
                                 if (!selectedFlight) {
@@ -348,50 +467,6 @@ const Schedule: React.FC = () => {
 
                                     selectedEndTime.current = prevStartTime
                                   }
-
-                                  // const flightsForAircraft =
-                                  //   aircraftIdToFlights?.get(aircraft._id)
-
-                                  // // Check if start time is within timeframe of any flight.
-                                  // let flight: Flight | undefined = undefined
-
-                                  // // INSIDE -> OUT
-                                  // flightsForAircraft?.forEach(
-                                  //   (currentFlight, index) => {
-                                  //     if (
-                                  //       dateInRange(
-                                  //         currentFlight,
-                                  //         selectedStartTime.current
-                                  //       )
-                                  //     ) {
-                                  //       flight = currentFlight
-                                  //       setDefaultBoundaryTimes()
-
-                                  //       if (flightsForAircraft.length > 1) {
-                                  //         if (
-                                  //           index !=
-                                  //           flightsForAircraft.length - 1
-                                  //         ) {
-                                  //           upperBoundaryTime.current = new Date(
-                                  //             flightsForAircraft[
-                                  //               index + 1
-                                  //             ].startTime
-                                  //           )
-                                  //         }
-
-                                  //         if (index != 0) {
-                                  //           lowerBoundaryTime.current = new Date(
-                                  //             flightsForAircraft[
-                                  //               index - 1
-                                  //             ].endTime
-                                  //           )
-                                  //         }
-                                  //       }
-                                  //     }
-                                  //   }
-                                  // )
-
-                                  // setSelectedFlight(flight)
                                 }
 
                                 setSelectedAircraft(aircraft)
@@ -412,7 +487,9 @@ const Schedule: React.FC = () => {
 
       <FlightModal
         aircraft={selectedAircraft}
+        aircrafts={aircrafts}
         startTime={selectedStartTime.current}
+        possibleStartTimes={possibleStartTimes}
         date={dateOfFlights}
         endTime={selectedEndTime.current}
         showModal={showModal}
