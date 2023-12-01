@@ -204,51 +204,52 @@ const Schedule: React.FC = () => {
     return aircraftIdToFlights
   }
 
-  // Current issue it is not assciated with a certain Aircraft
-  // Will probably need to incorpartate SetAircraftIdToFlight
-  const startTimesCheck = (flights: Flight[]) => {
-    const startTimesAssociatedWithFlights: Date[] = []
-
-    flights.forEach((flight) => {
-      startTimesAssociatedWithFlights.push(flight.startTime)
-    })
-    return startTimesAssociatedWithFlights
-  }
   // The issue is the new Date
   // They are in differnet formats so they arent blocking one another
   // TODO: chatgpt suugest using the new Set style if runtime complexity is an issue
   // Maybe convert times instead
   const nonIntersectingElementsWithOrder = (
     times: Date[],
-    startTimesCheck: Date[]
+    flights: Flight[]
   ) => {
-    // turn them both into numbers aka epoch time
+    // const epochStartTimes: number[] = []
+    // flights.forEach((flight) =>
+    //   epochStartTimes.push(new Date(flight.startTime).getTime())
+    // )
 
-    const numberFormatTimesArray: number[] = []
-    const numberFormatStartTimesCheckArray: number[] = []
-    const editedTimesArrayDateFormat: Date[] = []
+    const epochFlightTimeRanges: number[][] = []
 
-    times.forEach((time) => {
-      numberFormatTimesArray.push(new Date(time).getTime())
+    flights.forEach((flight) => {
+      epochFlightTimeRanges.push([
+        new Date(flight.startTime).getTime(),
+        new Date(flight.endTime).getTime(),
+      ])
     })
 
-    startTimesCheck.forEach((startTimes) => {
-      numberFormatStartTimesCheckArray.push(new Date(startTimes).getTime())
+    // does not work when adding the brackets after the => on line 230
+    // const filteredTimes = times.filter((time) => {
+    //   !epochStartTimes.includes(time.getTime())
+    // })
+
+    // This is able to compare the Date type to the epoch number
+    const filteredTimes = times.filter((time) => {
+      // if time is >= epochFlightTimeRanges[0][0] && <= epochFlightTimeRanges[0][1]
+      // and then n+1
+      let withinRange = false
+
+      epochFlightTimeRanges.forEach((flightrange) => {
+        if (
+          time.getTime() >= flightrange[0] &&
+          time.getTime() <= flightrange[1]
+        ) {
+          withinRange = true
+        }
+      })
+
+      return !withinRange
     })
 
-    // console.log(times)
-    // Use filter to keep only those elements from array1 that are not in array2
-    const result = numberFormatTimesArray.filter(
-      (element) => numberFormatStartTimesCheckArray.indexOf(element) === -1
-    )
-    //Had to turn them to numbers to edit the array
-    //Strings wouldnt work
-
-    result.forEach((time) => {
-      editedTimesArrayDateFormat.push(new Date(time))
-    })
-
-    return editedTimesArrayDateFormat
+    return filteredTimes
   }
 
   const dateInRange = (flight: Flight, time: Date) => {
@@ -370,25 +371,16 @@ const Schedule: React.FC = () => {
                                 })
                                 setSelectedFlight(flight)
 
-                                // setPossibleStartTimes(
-                                //   // TODO: function that grabs all times that are not blocked out by flight
-
-                                // )
-                                if (flights) {
+                                if (flightsForAircraft) {
                                   setPossibleStartTimes(
                                     nonIntersectingElementsWithOrder(
                                       times,
-                                      startTimesCheck(flights)
+                                      flightsForAircraft
                                     )
                                   )
+                                } else {
+                                  setPossibleStartTimes(times)
                                 }
-
-                                // setPossibleStartTimes(
-                                //   nonIntersectingElementsWithOrder(
-                                //     times,
-                                //     startTimesCheck(flights)!
-                                //   )
-                                // )
 
                                 // Set boundary times
                                 if (flight) {
@@ -500,6 +492,10 @@ const Schedule: React.FC = () => {
         lowerBoundaryTime={lowerBoundaryTime}
         upperBoundaryTime={upperBoundaryTime}
         setDefaultBoundaryTimes={setDefaultBoundaryTimes}
+        settingUpperAndLowerBoundaryTimeNotInFlight={
+          settingUpperAndLowerBoundaryTimeNotInFlight
+        }
+        aircraftIdToFlights={aircraftIdToFlights}
       />
     </div>
   )

@@ -38,6 +38,8 @@ type Props = {
   lowerBoundaryTime: React.MutableRefObject<Date>
   upperBoundaryTime: React.MutableRefObject<Date>
   setDefaultBoundaryTimes: Function
+  settingUpperAndLowerBoundaryTimeNotInFlight: Function
+  aircraftIdToFlights: Map<string, Flight[]>
 }
 
 const FlightModal: React.FC<Props> = ({
@@ -55,6 +57,8 @@ const FlightModal: React.FC<Props> = ({
   lowerBoundaryTime,
   upperBoundaryTime,
   setDefaultBoundaryTimes,
+  settingUpperAndLowerBoundaryTimeNotInFlight,
+  aircraftIdToFlights,
 }) => {
   const [errorCode, setErrorCode] = useState<number>()
   const [userError, setUserError] = useState<string>()
@@ -87,11 +91,19 @@ const FlightModal: React.FC<Props> = ({
       console.log('error: ' + error)
     }
   }
-
-  const permittedTimes = times.filter(
+  // turn this into a function and call it after I call settingUpperandLowerBOundary
+  let permittedTimes = times.filter(
     (time: Date) =>
       time >= lowerBoundaryTime.current && time <= upperBoundaryTime.current
   )
+
+  // const permittedTimesFuncation = () => {
+  //   permittedTimes = times.filter(
+  //     (time: Date) =>
+  //       time >= lowerBoundaryTime.current && time <= upperBoundaryTime.current
+  //   )
+  //   return permittedTimes
+  // }
   //Times with start times removed
   const timesWihoutStartTimes = possibleStartTimes
 
@@ -273,7 +285,17 @@ const FlightModal: React.FC<Props> = ({
                             as="select"
                             name="startTime"
                             type="number"
-                            onChange={handleChange}
+                            onChange={(e) => {
+                              handleChange(e)
+                              // create flihgts for aircraft here
+                              const flightsForAircraft =
+                                aircraftIdToFlights.get(aircraft!._id)
+
+                              settingUpperAndLowerBoundaryTimeNotInFlight(
+                                flightsForAircraft
+                              )
+                              // permittedTimesFuncation()
+                            }}
                             onBlur={handleBlur}
                             value={values.possibleStartTimes}
                           >
