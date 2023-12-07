@@ -130,6 +130,58 @@ const Schedule: React.FC = () => {
     }
   }
 
+  const tempModal = (
+    flightsForAircraft: Flight[],
+    selectedStartTime: Date,
+    lowerBoundaryTime: React.MutableRefObject<Date>,
+    upperBoundaryTime: React.MutableRefObject<Date>
+  ) => {
+    // Set default boundary times.
+    let midNightToday = DateTime.local(
+      dateFromDatePicker.getFullYear(),
+      dateFromDatePicker.getMonth() + 1,
+      dateFromDatePicker.getDate()
+    )
+
+    let midNightTomorrow = DateTime.local(
+      dateFromDatePicker.getFullYear(),
+      dateFromDatePicker.getMonth() + 1,
+      dateFromDatePicker.getDate() + 1
+    )
+
+    lowerBoundaryTime.current = midNightToday.toJSDate()
+    upperBoundaryTime.current = midNightTomorrow.toJSDate()
+
+    // Find upper and lower boundaries if they should exist.
+    let upperBoundaryNotFound = true
+    flightsForAircraft.forEach((flight, index) => {
+      // Find first flight above currently selected time.
+      if (
+        selectedStartTime < new Date(flight.startTime) &&
+        upperBoundaryNotFound
+      ) {
+        upperBoundaryTime.current = new Date(flight.startTime)
+
+        upperBoundaryNotFound = false
+
+        if (index != 0) {
+          lowerBoundaryTime.current = new Date(
+            flightsForAircraft[index - 1].endTime
+          )
+        }
+
+        // Otherwise, do nothing and use default value (midnight today).
+      }
+    })
+
+    // Possibly flights below and not above.
+    if (upperBoundaryNotFound && flightsForAircraft?.length != 0) {
+      lowerBoundaryTime.current = new Date(
+        flightsForAircraft[flightsForAircraft.length - 1].endTime
+      )
+    }
+  }
+
   const buildScheduleTimes = () => {
     // Begin by getting 12AM today.
     const baseDateTime = DateTime.local(
@@ -492,9 +544,7 @@ const Schedule: React.FC = () => {
         lowerBoundaryTime={lowerBoundaryTime}
         upperBoundaryTime={upperBoundaryTime}
         setDefaultBoundaryTimes={setDefaultBoundaryTimes}
-        settingUpperAndLowerBoundaryTimeNotInFlight={
-          settingUpperAndLowerBoundaryTimeNotInFlight
-        }
+        settingUpperAndLowerBoundaryTimeNotInFlight={tempModal}
         aircraftIdToFlights={aircraftIdToFlights}
       />
     </div>

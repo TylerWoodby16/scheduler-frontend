@@ -26,7 +26,7 @@ type Props = {
   aircraft?: Aircraft
   aircrafts: Aircraft[]
   startTime?: Date
-  possibleStartTimes?: Date[]
+  possibleStartTimes: Date[]
   endTime?: Date
   showModal: boolean
   setShowModal: Function
@@ -97,15 +97,13 @@ const FlightModal: React.FC<Props> = ({
       time >= lowerBoundaryTime.current && time <= upperBoundaryTime.current
   )
 
-  // const permittedTimesFuncation = () => {
-  //   permittedTimes = times.filter(
-  //     (time: Date) =>
-  //       time >= lowerBoundaryTime.current && time <= upperBoundaryTime.current
-  //   )
-  //   return permittedTimes
-  // }
-  //Times with start times removed
-  const timesWihoutStartTimes = possibleStartTimes
+  const updatePossibleEndTimes = () => {
+    permittedTimes = times.filter(
+      (time: Date) =>
+        time >= lowerBoundaryTime.current && time <= upperBoundaryTime.current
+    )
+    return permittedTimes
+  }
 
   useEffect(() => {
     getUsers()
@@ -232,7 +230,23 @@ const FlightModal: React.FC<Props> = ({
                             as="select"
                             name="aircraftId"
                             type="number"
-                            onChange={handleChange}
+                            onChange={(e) => {
+                              handleChange(e)
+                              const flightsForAircraft =
+                                // wrong aircraft
+                                aircraftIdToFlights.get(e.target.value)
+
+                              // On value change, recgalculate possible end times.
+                              // First need to update boundary times.
+                              settingUpperAndLowerBoundaryTimeNotInFlight(
+                                flightsForAircraft,
+                                new Date(Number(e.target.value)),
+                                lowerBoundaryTime,
+                                upperBoundaryTime
+                              )
+
+                              updatePossibleEndTimes()
+                            }}
                             onBlur={handleBlur}
                             value={values.aircraftId}
                           >
@@ -287,19 +301,24 @@ const FlightModal: React.FC<Props> = ({
                             type="number"
                             onChange={(e) => {
                               handleChange(e)
-                              // create flihgts for aircraft here
                               const flightsForAircraft =
                                 aircraftIdToFlights.get(aircraft!._id)
 
+                              // On value change, recgalculate possible end times.
+                              // First need to update boundary times.
                               settingUpperAndLowerBoundaryTimeNotInFlight(
-                                flightsForAircraft
+                                flightsForAircraft,
+                                new Date(Number(e.target.value)),
+                                lowerBoundaryTime,
+                                upperBoundaryTime
                               )
-                              // permittedTimesFuncation()
+
+                              updatePossibleEndTimes()
                             }}
                             onBlur={handleBlur}
                             value={values.possibleStartTimes}
                           >
-                            {timesWihoutStartTimes!.map((time, index) => {
+                            {possibleStartTimes.map((time, index) => {
                               return (
                                 <option value={time.getTime()} key={index}>
                                   {time.getHours().toString() +
@@ -323,8 +342,7 @@ const FlightModal: React.FC<Props> = ({
                             onBlur={handleBlur}
                             value={values.endTime}
                           >
-                            {/* basically i think that i need to bring in the lowestStartTime Variable and use that to cut off the time array (obvi making a new array ) */}
-                            {permittedTimes.map((time, index) => {
+                            {updatePossibleEndTimes().map((time, index) => {
                               return (
                                 <option value={time.getTime()} key={index}>
                                   {time.getHours().toString() +
