@@ -486,6 +486,9 @@ const Schedule: React.FC = () => {
                               }}
                               onPointerUp={(e) => {
                                 if (!selectedFlight) {
+                                  // if the time is greater than the upperboundary
+                                  // it will set itself to the upperboundary
+                                  // otherwise it stays the time it was
                                   if (time < upperBoundaryTime.current) {
                                     selectedEndTime.current = time
                                   } else {
@@ -511,6 +514,16 @@ const Schedule: React.FC = () => {
 
                                     selectedEndTime.current = prevStartTime
                                   }
+                                }
+
+                                // Add 2 hours to single click flight bc this is the standard length
+                                if (
+                                  selectedStartTime.current ==
+                                  selectedEndTime.current
+                                ) {
+                                  selectedEndTime.current = new Date(
+                                    Number(selectedEndTime.current) + 7200000
+                                  )
                                 }
 
                                 setSelectedAircraft(aircraft)

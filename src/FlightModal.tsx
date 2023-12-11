@@ -12,7 +12,7 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Modal from 'react-bootstrap/Modal'
 import ResponseError from './ResponseError'
-import DatePicker from 'react-datepicker'
+import { flightTypes } from './FlightTypes'
 import {
   authPost,
   authGet,
@@ -64,12 +64,13 @@ const FlightModal: React.FC<Props> = ({
   const [userError, setUserError] = useState<string>()
   const [students, setStudents] = useState<User[]>()
   const [cfis, setCfis] = useState<User[]>()
-  const [typeOfFlight, setTypeOfFlight] = useState<string>('Dual')
+  // TODO: do i need this anymore ??
+  const [flightType, setFlightType] = useState<string>('Dual')
 
   // this is for the type of flight bc Formiks onChange wouldnt let me set state
-  const handleOnChange = (typeOfFlight: string) => {
-    setTypeOfFlight(typeOfFlight)
-  }
+  // const handleOnChange = (typeOfFlight: string) => {
+  //   setTypeOfFlight(typeOfFlight)
+  // }
 
   // TODO: INTEGRATE YUP INTO THE FORM
   const groupId = getToken().groupId
@@ -138,7 +139,7 @@ const FlightModal: React.FC<Props> = ({
               studentUserId: flight ? flight.studentUserId : '',
               instructorUserId: getToken().userId, //has a bug that if you sign in as not an instuctor it defaults to the first option
               date: date,
-              typeOfFlight: typeOfFlight,
+              flightType: flight ? flight.flightType : flightType,
             }}
             onSubmit={async (values, { setSubmitting }: FormikHelpers<any>) => {
               try {
@@ -194,30 +195,21 @@ const FlightModal: React.FC<Props> = ({
                         <Form.Group className="mb-3" controlId="formEndtime">
                           <Form.Control
                             as="select"
-                            name="typeOfFlight"
-                            onChange={(e) =>
-                              handleOnChange(e.currentTarget.value)
-                            }
+                            name="flightType"
+                            onChange={handleChange}
+                            // onChange={(e) =>
+                            //   handleOnChange(e.currentTarget.value)
+                            // }
                             onBlur={handleBlur}
-                            value={typeOfFlight}
+                            value={values.flightType}
                           >
-                            <option value="Dual">Dual</option>
-                            <option value="Solo">Solo</option>
-                            <option value="EOC Stage Check">
-                              EOC Stage Check
-                            </option>
-                            <option value="Discovery Flight">
-                              Discovery Flight
-                            </option>
-                            <option value="Ground Training">
-                              Ground Training
-                            </option>
-                            <option value="Maintenance">Maintenance</option>
-                            <option value="MGA Buisness">MGA Business</option>
-                            <option value="Pro Time">Pro Time</option>
-                            <option value="Simulator">Simulator</option>
-                            <option value="Student Solo">Student Solo</option>
-                            <option value="Time Off">Time Off</option>
+                            {flightTypes.map((flightType, index) => {
+                              return (
+                                <option value={flight?.flightType} key={index}>
+                                  {flightType}
+                                </option>
+                              )
+                            })}
                           </Form.Control>
                         </Form.Group>
                       </Col>
