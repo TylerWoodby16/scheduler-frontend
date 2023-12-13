@@ -256,35 +256,10 @@ const FlightModal: React.FC<Props> = ({
 
                     <Row>
                       <Col>Start Time</Col>
-                      <Col>End Times</Col>
+                      <Col>End Time</Col>
                     </Row>
 
                     <Row lg={2} md={2} sm={2} xs={2}>
-                      <Col>
-                        <Form.Group className="mb-3" controlId="formStarttime">
-                          <Form.Control
-                            as="select"
-                            name="startTime"
-                            type="number"
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            value={values.startTime}
-                          >
-                            {permittedTimes.map((time, index) => {
-                              return (
-                                <option value={time.getTime()} key={index}>
-                                  {time.getHours().toString() +
-                                    ':' +
-                                    time.getMinutes().toString()}
-                                </option>
-                              )
-                            })}
-                          </Form.Control>
-                        </Form.Group>
-                      </Col>
-                    </Row>
-                    <Row>
-                      <Col>Possible Start Time</Col>
                       <Col>
                         <Form.Group className="mb-3" controlId="formStarttime">
                           <Form.Control
@@ -310,21 +285,29 @@ const FlightModal: React.FC<Props> = ({
                             onBlur={handleBlur}
                             value={values.startTime}
                           >
-                            {possibleStartTimes.map((time, index) => {
-                              return (
-                                <option value={time.getTime()} key={index}>
-                                  {time.getHours().toString() +
-                                    ':' +
-                                    time.getMinutes().toString()}
-                                </option>
-                              )
-                            })}
+                            {flight
+                              ? permittedTimes.map((time, index) => {
+                                  return (
+                                    <option value={time.getTime()} key={index}>
+                                      {time.getHours().toString() +
+                                        ':' +
+                                        time.getMinutes().toString()}
+                                    </option>
+                                  )
+                                })
+                              : possibleStartTimes.map((time, index) => {
+                                  return (
+                                    <option value={time.getTime()} key={index}>
+                                      {time.getHours().toString() +
+                                        ':' +
+                                        time.getMinutes().toString()}
+                                    </option>
+                                  )
+                                })}
                           </Form.Control>
                         </Form.Group>
                       </Col>
-                    </Row>
-                    <Row>
-                      <Col>End Time</Col>
+
                       <Col>
                         <Form.Group className="mb-3" controlId="formEndtime">
                           <Form.Control

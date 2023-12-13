@@ -260,10 +260,7 @@ const Schedule: React.FC = () => {
   // They are in differnet formats so they arent blocking one another
   // TODO: chatgpt suugest using the new Set style if runtime complexity is an issue
   // Maybe convert times instead
-  const nonIntersectingElementsWithOrder = (
-    times: Date[],
-    flights: Flight[]
-  ) => {
+  const createFilteredTimes = (times: Date[], flights: Flight[]) => {
     // const epochStartTimes: number[] = []
     // flights.forEach((flight) =>
     //   epochStartTimes.push(new Date(flight.startTime).getTime())
@@ -277,11 +274,6 @@ const Schedule: React.FC = () => {
         new Date(flight.endTime).getTime(),
       ])
     })
-
-    // does not work when adding the brackets after the => on line 230
-    // const filteredTimes = times.filter((time) => {
-    //   !epochStartTimes.includes(time.getTime())
-    // })
 
     // This is able to compare the Date type to the epoch number
     const filteredTimes = times.filter((time) => {
@@ -425,7 +417,7 @@ const Schedule: React.FC = () => {
 
                                 if (flightsForAircraft) {
                                   setPossibleStartTimes(
-                                    nonIntersectingElementsWithOrder(
+                                    createFilteredTimes(
                                       times,
                                       flightsForAircraft
                                     )
