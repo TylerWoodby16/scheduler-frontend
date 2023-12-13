@@ -77,7 +77,6 @@ const FlightModal: React.FC<Props> = ({
 
   const getUsers = async () => {
     try {
-      // tell me why when i try to hit /users/studentUserId endpoint it gives me a 500 error when it is the same code ??
       const foundStudents = await authGet<User[]>(`http://localhost:5555/users`)
       // TODO: MAKE /users/students endpoint work correctly and call it here.
       // make state for setStudents()
@@ -309,7 +308,7 @@ const FlightModal: React.FC<Props> = ({
                               updatePossibleEndTimes()
                             }}
                             onBlur={handleBlur}
-                            value={values.possibleStartTimes}
+                            value={values.startTime}
                           >
                             {possibleStartTimes.map((time, index) => {
                               return (

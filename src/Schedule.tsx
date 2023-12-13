@@ -495,7 +495,8 @@ const Schedule: React.FC = () => {
                                     selectedEndTime.current =
                                       upperBoundaryTime.current
                                   }
-
+                                  // if the time is less than the lowerBoundaryTime
+                                  // set time to be the lowerBoudnaryTime
                                   if (time < lowerBoundaryTime.current) {
                                     selectedEndTime.current =
                                       lowerBoundaryTime.current
@@ -516,7 +517,8 @@ const Schedule: React.FC = () => {
                                   }
                                 }
 
-                                // Add 2 hours to single click flight bc this is the standard length
+                                // If start time and end time are the same
+                                // Add 2 hours  (single click flight) bc this is the standard length
                                 if (
                                   selectedStartTime.current ==
                                   selectedEndTime.current
