@@ -148,6 +148,10 @@ const FlightModal: React.FC<Props> = ({
                   return
                 }
 
+                if (values.startTime == values.endTime) {
+                  setUserError('Start time can not equal End time')
+                  return
+                }
                 // Force startTime and endTime into dates.
                 // Also force them to be numbers because Formik was converting to string.
                 values.startTime = new Date(Number(values.startTime))
@@ -197,9 +201,6 @@ const FlightModal: React.FC<Props> = ({
                             as="select"
                             name="flightType"
                             onChange={handleChange}
-                            // onChange={(e) =>
-                            //   handleOnChange(e.currentTarget.value)
-                            // }
                             onBlur={handleBlur}
                             value={values.flightType}
                           >
