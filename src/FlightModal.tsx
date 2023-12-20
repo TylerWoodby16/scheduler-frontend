@@ -91,6 +91,7 @@ const FlightModal: React.FC<Props> = ({
       console.log('error: ' + error)
     }
   }
+
   // turn this into a function and call it after I call settingUpperandLowerBOundary
   let permittedTimes = times.filter(
     (time: Date) =>
@@ -273,6 +274,8 @@ const FlightModal: React.FC<Props> = ({
 
                               // On value change, recgalculate possible end times.
                               // First need to update boundary times.
+                              console.log('ok im going to use this function')
+                              // Ok so here is the diffence between intitial click and edit click
                               settingUpperAndLowerBoundaryTimeNotInFlight(
                                 flightsForAircraft,
                                 new Date(Number(e.target.value)),

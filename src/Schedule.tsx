@@ -256,42 +256,50 @@ const Schedule: React.FC = () => {
     return aircraftIdToFlights
   }
 
-  // The issue is the new Date
-  // They are in differnet formats so they arent blocking one another
-  // TODO: chatgpt suugest using the new Set style if runtime complexity is an issue
-  // Maybe convert times instead
-  const createFilteredTimes = (times: Date[], flights: Flight[]) => {
-    // const epochStartTimes: number[] = []
-    // flights.forEach((flight) =>
-    //   epochStartTimes.push(new Date(flight.startTime).getTime())
-    // )
-
-    const epochFlightTimeRanges: number[][] = []
-
-    flights.forEach((flight) => {
-      epochFlightTimeRanges.push([
-        new Date(flight.startTime).getTime(),
-        new Date(flight.endTime).getTime(),
-      ])
-    })
-
-    // This is able to compare the Date type to the epoch number
+  // Returns all the time increments OUTSIDE of the given flights array.
+  const createFilteredTimes = (
+    times: Date[],
+    flights: Flight[]
+    // flight?: Flight
+  ) => {
     const filteredTimes = times.filter((time) => {
-      // if time is >= epochFlightTimeRanges[0][0] && <= epochFlightTimeRanges[0][1]
-      // and then n+1
-      let withinRange = false
+      let inRange = false
 
-      epochFlightTimeRanges.forEach((flightrange) => {
-        if (
-          time.getTime() >= flightrange[0] &&
-          time.getTime() <= flightrange[1]
-        ) {
-          withinRange = true
+      flights.forEach((flight) => {
+        if (dateInRange(flight, time)) {
+          inRange = true
         }
       })
 
-      return !withinRange
+      return !inRange
     })
+
+    // const epochFlightTimeRanges: number[][] = []
+
+    // flights.forEach((flight) => {
+    //   epochFlightTimeRanges.push([
+    //     new Date(flight.startTime).getTime(),
+    //     new Date(flight.endTime).getTime(),
+    //   ])
+    // })
+
+    // // This is able to compare the Date type to the epoch number
+    // const filteredTimes = times.filter((time) => {
+    //   // if time is >= epochFlightTimeRanges[0][0] && <= epochFlightTimeRanges[0][1]
+    //   // and then n+1
+    //   let withinRange = false
+
+    //   epochFlightTimeRanges.forEach((flightrange) => {
+    //     if (
+    //       time.getTime() >= flightrange[0] &&
+    //       time.getTime() <= flightrange[1]
+    //     ) {
+    //       withinRange = true
+    //     }
+    //   })
+
+    //   return !withinRange
+    // })
 
     return filteredTimes
   }
@@ -420,6 +428,7 @@ const Schedule: React.FC = () => {
                                     createFilteredTimes(
                                       times,
                                       flightsForAircraft
+                                      // flight
                                     )
                                   )
                                 } else {
@@ -436,45 +445,6 @@ const Schedule: React.FC = () => {
                                     flightsForAircraft
                                   )
                                 }
-
-                                // Loop through flightsForAircraft. The first flight with start time ABOVE our current time
-                                // will be the UPPER BOUNDING FLIGHT. Then, whatever index upper bounding flight was, the LOWER
-                                // BOUNDING FLIGHT will be index - 1.
-                                // let boundaryNotFound = true
-                                // flightsForAircraft.forEach((flight, index) => {
-                                //   // Find first flight above currently selected time.
-                                //   if (
-                                //     selectedStartTime.current <
-                                //       new Date(flight.startTime) &&
-                                //     boundaryNotFound
-                                //   ) {
-                                //     upperBoundaryTime.current = new Date(
-                                //       flight.startTime
-                                //     )
-
-                                //     boundaryNotFound = false
-
-                                //     if (index != 0) {
-                                //       lowerBoundaryTime.current = new Date(
-                                //         flightsForAircraft![index - 1].endTime
-                                //       )
-                                //     }
-
-                                //     // Otherwise, do nothing and use default value (midnight today).
-                                //   }
-                                // })
-
-                                // // Possibly flights below and not above.
-                                // if (
-                                //   boundaryNotFound &&
-                                //   flightsForAircraft.length != 0
-                                // ) {
-                                //   lowerBoundaryTime.current = new Date(
-                                //     flightsForAircraft[
-                                //       flightsForAircraft.length - 1
-                                //     ].endTime
-                                //   )
-                                // }
                               }}
                               onPointerUp={(e) => {
                                 if (!selectedFlight) {
