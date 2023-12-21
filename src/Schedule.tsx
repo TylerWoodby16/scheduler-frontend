@@ -32,6 +32,10 @@ const Schedule: React.FC = () => {
 
   // First attempt at getting all possible start times
   const [possibleStartTimes, setPossibleStartTimes] = useState<Date[]>([])
+  const [
+    possibleStartTimesWithTheCurrentFlightTimesAddedToTheArray,
+    setPossibleStartTimesWithTheCurrentFlightTimesAddedToTheArray,
+  ] = useState<Date[]>([])
 
   const [flights, setFlights] = useState<Flight[]>()
 
@@ -274,35 +278,32 @@ const Schedule: React.FC = () => {
       return !inRange
     })
 
-    // const epochFlightTimeRanges: number[][] = []
-
-    // flights.forEach((flight) => {
-    //   epochFlightTimeRanges.push([
-    //     new Date(flight.startTime).getTime(),
-    //     new Date(flight.endTime).getTime(),
-    //   ])
-    // })
-
-    // // This is able to compare the Date type to the epoch number
-    // const filteredTimes = times.filter((time) => {
-    //   // if time is >= epochFlightTimeRanges[0][0] && <= epochFlightTimeRanges[0][1]
-    //   // and then n+1
-    //   let withinRange = false
-
-    //   epochFlightTimeRanges.forEach((flightrange) => {
-    //     if (
-    //       time.getTime() >= flightrange[0] &&
-    //       time.getTime() <= flightrange[1]
-    //     ) {
-    //       withinRange = true
-    //     }
-    //   })
-
-    //   return !withinRange
-    // })
-
     return filteredTimes
   }
+
+  const createFilteredTimesWithTheCurrentFlightsTimeAddedToTheArrayAsWellThisIsAGoodVariableName =
+    (times: Date[], flights: Flight[], flight?: Flight) => {
+      const filteredTimes = times.filter((time) => {
+        let inRange = false
+
+        // This returns an array of times excluding the times associated with the current 'clicked' flight
+        const newFlights = flights.filter(
+          (localflightvariabletothisfunction) => {
+            return !(localflightvariabletothisfunction == flight)
+          }
+        )
+
+        newFlights.forEach((flight) => {
+          if (dateInRange(flight, time)) {
+            inRange = true
+          }
+        })
+
+        return !inRange
+      })
+
+      return filteredTimes
+    }
 
   const dateInRange = (flight: Flight, time: Date) => {
     // flight.startTime / flight.endTime is actually a (zulu time formatted) string for some reason.
@@ -424,6 +425,8 @@ const Schedule: React.FC = () => {
                                 setSelectedFlight(flight)
 
                                 if (flightsForAircraft) {
+                                  //TODO: figure out if I can leave this as is
+
                                   setPossibleStartTimes(
                                     createFilteredTimes(
                                       times,
@@ -431,20 +434,32 @@ const Schedule: React.FC = () => {
                                       // flight
                                     )
                                   )
+
+                                  setPossibleStartTimesWithTheCurrentFlightTimesAddedToTheArray(
+                                    createFilteredTimesWithTheCurrentFlightsTimeAddedToTheArrayAsWellThisIsAGoodVariableName(
+                                      times,
+                                      flightsForAircraft,
+                                      flight
+                                    )
+                                  )
                                 } else {
                                   setPossibleStartTimes(times)
                                 }
+                                //TODO: See if these functions have outlived their usefullness
 
                                 // Set boundary times
-                                if (flight) {
-                                  settingUpperAndLowerBoundaryTimeIfInsideFlight(
-                                    flightsForAircraft
-                                  )
-                                } else {
-                                  settingUpperAndLowerBoundaryTimeNotInFlight(
-                                    flightsForAircraft
-                                  )
-                                }
+                                // if (flight) {
+                                //   // lets look at this one
+                                //   console.log('1')
+                                //   settingUpperAndLowerBoundaryTimeIfInsideFlight(
+                                //     flightsForAircraft
+                                //   )
+                                // } else {
+                                //   console.log('2')
+                                //   settingUpperAndLowerBoundaryTimeNotInFlight(
+                                //     flightsForAircraft
+                                //   )
+                                // }
                               }}
                               onPointerUp={(e) => {
                                 if (!selectedFlight) {
@@ -511,6 +526,9 @@ const Schedule: React.FC = () => {
         aircrafts={aircrafts}
         startTime={selectedStartTime.current}
         possibleStartTimes={possibleStartTimes}
+        possibleStartTimesWithTheCurrentFlightTimesAddedToTheArray={
+          possibleStartTimesWithTheCurrentFlightTimesAddedToTheArray
+        }
         date={dateOfFlights}
         endTime={selectedEndTime.current}
         showModal={showModal}

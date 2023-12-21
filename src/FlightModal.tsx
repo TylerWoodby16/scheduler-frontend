@@ -27,6 +27,7 @@ type Props = {
   aircrafts: Aircraft[]
   startTime?: Date
   possibleStartTimes: Date[]
+  possibleStartTimesWithTheCurrentFlightTimesAddedToTheArray: Date[]
   endTime?: Date
   showModal: boolean
   setShowModal: Function
@@ -47,6 +48,7 @@ const FlightModal: React.FC<Props> = ({
   aircrafts,
   startTime,
   possibleStartTimes,
+  possibleStartTimesWithTheCurrentFlightTimesAddedToTheArray,
   endTime,
   showModal,
   setShowModal,
@@ -274,7 +276,7 @@ const FlightModal: React.FC<Props> = ({
 
                               // On value change, recgalculate possible end times.
                               // First need to update boundary times.
-                              console.log('ok im going to use this function')
+
                               // Ok so here is the diffence between intitial click and edit click
                               settingUpperAndLowerBoundaryTimeNotInFlight(
                                 flightsForAircraft,
@@ -289,15 +291,20 @@ const FlightModal: React.FC<Props> = ({
                             value={values.startTime}
                           >
                             {flight
-                              ? permittedTimes.map((time, index) => {
-                                  return (
-                                    <option value={time.getTime()} key={index}>
-                                      {time.getHours().toString() +
-                                        ':' +
-                                        time.getMinutes().toString()}
-                                    </option>
-                                  )
-                                })
+                              ? possibleStartTimesWithTheCurrentFlightTimesAddedToTheArray.map(
+                                  (time, index) => {
+                                    return (
+                                      <option
+                                        value={time.getTime()}
+                                        key={index}
+                                      >
+                                        {time.getHours().toString() +
+                                          ':' +
+                                          time.getMinutes().toString()}
+                                      </option>
+                                    )
+                                  }
+                                )
                               : possibleStartTimes.map((time, index) => {
                                   return (
                                     <option value={time.getTime()} key={index}>
