@@ -27,7 +27,6 @@ type Props = {
   aircrafts: Aircraft[]
   startTime?: Date
   possibleStartTimes: Date[]
-  possibleStartTimesWithTheCurrentFlightTimesAddedToTheArray: Date[]
   endTime?: Date
   showModal: boolean
   setShowModal: Function
@@ -39,7 +38,7 @@ type Props = {
   lowerBoundaryTime: React.MutableRefObject<Date>
   upperBoundaryTime: React.MutableRefObject<Date>
   setDefaultBoundaryTimes: Function
-  settingUpperAndLowerBoundaryTimeNotInFlight: Function
+  updateBoundaryTimes: Function
   aircraftIdToFlights: Map<string, Flight[]>
 }
 
@@ -48,7 +47,6 @@ const FlightModal: React.FC<Props> = ({
   aircrafts,
   startTime,
   possibleStartTimes,
-  possibleStartTimesWithTheCurrentFlightTimesAddedToTheArray,
   endTime,
   showModal,
   setShowModal,
@@ -59,7 +57,7 @@ const FlightModal: React.FC<Props> = ({
   lowerBoundaryTime,
   upperBoundaryTime,
   setDefaultBoundaryTimes,
-  settingUpperAndLowerBoundaryTimeNotInFlight,
+  updateBoundaryTimes,
   aircraftIdToFlights,
 }) => {
   const [errorCode, setErrorCode] = useState<number>()
@@ -233,7 +231,7 @@ const FlightModal: React.FC<Props> = ({
 
                               // On value change, recgalculate possible end times.
                               // First need to update boundary times.
-                              settingUpperAndLowerBoundaryTimeNotInFlight(
+                              updateBoundaryTimes(
                                 flightsForAircraft,
                                 new Date(Number(e.target.value)),
                                 lowerBoundaryTime,
@@ -278,7 +276,7 @@ const FlightModal: React.FC<Props> = ({
                               // First need to update boundary times.
 
                               // Ok so here is the diffence between intitial click and edit click
-                              settingUpperAndLowerBoundaryTimeNotInFlight(
+                              updateBoundaryTimes(
                                 flightsForAircraft,
                                 new Date(Number(e.target.value)),
                                 lowerBoundaryTime,
@@ -290,30 +288,15 @@ const FlightModal: React.FC<Props> = ({
                             onBlur={handleBlur}
                             value={values.startTime}
                           >
-                            {flight
-                              ? possibleStartTimesWithTheCurrentFlightTimesAddedToTheArray.map(
-                                  (time, index) => {
-                                    return (
-                                      <option
-                                        value={time.getTime()}
-                                        key={index}
-                                      >
-                                        {time.getHours().toString() +
-                                          ':' +
-                                          time.getMinutes().toString()}
-                                      </option>
-                                    )
-                                  }
-                                )
-                              : possibleStartTimes.map((time, index) => {
-                                  return (
-                                    <option value={time.getTime()} key={index}>
-                                      {time.getHours().toString() +
-                                        ':' +
-                                        time.getMinutes().toString()}
-                                    </option>
-                                  )
-                                })}
+                            {possibleStartTimes.map((time, index) => {
+                              return (
+                                <option value={time.getTime()} key={index}>
+                                  {time.getHours().toString() +
+                                    ':' +
+                                    time.getMinutes().toString()}
+                                </option>
+                              )
+                            })}
                           </Form.Control>
                         </Form.Group>
                       </Col>

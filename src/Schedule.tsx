@@ -32,10 +32,6 @@ const Schedule: React.FC = () => {
 
   // First attempt at getting all possible start times
   const [possibleStartTimes, setPossibleStartTimes] = useState<Date[]>([])
-  const [
-    possibleStartTimesWithTheCurrentFlightTimesAddedToTheArray,
-    setPossibleStartTimesWithTheCurrentFlightTimesAddedToTheArray,
-  ] = useState<Date[]>([])
 
   const [flights, setFlights] = useState<Flight[]>()
 
@@ -134,7 +130,12 @@ const Schedule: React.FC = () => {
     }
   }
 
-  const tempModal = (
+  //This is not repeat logic of the above functions
+  //It is different because the User has essentially moved the pointerDown click
+  //SO this is a generalized version of both functions above with props
+  // Possible a refactor where I replace the above functions with just this one
+
+  const updateBoundaryTimes = (
     flightsForAircraft: Flight[],
     selectedStartTime: Date,
     lowerBoundaryTime: React.MutableRefObject<Date>,
@@ -260,16 +261,20 @@ const Schedule: React.FC = () => {
     return aircraftIdToFlights
   }
 
-  // Returns all the time increments OUTSIDE of the given flights array.
   const createFilteredTimes = (
     times: Date[],
-    flights: Flight[]
-    // flight?: Flight
+    flights: Flight[],
+    selectedFlight?: Flight
   ) => {
     const filteredTimes = times.filter((time) => {
       let inRange = false
 
-      flights.forEach((flight) => {
+      // This returns an array of times excluding the times associated with the current 'clicked' flight
+      const unselectedFlights = flights.filter((currentFlight) => {
+        return !(currentFlight == selectedFlight)
+      })
+
+      unselectedFlights.forEach((flight) => {
         if (dateInRange(flight, time)) {
           inRange = true
         }
@@ -280,30 +285,6 @@ const Schedule: React.FC = () => {
 
     return filteredTimes
   }
-
-  const createFilteredTimesWithTheCurrentFlightsTimeAddedToTheArrayAsWellThisIsAGoodVariableName =
-    (times: Date[], flights: Flight[], flight?: Flight) => {
-      const filteredTimes = times.filter((time) => {
-        let inRange = false
-
-        // This returns an array of times excluding the times associated with the current 'clicked' flight
-        const newFlights = flights.filter(
-          (localflightvariabletothisfunction) => {
-            return !(localflightvariabletothisfunction == flight)
-          }
-        )
-
-        newFlights.forEach((flight) => {
-          if (dateInRange(flight, time)) {
-            inRange = true
-          }
-        })
-
-        return !inRange
-      })
-
-      return filteredTimes
-    }
 
   const dateInRange = (flight: Flight, time: Date) => {
     // flight.startTime / flight.endTime is actually a (zulu time formatted) string for some reason.
@@ -425,18 +406,8 @@ const Schedule: React.FC = () => {
                                 setSelectedFlight(flight)
 
                                 if (flightsForAircraft) {
-                                  //TODO: figure out if I can leave this as is
-
                                   setPossibleStartTimes(
                                     createFilteredTimes(
-                                      times,
-                                      flightsForAircraft
-                                      // flight
-                                    )
-                                  )
-
-                                  setPossibleStartTimesWithTheCurrentFlightTimesAddedToTheArray(
-                                    createFilteredTimesWithTheCurrentFlightsTimeAddedToTheArrayAsWellThisIsAGoodVariableName(
                                       times,
                                       flightsForAircraft,
                                       flight
@@ -445,21 +416,17 @@ const Schedule: React.FC = () => {
                                 } else {
                                   setPossibleStartTimes(times)
                                 }
-                                //TODO: See if these functions have outlived their usefullness
 
                                 // Set boundary times
-                                // if (flight) {
-                                //   // lets look at this one
-                                //   console.log('1')
-                                //   settingUpperAndLowerBoundaryTimeIfInsideFlight(
-                                //     flightsForAircraft
-                                //   )
-                                // } else {
-                                //   console.log('2')
-                                //   settingUpperAndLowerBoundaryTimeNotInFlight(
-                                //     flightsForAircraft
-                                //   )
-                                // }
+                                if (flight) {
+                                  settingUpperAndLowerBoundaryTimeIfInsideFlight(
+                                    flightsForAircraft
+                                  )
+                                } else {
+                                  settingUpperAndLowerBoundaryTimeNotInFlight(
+                                    flightsForAircraft
+                                  )
+                                }
                               }}
                               onPointerUp={(e) => {
                                 if (!selectedFlight) {
@@ -526,9 +493,6 @@ const Schedule: React.FC = () => {
         aircrafts={aircrafts}
         startTime={selectedStartTime.current}
         possibleStartTimes={possibleStartTimes}
-        possibleStartTimesWithTheCurrentFlightTimesAddedToTheArray={
-          possibleStartTimesWithTheCurrentFlightTimesAddedToTheArray
-        }
         date={dateOfFlights}
         endTime={selectedEndTime.current}
         showModal={showModal}
@@ -539,7 +503,7 @@ const Schedule: React.FC = () => {
         lowerBoundaryTime={lowerBoundaryTime}
         upperBoundaryTime={upperBoundaryTime}
         setDefaultBoundaryTimes={setDefaultBoundaryTimes}
-        settingUpperAndLowerBoundaryTimeNotInFlight={tempModal}
+        updateBoundaryTimes={updateBoundaryTimes}
         aircraftIdToFlights={aircraftIdToFlights}
       />
     </div>
