@@ -9,3 +9,36 @@ box {
 .scheduledFlightBox {
   background: green !important;
 }
+
+.sticky-left {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
+
+.sticky-top {
+  position: sticky;
+  top: 0;
+
+  z-index: 1000; /* Adjust the z-index as needed */
+}
+
+.circle {
+  width: 100px; /* Set the width and height according to your requirements */
+  height: 100px;
+  background-color: #3498db; /* Set your desired background color */
+  border-radius: 50%; /* Make the div circular */
+}
+
+.save-this-blue {
+  background-color: #3498db; /* Set your desired background color */
+}
+
+@media (min-width: 992px) {
+  .container-scroll {
+    overflow-x: auto;
+  }
+  .container-scroll > .row {
+    width: 500%; /* = 100% * 4/3 */
+  }
+}
