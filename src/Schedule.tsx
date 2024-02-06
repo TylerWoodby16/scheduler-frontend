@@ -30,6 +30,11 @@ const Schedule: React.FC = () => {
   const selectedStartTime = useRef(new Date())
   const selectedEndTime = useRef(new Date())
 
+  let [highlighted, setHighlighted] = useState<boolean>(false)
+
+  let [aircraftIdToHighlightedTimes, setAircraftIdToHighlightedTimes] =
+    useState<Map<string, Date[]>>(new Map<string, Date[]>())
+
   // First attempt at getting all possible start times
   const [possibleStartTimes, setPossibleStartTimes] = useState<Date[]>([])
 
@@ -45,6 +50,8 @@ const Schedule: React.FC = () => {
 
   let lowerBoundaryTime = useRef(new Date())
   let upperBoundaryTime = useRef(new Date())
+
+  console.log('render')
 
   // Used for setting a boundary on the pointerDown function
   // TODO: Can simply use Dates here with setHour(0,0,0,0)
@@ -313,6 +320,10 @@ const Schedule: React.FC = () => {
     return inRange
   }
 
+  // TODO: When I come back explain to yourself what you are trying to do
+  // clean the code up start from there
+  let booleanThatINeedToRename = false
+
   return (
     <div>
       <div className="text-white text-center">SCHEDULE</div>
@@ -340,143 +351,193 @@ const Schedule: React.FC = () => {
         <Col></Col>
       </Row>
 
-      {/* this is the not table */}
-
       <Container style={{ color: 'white' }} className="container-scroll">
         <Row>
-          {/* Why does lg={0} work here  */}
-          <Col lg={0} className="sticky-left">
+          <Col className="sticky-left">
             <Row>Name Time</Row>
             {aircrafts.map((aircraft, index) => {
-              return <Row style={{ background: 'blue' }}>{aircraft.name}</Row>
+              return (
+                <Row style={{ backgroundColor: '#3498db' }}>
+                  {aircraft.name}
+                </Row>
+              )
             })}
           </Col>
 
           {times.map((time, index) => {
             return (
-              <Col className="mx-1">
+              <Col className="gx-0">
                 <Row>
                   {time.getHours()}:{time.getMinutes()}
                   {Number(time.getMinutes()) == 0 ? '0' : ''}{' '}
                 </Row>
 
-                <Row>
-                  {' '}
-                  {aircrafts.map((aircraft, index) => {
-                    return (
-                      <div>
-                        <div
-                          key={index}
-                          className={
-                            highlightFlightBox(
-                              aircraftIdToFlights?.get(aircraft._id),
-                              time
+                {aircrafts.map((aircraft, index) => {
+                  return (
+                    <Row
+                      style={{ cursor: 'pointer' }}
+                      key={index}
+                      // TODO: Look at this later. Does it matter that we are not iterating per row anymore? We now iterate per-column. Does this affect flight detection?
+                      className={
+                        // highlightFlightBox(
+                        //   aircraftIdToFlights?.get(aircraft._id),
+                        //   time
+                        // )
+                        //   ? 'scheduledFlightBox'
+                        //   : ''
+
+                        aircraftIdToHighlightedTimes
+                          .get(aircraft._id)
+                          ?.includes(time)
+                          ? 'scheduledFlightBox'
+                          : ''
+
+                        // highlightFlightBoxWhileDragging(
+                        //   aircraft,
+                        //   time,
+                        //   mapOfAircraftNameToTimesCreatedToHighlightBox
+                        // )
+                        //   ? 'scheduledFlightBox'
+                        //   : ''
+                      }
+                      onPointerDown={(e) => {
+                        setHighlighted(true)
+                        // setPointerDownActive(true)
+                        // Isolate the cell that we are currently on
+                        // console.log(aircraft)
+                        // setAircraftCreatedToHighlightBox(aircraft)
+                        // console.log(time)
+                        setAircraftIdToHighlightedTimes(
+                          aircraftIdToHighlightedTimes?.set(aircraft._id, [
+                            time,
+                          ])
+                        )
+
+                        // everything below was here before working on highlighting on pointerDown
+                        selectedStartTime.current = time
+
+                        let flightsForAircraft = aircraftIdToFlights?.get(
+                          aircraft._id
+                        )
+
+                        if (!flightsForAircraft)
+                          flightsForAircraft = [] as Flight[]
+
+                        // Check if start time is within timeframe of any flight.
+                        let flight: Flight | undefined = undefined
+
+                        // Check if we pointer down in an existing flight's time (which is a date) range.
+                        flightsForAircraft.forEach((currentFlight) => {
+                          if (
+                            dateInRange(
+                              currentFlight,
+                              selectedStartTime.current
                             )
-                              ? 'scheduledFlightBox'
-                              : ''
+                          ) {
+                            flight = currentFlight
                           }
-                          onPointerDown={(e) => {
-                            selectedStartTime.current = time
+                        })
+                        setSelectedFlight(flight)
 
-                            let flightsForAircraft = aircraftIdToFlights?.get(
-                              aircraft._id
+                        if (flightsForAircraft) {
+                          setPossibleStartTimes(
+                            createFilteredTimes(
+                              times,
+                              flightsForAircraft,
+                              flight
                             )
+                          )
+                        } else {
+                          setPossibleStartTimes(times)
+                        }
 
-                            if (!flightsForAircraft)
-                              flightsForAircraft = [] as Flight[]
+                        // Set boundary times
+                        if (flight) {
+                          settingUpperAndLowerBoundaryTimeIfInsideFlight(
+                            flightsForAircraft
+                          )
+                        } else {
+                          settingUpperAndLowerBoundaryTimeNotInFlight(
+                            flightsForAircraft
+                          )
+                        }
+                      }}
+                      onPointerMove={(e) => {
+                        if (
+                          !aircraftIdToHighlightedTimes
+                            .get(aircraft._id)
+                            ?.includes(time)
+                        ) {
+                          aircraftIdToHighlightedTimes
+                            .get(aircraft._id)
+                            ?.push(time)
 
-                            // Check if start time is within timeframe of any flight.
-                            let flight: Flight | undefined = undefined
+                          setAircraftIdToHighlightedTimes(
+                            aircraftIdToHighlightedTimes
+                          )
+                        }
+                      }}
+                      onPointerUp={(e) => {
+                        setHighlighted(false)
 
-                            // Check if we pointer down in an existing flight's time (which is a date) range.
-                            flightsForAircraft.forEach((currentFlight) => {
-                              if (
-                                dateInRange(
-                                  currentFlight,
-                                  selectedStartTime.current
-                                )
-                              ) {
-                                flight = currentFlight
-                              }
-                            })
-                            setSelectedFlight(flight)
+                        setAircraftIdToHighlightedTimes(
+                          new Map<string, Date[]>()
+                        )
+                        console.log(aircraftIdToHighlightedTimes)
 
-                            if (flightsForAircraft) {
-                              setPossibleStartTimes(
-                                createFilteredTimes(
-                                  times,
-                                  flightsForAircraft,
-                                  flight
-                                )
-                              )
-                            } else {
-                              setPossibleStartTimes(times)
-                            }
+                        // make setAircraftCreatedToHighlightBox a random aircraft so it forces highlightedSpecificBox to always be false
+                        // setAircraftCreatedToHighlightBox(undefined)
 
-                            // Set boundary times
-                            if (flight) {
-                              settingUpperAndLowerBoundaryTimeIfInsideFlight(
-                                flightsForAircraft
-                              )
-                            } else {
-                              settingUpperAndLowerBoundaryTimeNotInFlight(
-                                flightsForAircraft
-                              )
-                            }
-                          }}
-                          onPointerUp={(e) => {
-                            if (!selectedFlight) {
-                              // if the time is greater than the upperboundary
-                              // it will set itself to the upperboundary
-                              // otherwise it stays the time it was
-                              if (time < upperBoundaryTime.current) {
-                                selectedEndTime.current = time
-                              } else {
-                                selectedEndTime.current =
-                                  upperBoundaryTime.current
-                              }
-                              // if the time is less than the lowerBoundaryTime
-                              // set time to be the lowerBoudnaryTime
-                              if (time < lowerBoundaryTime.current) {
-                                selectedEndTime.current =
-                                  lowerBoundaryTime.current
-                              }
+                        // setTimeCreatedToHighlightBox(undefined)
+                        // highlightFlightBoxWhileDragging(
+                        //   aircraft,
+                        //   timeCreatedToHighlightBox
+                        // )
+                        if (!selectedFlight) {
+                          // if the time is greater than the upperboundary
+                          // it will set itself to the upperboundary
+                          // otherwise it stays the time it was
+                          if (time < upperBoundaryTime.current) {
+                            selectedEndTime.current = time
+                          } else {
+                            selectedEndTime.current = upperBoundaryTime.current
+                          }
+                          // if the time is less than the lowerBoundaryTime
+                          // set time to be the lowerBoudnaryTime
+                          if (time < lowerBoundaryTime.current) {
+                            selectedEndTime.current = lowerBoundaryTime.current
+                          }
 
-                              // If we are selecting backwards, flip start time and end time.
-                              if (
-                                selectedEndTime.current <
-                                selectedStartTime.current
-                              ) {
-                                let prevStartTime = selectedStartTime.current
+                          // If we are selecting backwards, flip start time and end time.
+                          if (
+                            selectedEndTime.current < selectedStartTime.current
+                          ) {
+                            let prevStartTime = selectedStartTime.current
 
-                                selectedStartTime.current =
-                                  selectedEndTime.current
+                            selectedStartTime.current = selectedEndTime.current
 
-                                selectedEndTime.current = prevStartTime
-                              }
-                            }
+                            selectedEndTime.current = prevStartTime
+                          }
+                        }
 
-                            // If start time and end time are the same
-                            // Add 2 hours  (single click flight) bc this is the standard length
-                            if (
-                              selectedStartTime.current ==
-                              selectedEndTime.current
-                            ) {
-                              selectedEndTime.current = new Date(
-                                Number(selectedEndTime.current) + 7200000
-                              )
-                            }
+                        // If start time and end time are the same
+                        // Add 2 hours  (single click flight) bc this is the standard length
+                        if (
+                          selectedStartTime.current == selectedEndTime.current
+                        ) {
+                          selectedEndTime.current = new Date(
+                            Number(selectedEndTime.current) + 7200000
+                          )
+                        }
 
-                            setSelectedAircraft(aircraft)
-                            setShowModal(true)
-                          }}
-                        >
-                          {time.getHours()}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </Row>
+                        setSelectedAircraft(aircraft)
+                        setShowModal(true)
+                      }}
+                    >
+                      {time.getHours()}
+                    </Row>
+                  )
+                })}
               </Col>
             )
           })}
