@@ -30,7 +30,7 @@ const Schedule: React.FC = () => {
   const selectedStartTime = useRef(new Date())
   const selectedEndTime = useRef(new Date())
 
-  let [highlighted, setHighlighted] = useState<boolean>(false)
+  let [pointerDownActived, setPointerDownActived] = useState<boolean>(false)
 
   let [aircraftIdToHighlightedTimes, setAircraftIdToHighlightedTimes] =
     useState<Map<string, Date[]>>(new Map<string, Date[]>())
@@ -401,12 +401,8 @@ const Schedule: React.FC = () => {
                         //   : ''
                       }
                       onPointerDown={(e) => {
-                        setHighlighted(true)
-                        // setPointerDownActive(true)
-                        // Isolate the cell that we are currently on
-                        // console.log(aircraft)
-                        // setAircraftCreatedToHighlightBox(aircraft)
-                        // console.log(time)
+                        setPointerDownActived(true)
+
                         setAircraftIdToHighlightedTimes(
                           aircraftIdToHighlightedTimes?.set(aircraft._id, [
                             time,
@@ -463,27 +459,56 @@ const Schedule: React.FC = () => {
                         }
                       }}
                       onPointerMove={(e) => {
-                        if (
-                          !aircraftIdToHighlightedTimes
-                            .get(aircraft._id)
-                            ?.includes(time)
-                        ) {
-                          aircraftIdToHighlightedTimes
-                            .get(aircraft._id)
-                            ?.push(time)
+                        if (pointerDownActived) {
+                          // const highlightedTimes =
+                          //   aircraftIdToHighlightedTimes.get(aircraft._id)
+
+                          const highlightedTimes = aircraftIdToHighlightedTimes
+                            .values()
+                            .next().value
+
+                          console.log(highlightedTimes)
+
+                          // const highlightedTimes = aircraftIdToHighlightedTimes.get(aircraftIdToHighlightedTimes.keys().next().value)
+
+                          if (highlightedTimes) highlightedTimes[1] = time
+
+                          aircraftIdToHighlightedTimes.set(
+                            aircraft._id,
+                            highlightedTimes
+                          )
 
                           setAircraftIdToHighlightedTimes(
-                            aircraftIdToHighlightedTimes
+                            new Map(aircraftIdToHighlightedTimes)
                           )
+
+                          // console.log(
+                          //   aircraftIdToHighlightedTimes.get(aircraft._id)
+                          // )
+
+                          //   if (
+                          //     !aircraftIdToHighlightedTimes
+                          //       .get(aircraft._id)
+                          //       ?.includes(time)
+                          //   ) {
+                          //     aircraftIdToHighlightedTimes
+                          //       .get(aircraft._id)
+                          //       ?.push(time)
+                          //     // It is telling me to use the spread operator
+                          //     // because we need to create a new object or array when updating the state to trigger a re-render. React relies on immutability to determine when to re-render components.
+                          //     // Instead of modifying the existing aircraftIdToHighlightedTimes directly, create a new copy of it using the spread operator:
+                          //     setAircraftIdToHighlightedTimes(
+                          //       new Map(aircraftIdToHighlightedTimes)
+                          //     )
+                          //   }
                         }
                       }}
                       onPointerUp={(e) => {
-                        setHighlighted(false)
+                        setPointerDownActived(false)
 
                         setAircraftIdToHighlightedTimes(
                           new Map<string, Date[]>()
                         )
-                        console.log(aircraftIdToHighlightedTimes)
 
                         // make setAircraftCreatedToHighlightBox a random aircraft so it forces highlightedSpecificBox to always be false
                         // setAircraftCreatedToHighlightBox(undefined)
