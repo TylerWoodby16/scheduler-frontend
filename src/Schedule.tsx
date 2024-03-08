@@ -10,6 +10,7 @@ import DatePicker from 'react-datepicker'
 import { Container, Placeholder } from 'react-bootstrap'
 import FlightModal from './FlightModal'
 import { DateTime } from 'luxon'
+import { nextTick } from 'process'
 
 const Schedule: React.FC = () => {
   const [aircrafts, setAircrafts] = useState<Aircraft[]>([])
@@ -50,8 +51,6 @@ const Schedule: React.FC = () => {
 
   let lowerBoundaryTime = useRef(new Date())
   let upperBoundaryTime = useRef(new Date())
-
-  console.log('render')
 
   // Used for setting a boundary on the pointerDown function
   // TODO: Can simply use Dates here with setHour(0,0,0,0)
@@ -352,7 +351,31 @@ const Schedule: React.FC = () => {
       </Row>
 
       <Container style={{ color: 'white' }} className="container-scroll">
-        <Row>
+        <Row
+          onPointerLeave={(e) => {
+            if (pointerDownActived) {
+              console.log('not in cell')
+              setPointerDownActived(false)
+
+              setAircraftIdToHighlightedTimes(new Map<string, Date[]>())
+
+              const aircraftId = aircraftIdToHighlightedTimes
+                .keys()
+                .next().value
+
+              let aircraft = undefined
+              aircrafts.forEach((currAircraft) => {
+                if (aircraftId == currAircraft._id) {
+                  aircraft = currAircraft
+                }
+              })
+
+              setSelectedAircraft(aircraft)
+
+              setShowModal(true)
+            }
+          }}
+        >
           <Col className="sticky-left">
             <Row>Name Time</Row>
             {aircrafts.map((aircraft, index) => {
@@ -379,26 +402,16 @@ const Schedule: React.FC = () => {
                       key={index}
                       // TODO: Look at this later. Does it matter that we are not iterating per row anymore? We now iterate per-column. Does this affect flight detection?
                       className={
-                        // highlightFlightBox(
-                        //   aircraftIdToFlights?.get(aircraft._id),
-                        //   time
-                        // )
-                        //   ? 'scheduledFlightBox'
-                        //   : ''
-
-                        aircraftIdToHighlightedTimes
-                          .get(aircraft._id)
-                          ?.includes(time)
+                        // L < T < H
+                        // T > L && T < H
+                        aircraftIdToHighlightedTimes.get(aircraft._id) !==
+                          undefined &&
+                        time >=
+                          aircraftIdToHighlightedTimes.get(aircraft._id)![0] &&
+                        time <=
+                          aircraftIdToHighlightedTimes.get(aircraft._id)![1]
                           ? 'scheduledFlightBox'
                           : ''
-
-                        // highlightFlightBoxWhileDragging(
-                        //   aircraft,
-                        //   time,
-                        //   mapOfAircraftNameToTimesCreatedToHighlightBox
-                        // )
-                        //   ? 'scheduledFlightBox'
-                        //   : ''
                       }
                       onPointerDown={(e) => {
                         setPointerDownActived(true)
@@ -460,47 +473,22 @@ const Schedule: React.FC = () => {
                       }}
                       onPointerMove={(e) => {
                         if (pointerDownActived) {
-                          // const highlightedTimes =
-                          //   aircraftIdToHighlightedTimes.get(aircraft._id)
-
+                          // NOTE: The structure of our map makes these .values() and .keys() calls viable.
+                          // Our map only ever contains ONE key (aircraft ID) and ONE value (an array with two elements, the low and high times)
                           const highlightedTimes = aircraftIdToHighlightedTimes
                             .values()
                             .next().value
 
-                          console.log(highlightedTimes)
-
-                          // const highlightedTimes = aircraftIdToHighlightedTimes.get(aircraftIdToHighlightedTimes.keys().next().value)
-
                           if (highlightedTimes) highlightedTimes[1] = time
 
                           aircraftIdToHighlightedTimes.set(
-                            aircraft._id,
+                            aircraftIdToHighlightedTimes.keys().next().value,
                             highlightedTimes
                           )
 
                           setAircraftIdToHighlightedTimes(
                             new Map(aircraftIdToHighlightedTimes)
                           )
-
-                          // console.log(
-                          //   aircraftIdToHighlightedTimes.get(aircraft._id)
-                          // )
-
-                          //   if (
-                          //     !aircraftIdToHighlightedTimes
-                          //       .get(aircraft._id)
-                          //       ?.includes(time)
-                          //   ) {
-                          //     aircraftIdToHighlightedTimes
-                          //       .get(aircraft._id)
-                          //       ?.push(time)
-                          //     // It is telling me to use the spread operator
-                          //     // because we need to create a new object or array when updating the state to trigger a re-render. React relies on immutability to determine when to re-render components.
-                          //     // Instead of modifying the existing aircraftIdToHighlightedTimes directly, create a new copy of it using the spread operator:
-                          //     setAircraftIdToHighlightedTimes(
-                          //       new Map(aircraftIdToHighlightedTimes)
-                          //     )
-                          //   }
                         }
                       }}
                       onPointerUp={(e) => {
@@ -510,6 +498,7 @@ const Schedule: React.FC = () => {
                           new Map<string, Date[]>()
                         )
 
+                        console.log('pointerup in cell')
                         // make setAircraftCreatedToHighlightBox a random aircraft so it forces highlightedSpecificBox to always be false
                         // setAircraftCreatedToHighlightBox(undefined)
 
