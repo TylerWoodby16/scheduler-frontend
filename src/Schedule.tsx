@@ -10,7 +10,6 @@ import DatePicker from 'react-datepicker'
 import { Container, Placeholder } from 'react-bootstrap'
 import FlightModal from './FlightModal'
 import { DateTime } from 'luxon'
-import { nextTick } from 'process'
 
 const Schedule: React.FC = () => {
   const [aircrafts, setAircrafts] = useState<Aircraft[]>([])
@@ -193,6 +192,24 @@ const Schedule: React.FC = () => {
     }
   }
 
+  const highlightingBox = (aircraft: Aircraft, time: Date) => {
+    // Highlights the dragging
+    if (
+      aircraftIdToHighlightedTimes.get(aircraft._id) !== undefined &&
+      time >= aircraftIdToHighlightedTimes.get(aircraft._id)![0] &&
+      time <= aircraftIdToHighlightedTimes.get(aircraft._id)![1]
+    ) {
+      return 'highlighted-flight'
+    }
+
+    // Highlights the existing flights
+    if (highlightFlightBox(aircraftIdToFlights?.get(aircraft._id), time)) {
+      return 'scheduled-flight'
+    }
+    // WTF happened to this google ??
+    // a function can not return multiple values but we can return an array
+  }
+
   const buildScheduleTimes = () => {
     // Begin by getting 12AM today.
     const baseDateTime = DateTime.local(
@@ -354,7 +371,6 @@ const Schedule: React.FC = () => {
         <Row
           onPointerLeave={(e) => {
             if (pointerDownActived) {
-              console.log('not in cell')
               setPointerDownActived(false)
 
               setAircraftIdToHighlightedTimes(new Map<string, Date[]>())
@@ -369,8 +385,34 @@ const Schedule: React.FC = () => {
                   aircraft = currAircraft
                 }
               })
-
               setSelectedAircraft(aircraft)
+
+              const time = aircraftIdToHighlightedTimes.values().next().value[1]
+
+              if (!selectedFlight) {
+                // if the time is greater than the upperboundary
+                // it will set itself to the upperboundary
+                // otherwise it stays the time it was
+                if (time < upperBoundaryTime.current) {
+                  selectedEndTime.current = time
+                } else {
+                  selectedEndTime.current = upperBoundaryTime.current
+                }
+                // if the time is less than the lowerBoundaryTime
+                // set time to be the lowerBoudnaryTime
+                if (time < lowerBoundaryTime.current) {
+                  selectedEndTime.current = lowerBoundaryTime.current
+                }
+
+                // If we are selecting backwards, flip start time and end time.
+                if (selectedEndTime.current < selectedStartTime.current) {
+                  let prevStartTime = selectedStartTime.current
+
+                  selectedStartTime.current = selectedEndTime.current
+
+                  selectedEndTime.current = prevStartTime
+                }
+              }
 
               setShowModal(true)
             }
@@ -401,17 +443,32 @@ const Schedule: React.FC = () => {
                       style={{ cursor: 'pointer' }}
                       key={index}
                       // TODO: Look at this later. Does it matter that we are not iterating per row anymore? We now iterate per-column. Does this affect flight detection?
+                      // ANSWER: YES.
+
+                      // className={
+                      //   highlightFlightBox(
+                      //     aircraftIdToFlights?.get(aircraft._id),
+                      //     time
+                      //   )
+                      //     ? 'scheduledFlightBox'
+                      //     : ''
+                      // }
+
                       className={
                         // L < T < H
                         // T > L && T < H
-                        aircraftIdToHighlightedTimes.get(aircraft._id) !==
-                          undefined &&
-                        time >=
-                          aircraftIdToHighlightedTimes.get(aircraft._id)![0] &&
-                        time <=
-                          aircraftIdToHighlightedTimes.get(aircraft._id)![1]
-                          ? 'scheduledFlightBox'
-                          : ''
+                        // aircraftIdToHighlightedTimes.get(aircraft._id) !==
+                        //   undefined &&
+                        // time >=
+                        //   aircraftIdToHighlightedTimes.get(aircraft._id)![0] &&
+                        // time <=
+                        //   aircraftIdToHighlightedTimes.get(aircraft._id)![1]
+                        //   ? 'highlighted-flight'
+                        //   : ''
+
+                        highlightingBox(aircraft, time)
+                        // Two approaches either complete the logic here for showing exsiting flights
+                        // Or go ahead and put this in the new fucntion I created!
                       }
                       onPointerDown={(e) => {
                         setPointerDownActived(true)
@@ -499,14 +556,7 @@ const Schedule: React.FC = () => {
                         )
 
                         console.log('pointerup in cell')
-                        // make setAircraftCreatedToHighlightBox a random aircraft so it forces highlightedSpecificBox to always be false
-                        // setAircraftCreatedToHighlightBox(undefined)
 
-                        // setTimeCreatedToHighlightBox(undefined)
-                        // highlightFlightBoxWhileDragging(
-                        //   aircraft,
-                        //   timeCreatedToHighlightBox
-                        // )
                         if (!selectedFlight) {
                           // if the time is greater than the upperboundary
                           // it will set itself to the upperboundary

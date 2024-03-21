@@ -11,7 +11,11 @@ box {
   min-height: 100vh;
 }
 
-.scheduledFlightBox {
+.scheduled-flight {
+  background: chartreuse !important;
+}
+
+.highlighted-flight {
   background: green !important;
 }
 
