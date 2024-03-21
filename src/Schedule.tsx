@@ -196,8 +196,10 @@ const Schedule: React.FC = () => {
     // Highlights the dragging
     if (
       aircraftIdToHighlightedTimes.get(aircraft._id) !== undefined &&
-      time >= aircraftIdToHighlightedTimes.get(aircraft._id)![0] &&
-      time <= aircraftIdToHighlightedTimes.get(aircraft._id)![1]
+      ((time <= aircraftIdToHighlightedTimes.get(aircraft._id)![0] &&
+        time >= aircraftIdToHighlightedTimes.get(aircraft._id)![1]) ||
+        (time >= aircraftIdToHighlightedTimes.get(aircraft._id)![0] &&
+          time <= aircraftIdToHighlightedTimes.get(aircraft._id)![1]))
     ) {
       return 'highlighted-flight'
     }
@@ -467,8 +469,6 @@ const Schedule: React.FC = () => {
                         //   : ''
 
                         highlightingBox(aircraft, time)
-                        // Two approaches either complete the logic here for showing exsiting flights
-                        // Or go ahead and put this in the new fucntion I created!
                       }
                       onPointerDown={(e) => {
                         setPointerDownActived(true)
