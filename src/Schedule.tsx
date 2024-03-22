@@ -30,6 +30,11 @@ const Schedule: React.FC = () => {
   const selectedStartTime = useRef(new Date())
   const selectedEndTime = useRef(new Date())
 
+  let [pointerDownActived, setPointerDownActived] = useState<boolean>(false)
+
+  let [aircraftIdToHighlightedTimes, setAircraftIdToHighlightedTimes] =
+    useState<Map<string, Date[]>>(new Map<string, Date[]>())
+
   // First attempt at getting all possible start times
   const [possibleStartTimes, setPossibleStartTimes] = useState<Date[]>([])
 
@@ -187,6 +192,82 @@ const Schedule: React.FC = () => {
     }
   }
 
+  const highlightingBox = (aircraft: Aircraft, time: Date) => {
+    // Highlights the dragging
+    if (
+      aircraftIdToHighlightedTimes.get(aircraft._id) !== undefined &&
+      ((time <= aircraftIdToHighlightedTimes.get(aircraft._id)![0] &&
+        time >= aircraftIdToHighlightedTimes.get(aircraft._id)![1]) ||
+        (time >= aircraftIdToHighlightedTimes.get(aircraft._id)![0] &&
+          time <= aircraftIdToHighlightedTimes.get(aircraft._id)![1]))
+    ) {
+      return 'highlighted-flight'
+    }
+
+    // Highlights the existing flights
+    if (highlightFlightBox(aircraftIdToFlights?.get(aircraft._id), time)) {
+      return 'scheduled-flight'
+    }
+
+    return ''
+  }
+
+  const highlightFlightBox = (
+    flights: Flight[] | undefined,
+    time: Date
+  ): boolean => {
+    if (!flights) return false
+
+    let inRange = false
+    flights.forEach((flight) => {
+      // flight.startTime / flight.endTime is actually a (zulu time formatted) string for some reason.
+      // We convert to Date here to localize it and ACTUALLY make it a Date.
+      if (
+        time >= new Date(flight.startTime) &&
+        time < new Date(flight.endTime)
+      ) {
+        inRange = true
+      }
+    })
+
+    return inRange
+  }
+
+  const setSelectedEndTime = (time: Date) => {
+    if (!selectedFlight) {
+      // if the time is greater than the upperboundary
+      // it will set itself to the upperboundary
+      // otherwise it stays the time it was
+      if (time < upperBoundaryTime.current) {
+        selectedEndTime.current = time
+      } else {
+        selectedEndTime.current = upperBoundaryTime.current
+      }
+      // if the time is less than the lowerBoundaryTime
+      // set time to be the lowerBoudnaryTime
+      if (time < lowerBoundaryTime.current) {
+        selectedEndTime.current = lowerBoundaryTime.current
+      }
+
+      // If we are selecting backwards, flip start time and end time.
+      if (selectedEndTime.current < selectedStartTime.current) {
+        let prevStartTime = selectedStartTime.current
+
+        selectedStartTime.current = selectedEndTime.current
+
+        selectedEndTime.current = prevStartTime
+      }
+    }
+
+    // If start time and end time are the same
+    // Add 2 hours  (single click flight) bc this is the standard length
+    if (selectedStartTime.current == selectedEndTime.current) {
+      selectedEndTime.current = new Date(
+        Number(selectedEndTime.current) + 7200000
+      )
+    }
+  }
+
   const buildScheduleTimes = () => {
     // Begin by getting 12AM today.
     const baseDateTime = DateTime.local(
@@ -292,26 +373,9 @@ const Schedule: React.FC = () => {
     return time >= new Date(flight.startTime) && time < new Date(flight.endTime)
   }
 
-  const highlightFlightBox = (
-    flights: Flight[] | undefined,
-    time: Date
-  ): boolean => {
-    if (!flights) return false
-
-    let inRange = false
-    flights.forEach((flight) => {
-      // flight.startTime / flight.endTime is actually a (zulu time formatted) string for some reason.
-      // We convert to Date here to localize it and ACTUALLY make it a Date.
-      if (
-        time >= new Date(flight.startTime) &&
-        time < new Date(flight.endTime)
-      ) {
-        inRange = true
-      }
-    })
-
-    return inRange
-  }
+  // TODO: When I come back explain to yourself what you are trying to do
+  // clean the code up start from there
+  let booleanThatINeedToRename = false
 
   return (
     <div>
@@ -339,6 +403,163 @@ const Schedule: React.FC = () => {
         </Col>
         <Col></Col>
       </Row>
+
+      <Container style={{ color: 'white' }} className="container-scroll">
+        <Row
+          onPointerLeave={(e) => {
+            if (pointerDownActived) {
+              setPointerDownActived(false)
+
+              // Reset highlighted times.
+              setAircraftIdToHighlightedTimes(new Map<string, Date[]>())
+
+              // Collect necessary variables to mimic pointer up behavior when pointer leaves table.
+              const aircraftId = aircraftIdToHighlightedTimes
+                .keys()
+                .next().value
+
+              let aircraft = undefined
+              aircrafts.forEach((currAircraft) => {
+                if (aircraftId == currAircraft._id) {
+                  aircraft = currAircraft
+                }
+              })
+              setSelectedAircraft(aircraft)
+
+              const time = aircraftIdToHighlightedTimes.values().next().value[1]
+
+              setSelectedEndTime(time)
+              setShowModal(true)
+            }
+          }}
+        >
+          <Col className="sticky-left">
+            <Row>Name Time</Row>
+            {aircrafts.map((aircraft, index) => {
+              return (
+                <Row style={{ backgroundColor: '#3498db' }}>
+                  {aircraft.name}
+                </Row>
+              )
+            })}
+          </Col>
+
+          {times.map((time, index) => {
+            return (
+              <Col className="gx-0">
+                <Row>
+                  {time.getHours()}:{time.getMinutes()}
+                  {Number(time.getMinutes()) == 0 ? '0' : ''}{' '}
+                </Row>
+
+                {aircrafts.map((aircraft, index) => {
+                  return (
+                    <Row
+                      style={{ cursor: 'pointer' }}
+                      key={index}
+                      className={highlightingBox(aircraft, time)}
+                      onPointerDown={(e) => {
+                        setPointerDownActived(true)
+
+                        setAircraftIdToHighlightedTimes(
+                          aircraftIdToHighlightedTimes?.set(aircraft._id, [
+                            time,
+                          ])
+                        )
+
+                        selectedStartTime.current = time
+
+                        let flightsForAircraft = aircraftIdToFlights?.get(
+                          aircraft._id
+                        )
+
+                        if (!flightsForAircraft)
+                          flightsForAircraft = [] as Flight[]
+
+                        // Check if start time is within timeframe of any flight.
+                        let flight: Flight | undefined = undefined
+
+                        // Check if we pointer down in an existing flight's time (which is a date) range.
+                        flightsForAircraft.forEach((currentFlight) => {
+                          if (
+                            dateInRange(
+                              currentFlight,
+                              selectedStartTime.current
+                            )
+                          ) {
+                            flight = currentFlight
+                          }
+                        })
+                        setSelectedFlight(flight)
+
+                        if (flightsForAircraft) {
+                          setPossibleStartTimes(
+                            createFilteredTimes(
+                              times,
+                              flightsForAircraft,
+                              flight
+                            )
+                          )
+                        } else {
+                          setPossibleStartTimes(times)
+                        }
+
+                        // Set boundary times
+                        if (flight) {
+                          settingUpperAndLowerBoundaryTimeIfInsideFlight(
+                            flightsForAircraft
+                          )
+                        } else {
+                          settingUpperAndLowerBoundaryTimeNotInFlight(
+                            flightsForAircraft
+                          )
+                        }
+                      }}
+                      onPointerMove={(e) => {
+                        if (pointerDownActived) {
+                          // NOTE: The structure of our map makes these .values() and .keys() calls viable.
+                          // Our map only ever contains ONE key (aircraft ID) and ONE value (an array with two elements, the low and high times)
+                          const highlightedTimes = aircraftIdToHighlightedTimes
+                            .values()
+                            .next().value
+
+                          if (highlightedTimes) highlightedTimes[1] = time
+
+                          aircraftIdToHighlightedTimes.set(
+                            aircraftIdToHighlightedTimes.keys().next().value,
+                            highlightedTimes
+                          )
+
+                          setAircraftIdToHighlightedTimes(
+                            new Map(aircraftIdToHighlightedTimes)
+                          )
+                        }
+                      }}
+                      onPointerUp={(e) => {
+                        setPointerDownActived(false)
+
+                        // Reset highlighted times.
+                        setAircraftIdToHighlightedTimes(
+                          new Map<string, Date[]>()
+                        )
+
+                        setSelectedEndTime(time)
+
+                        setSelectedAircraft(aircraft)
+                        setShowModal(true)
+                      }}
+                    >
+                      {time.getHours()}
+                    </Row>
+                  )
+                })}
+              </Col>
+            )
+          })}
+        </Row>
+      </Container>
+
+      {/* 
       <Container>
         <Row>
           <Col>
@@ -347,9 +568,7 @@ const Schedule: React.FC = () => {
               <tbody>
                 <tr>
                   <th>name</th>
-                  {/* start here with making new hour the question is how  */}
-                  {/* Why do I care this isnt a number probably so we can do different increments of time  */}
-                  {/* So as long as I start with an iterable number this is a good starting point  */}
+
                   {times.map((time, index) => {
                     return (
                       <th key={index}>
@@ -486,7 +705,7 @@ const Schedule: React.FC = () => {
             </table>
           </Col>
         </Row>
-      </Container>
+      </Container> */}
 
       <FlightModal
         aircraft={selectedAircraft}

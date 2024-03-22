@@ -26,6 +26,7 @@ const NavBar: React.FC = () => {
             Flight-Hub
           </Navbar.Brand>
 
+          {/* This .Toggle is responsible for the hamburger menu */}
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
