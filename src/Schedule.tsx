@@ -208,8 +208,64 @@ const Schedule: React.FC = () => {
     if (highlightFlightBox(aircraftIdToFlights?.get(aircraft._id), time)) {
       return 'scheduled-flight'
     }
-    // WTF happened to this google ??
-    // a function can not return multiple values but we can return an array
+
+    return ''
+  }
+
+  const highlightFlightBox = (
+    flights: Flight[] | undefined,
+    time: Date
+  ): boolean => {
+    if (!flights) return false
+
+    let inRange = false
+    flights.forEach((flight) => {
+      // flight.startTime / flight.endTime is actually a (zulu time formatted) string for some reason.
+      // We convert to Date here to localize it and ACTUALLY make it a Date.
+      if (
+        time >= new Date(flight.startTime) &&
+        time < new Date(flight.endTime)
+      ) {
+        inRange = true
+      }
+    })
+
+    return inRange
+  }
+
+  const setSelectedEndTime = (time: Date) => {
+    if (!selectedFlight) {
+      // if the time is greater than the upperboundary
+      // it will set itself to the upperboundary
+      // otherwise it stays the time it was
+      if (time < upperBoundaryTime.current) {
+        selectedEndTime.current = time
+      } else {
+        selectedEndTime.current = upperBoundaryTime.current
+      }
+      // if the time is less than the lowerBoundaryTime
+      // set time to be the lowerBoudnaryTime
+      if (time < lowerBoundaryTime.current) {
+        selectedEndTime.current = lowerBoundaryTime.current
+      }
+
+      // If we are selecting backwards, flip start time and end time.
+      if (selectedEndTime.current < selectedStartTime.current) {
+        let prevStartTime = selectedStartTime.current
+
+        selectedStartTime.current = selectedEndTime.current
+
+        selectedEndTime.current = prevStartTime
+      }
+    }
+
+    // If start time and end time are the same
+    // Add 2 hours  (single click flight) bc this is the standard length
+    if (selectedStartTime.current == selectedEndTime.current) {
+      selectedEndTime.current = new Date(
+        Number(selectedEndTime.current) + 7200000
+      )
+    }
   }
 
   const buildScheduleTimes = () => {
@@ -317,27 +373,6 @@ const Schedule: React.FC = () => {
     return time >= new Date(flight.startTime) && time < new Date(flight.endTime)
   }
 
-  const highlightFlightBox = (
-    flights: Flight[] | undefined,
-    time: Date
-  ): boolean => {
-    if (!flights) return false
-
-    let inRange = false
-    flights.forEach((flight) => {
-      // flight.startTime / flight.endTime is actually a (zulu time formatted) string for some reason.
-      // We convert to Date here to localize it and ACTUALLY make it a Date.
-      if (
-        time >= new Date(flight.startTime) &&
-        time < new Date(flight.endTime)
-      ) {
-        inRange = true
-      }
-    })
-
-    return inRange
-  }
-
   // TODO: When I come back explain to yourself what you are trying to do
   // clean the code up start from there
   let booleanThatINeedToRename = false
@@ -375,8 +410,10 @@ const Schedule: React.FC = () => {
             if (pointerDownActived) {
               setPointerDownActived(false)
 
+              // Reset highlighted times.
               setAircraftIdToHighlightedTimes(new Map<string, Date[]>())
 
+              // Collect necessary variables to mimic pointer up behavior when pointer leaves table.
               const aircraftId = aircraftIdToHighlightedTimes
                 .keys()
                 .next().value
@@ -391,31 +428,7 @@ const Schedule: React.FC = () => {
 
               const time = aircraftIdToHighlightedTimes.values().next().value[1]
 
-              if (!selectedFlight) {
-                // if the time is greater than the upperboundary
-                // it will set itself to the upperboundary
-                // otherwise it stays the time it was
-                if (time < upperBoundaryTime.current) {
-                  selectedEndTime.current = time
-                } else {
-                  selectedEndTime.current = upperBoundaryTime.current
-                }
-                // if the time is less than the lowerBoundaryTime
-                // set time to be the lowerBoudnaryTime
-                if (time < lowerBoundaryTime.current) {
-                  selectedEndTime.current = lowerBoundaryTime.current
-                }
-
-                // If we are selecting backwards, flip start time and end time.
-                if (selectedEndTime.current < selectedStartTime.current) {
-                  let prevStartTime = selectedStartTime.current
-
-                  selectedStartTime.current = selectedEndTime.current
-
-                  selectedEndTime.current = prevStartTime
-                }
-              }
-
+              setSelectedEndTime(time)
               setShowModal(true)
             }
           }}
@@ -444,32 +457,7 @@ const Schedule: React.FC = () => {
                     <Row
                       style={{ cursor: 'pointer' }}
                       key={index}
-                      // TODO: Look at this later. Does it matter that we are not iterating per row anymore? We now iterate per-column. Does this affect flight detection?
-                      // ANSWER: YES.
-
-                      // className={
-                      //   highlightFlightBox(
-                      //     aircraftIdToFlights?.get(aircraft._id),
-                      //     time
-                      //   )
-                      //     ? 'scheduledFlightBox'
-                      //     : ''
-                      // }
-
-                      className={
-                        // L < T < H
-                        // T > L && T < H
-                        // aircraftIdToHighlightedTimes.get(aircraft._id) !==
-                        //   undefined &&
-                        // time >=
-                        //   aircraftIdToHighlightedTimes.get(aircraft._id)![0] &&
-                        // time <=
-                        //   aircraftIdToHighlightedTimes.get(aircraft._id)![1]
-                        //   ? 'highlighted-flight'
-                        //   : ''
-
-                        highlightingBox(aircraft, time)
-                      }
+                      className={highlightingBox(aircraft, time)}
                       onPointerDown={(e) => {
                         setPointerDownActived(true)
 
@@ -479,7 +467,6 @@ const Schedule: React.FC = () => {
                           ])
                         )
 
-                        // everything below was here before working on highlighting on pointerDown
                         selectedStartTime.current = time
 
                         let flightsForAircraft = aircraftIdToFlights?.get(
@@ -551,48 +538,12 @@ const Schedule: React.FC = () => {
                       onPointerUp={(e) => {
                         setPointerDownActived(false)
 
+                        // Reset highlighted times.
                         setAircraftIdToHighlightedTimes(
                           new Map<string, Date[]>()
                         )
 
-                        console.log('pointerup in cell')
-
-                        if (!selectedFlight) {
-                          // if the time is greater than the upperboundary
-                          // it will set itself to the upperboundary
-                          // otherwise it stays the time it was
-                          if (time < upperBoundaryTime.current) {
-                            selectedEndTime.current = time
-                          } else {
-                            selectedEndTime.current = upperBoundaryTime.current
-                          }
-                          // if the time is less than the lowerBoundaryTime
-                          // set time to be the lowerBoudnaryTime
-                          if (time < lowerBoundaryTime.current) {
-                            selectedEndTime.current = lowerBoundaryTime.current
-                          }
-
-                          // If we are selecting backwards, flip start time and end time.
-                          if (
-                            selectedEndTime.current < selectedStartTime.current
-                          ) {
-                            let prevStartTime = selectedStartTime.current
-
-                            selectedStartTime.current = selectedEndTime.current
-
-                            selectedEndTime.current = prevStartTime
-                          }
-                        }
-
-                        // If start time and end time are the same
-                        // Add 2 hours  (single click flight) bc this is the standard length
-                        if (
-                          selectedStartTime.current == selectedEndTime.current
-                        ) {
-                          selectedEndTime.current = new Date(
-                            Number(selectedEndTime.current) + 7200000
-                          )
-                        }
+                        setSelectedEndTime(time)
 
                         setSelectedAircraft(aircraft)
                         setShowModal(true)
